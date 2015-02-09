@@ -1,0 +1,4 @@
+Micro Rest Server
+[![Build Status](https://travis-ci.org/ufal/micro_rest_server.svg?branch=master)](https://travis-ci.org/ufal/micro_rest_server)
+
+%!include: readme.t2t
