@@ -1,8 +1,8 @@
-# Micro Rest Server
-[![Build Status](https://travis-ci.org/ufal/micro_rest_server.svg?branch=master)](https://travis-ci.org/ufal/micro_rest_server)
+# MicroRestD
+[![Build Status](https://travis-ci.org/ufal/microrestd.svg?branch=master)](https://travis-ci.org/ufal/microrestd)
 
-Micro Rest Server is a small C++11 cross-platform REST server built
-on top of [Libmicrohttpd](http://www.gnu.org/software/libmicrohttpd/).
+MicroRestD is a small C++11 cross-platform REST server built
+on top of [libmicrohttpd](http://www.gnu.org/software/libmicrohttpd/).
 It is released under [MPL 2.0 license](http://www.mozilla.org/MPL/2.0/)
 and is versioned using [Semantic Versioning](http://semver.org/).
 
@@ -16,5 +16,4 @@ are gcc, clang, tdm-gcc on Windows and Visual C++ 2013 or later on Windows.
 Copyright 2015 by Institute of Formal and Applied Linguistics, Faculty of
 Mathematics and Physics, Charles University in Prague, Czech Republic.
 
-Micro Rest Server repository http://github.com/ufal/micro_rest_server
-is hosted on GitHub.
+MicroRestD repository http://github.com/ufal/microrestd is hosted on GitHub.

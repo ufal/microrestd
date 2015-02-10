@@ -1,4 +1,4 @@
-Micro Rest Server
-[![Build Status](https://travis-ci.org/ufal/micro_rest_server.svg?branch=master)](https://travis-ci.org/ufal/micro_rest_server)
+MicroRestD
+[![Build Status](https://travis-ci.org/ufal/microrestd.svg?branch=master)](https://travis-ci.org/ufal/microrestd)
 
 %!include: readme.t2t
