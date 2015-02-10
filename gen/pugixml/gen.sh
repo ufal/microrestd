@@ -35,7 +35,7 @@ EOF
   ' -i $TGT/$f
 
   # Apply patch
-  patch $TGT/$f $f.patch
+  patch $TGT/$f patches/$f.patch
 done
 
 echo All done.
