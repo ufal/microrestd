@@ -1,0 +1,86 @@
+--- pugixml.cpp.ori	2015-02-10 08:33:12.696365689 +0100
++++ pugixml.cpp	2015-02-10 08:33:12.700365689 +0100
+@@ -19,7 +19,7 @@
+ #ifndef SOURCE_PUGIXML_CPP
+ #define SOURCE_PUGIXML_CPP
+ 
+-#include "pugixml.hpp"
++#include "pugixml.h"
+ 
+ #include <stdlib.h>
+ #include <stdio.h>
+@@ -112,17 +112,17 @@
+ #endif
+ 
+ #ifdef PUGIXML_HEADER_ONLY
+-#	define PUGI__NS_BEGIN namespace pugi { namespace impl {
+-#	define PUGI__NS_END } }
++#	define PUGI__NS_BEGIN namespace ufal { namespace microrestd { namespace pugi { namespace impl {
++#	define PUGI__NS_END } } } }
+ #	define PUGI__FN inline
+ #	define PUGI__FN_NO_INLINE inline
+ #else
+ #	if defined(_MSC_VER) && _MSC_VER < 1300 // MSVC6 seems to have an amusing bug with anonymous namespaces inside namespaces
+-#		define PUGI__NS_BEGIN namespace pugi { namespace impl {
+-#		define PUGI__NS_END } }
++#		define PUGI__NS_BEGIN namespace ufal { namespace microrestd { namespace pugi { namespace impl {
++#		define PUGI__NS_END } } } }
+ #	else
+-#		define PUGI__NS_BEGIN namespace pugi { namespace impl { namespace {
+-#		define PUGI__NS_END } } }
++#		define PUGI__NS_BEGIN namespace ufal { namespace microrestd { namespace pugi { namespace impl { namespace {
++#		define PUGI__NS_END } } } } }
+ #	endif
+ #	define PUGI__FN
+ #	define PUGI__FN_NO_INLINE PUGI__NO_INLINE
+@@ -190,9 +190,14 @@
+ 	{
+ 		assert(src && dst);
+ 
++		const char_t* colon; // Ignore XML namespaces, by Milan Straka.
+ 	#ifdef PUGIXML_WCHAR_MODE
++		if ((colon = wcschr(src, ':'))) src = colon; // Ignore XML namespaces, by Milan Straka.
++		if ((colon = wcschr(dst, ':'))) dst = colon; // Ignore XML namespaces, by Milan Straka.
+ 		return wcscmp(src, dst) == 0;
+ 	#else
++		if ((colon = strchr(src, ':'))) src = colon; // Ignore XML namespaces, by Milan Straka.
++		if ((colon = strchr(dst, ':'))) dst = colon; // Ignore XML namespaces, by Milan Straka.
+ 		return strcmp(src, dst) == 0;
+ 	#endif
+ 	}
+@@ -467,6 +472,8 @@
+ 	}
+ PUGI__NS_END
+ 
++namespace ufal {
++namespace microrestd {
+ namespace pugi
+ {
+ 	/// A 'name=value' XML attribute structure.
+@@ -510,6 +517,8 @@
+ 		xml_attribute_struct*	first_attribute;		///< First attribute
+ 	};
+ }
++}
++}
+ 
+ PUGI__NS_BEGIN
+ 	struct xml_extra_buffer
+@@ -4123,6 +4132,8 @@
+ 	}
+ PUGI__NS_END
+ 
++namespace ufal {
++namespace microrestd {
+ namespace pugi
+ {
+ 	PUGI__FN xml_writer_file::xml_writer_file(void* file_): file(file_)
+@@ -5885,6 +5896,8 @@
+ 		return impl::xml_memory::deallocate;
+ 	}
+ }
++}
++}
+ 
+ #if !defined(PUGIXML_NO_STL) && (defined(_MSC_VER) || defined(__ICC))
+ // Removed the XPATH and STL module, by Milan Straka

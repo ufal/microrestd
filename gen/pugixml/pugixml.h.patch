@@ -1,0 +1,42 @@
+--- pugixml.h.ori	2015-02-10 08:33:12.676365688 +0100
++++ pugixml.h	2015-02-10 08:33:12.676365688 +0100
+@@ -22,7 +22,7 @@
+ #endif
+ 
+ // Include user configuration file (this can define various configuration macros)
+-#include "pugiconfig.hpp"
++#include "pugiconfig.h"
+ 
+ #ifndef HEADER_PUGIXML_HPP
+ #define HEADER_PUGIXML_HPP
+@@ -84,6 +84,8 @@
+ #	define PUGIXML_CHAR char
+ #endif
+ 
++namespace ufal {
++namespace microrestd {
+ namespace pugi
+ {
+ 	// Character type used for all internal storage and operations; depends on PUGIXML_WCHAR_MODE
+@@ -93,8 +95,12 @@
+ // Removed the XPATH and STL module, by Milan Straka
+ #endif
+ }
++}
++}
+ 
+ // The PugiXML namespace
++namespace ufal {
++namespace microrestd {
+ namespace pugi
+ {
+ 	// Tree node types
+@@ -986,6 +992,8 @@
+ 	allocation_function PUGIXML_FUNCTION get_memory_allocation_function();
+ 	deallocation_function PUGIXML_FUNCTION get_memory_deallocation_function();
+ }
++}
++}
+ 
+ #if !defined(PUGIXML_NO_STL) && (defined(_MSC_VER) || defined(__ICC))
+ // Removed the XPATH and STL module, by Milan Straka
