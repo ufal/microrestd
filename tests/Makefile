@@ -7,7 +7,7 @@ all: compile
 
 compile: $(OBJECTS)
 
-compile = $(CXX) $< -std=c++11 -W -Wall -c -o $@
+compile = $(CXX) $< -std=c++11 -W -Wall -Werror -c -o $@
 %.o: ../src/%.cpp; $(compile)
 %.o: ../src/pugixml/%.cpp; $(compile)
 
