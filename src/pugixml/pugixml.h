@@ -95,8 +95,8 @@ namespace pugi
 // Removed the XPATH and STL module, by Milan Straka
 #endif
 }
-}
-}
+} // namespace microrestd
+} // namespace ufal
 
 // The PugiXML namespace
 namespace ufal {
@@ -992,8 +992,8 @@ namespace pugi
 	allocation_function PUGIXML_FUNCTION get_memory_allocation_function();
 	deallocation_function PUGIXML_FUNCTION get_memory_deallocation_function();
 }
-}
-}
+} // namespace microrestd
+} // namespace ufal
 
 #if !defined(PUGIXML_NO_STL) && (defined(_MSC_VER) || defined(__ICC))
 // Removed the XPATH and STL module, by Milan Straka

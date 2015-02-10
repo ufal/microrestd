@@ -517,8 +517,8 @@ namespace pugi
 		xml_attribute_struct*	first_attribute;		///< First attribute
 	};
 }
-}
-}
+} // namespace microrestd
+} // namespace ufal
 
 PUGI__NS_BEGIN
 	struct xml_extra_buffer
@@ -5896,8 +5896,8 @@ namespace pugi
 		return impl::xml_memory::deallocate;
 	}
 }
-}
-}
+} // namespace microrestd
+} // namespace ufal
 
 #if !defined(PUGIXML_NO_STL) && (defined(_MSC_VER) || defined(__ICC))
 // Removed the XPATH and STL module, by Milan Straka
