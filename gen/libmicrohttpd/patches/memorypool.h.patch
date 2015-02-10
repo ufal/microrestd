@@ -1,0 +1,22 @@
+--- memorypool.h.orig	2015-02-10 15:42:42.107316564 +0100
++++ memorypool.h	2015-02-10 15:44:55.963320250 +0100
+@@ -35,6 +35,10 @@
+ 
+ #include "internal.h"
+ 
++namespace ufal {
++namespace microrestd {
++namespace libmicrohttpd {
++
+ /**
+  * Opaque handle for a memory pool.
+  * Pools are not reentrant and must not be used
+@@ -116,4 +120,8 @@
+ 		void *keep,
+ 		size_t size);
+ 
++} // namespace libmicrohttpd
++} // namespace microrestd
++} // namespace ufal
++
+ #endif

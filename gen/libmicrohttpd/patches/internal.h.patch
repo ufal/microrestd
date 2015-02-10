@@ -1,0 +1,21 @@
+--- internal.h.orig	2015-02-10 15:42:42.103316564 +0100
++++ internal.h	2015-02-10 15:44:55.931320249 +0100
+@@ -49,6 +49,9 @@
+ #include <netinet/tcp.h>
+ #endif
+ 
++namespace ufal {
++namespace microrestd {
++namespace libmicrohttpd {
+ 
+ /**
+  * Should we perform additional sanity checks at runtime (on our internal
+@@ -1427,5 +1430,8 @@
+ void
+ MHD_unescape_plus (char *arg);
+ 
++} // namespace libmicrohttpd
++} // namespace microrestd
++} // namespace ufal
+ 
+ #endif

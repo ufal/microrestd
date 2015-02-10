@@ -1,0 +1,22 @@
+--- reason_phrase.h.orig	2015-02-10 15:42:42.119316564 +0100
++++ reason_phrase.h	2015-02-10 15:44:56.107320254 +0100
+@@ -31,6 +31,10 @@
+ #ifndef REASON_PHRASE_H
+ #define REASON_PHRASE_H
+ 
++namespace ufal {
++namespace microrestd {
++namespace libmicrohttpd {
++
+ /**
+  * Returns the string reason phrase for a response code.
+  *
+@@ -39,4 +43,8 @@
+  */
+ const char *MHD_get_reason_phrase_for (unsigned int code);
+ 
++} // namespace libmicrohttpd
++} // namespace microrestd
++} // namespace ufal
++
+ #endif

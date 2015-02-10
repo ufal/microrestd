@@ -1,0 +1,22 @@
+--- platform.h.orig	2015-02-10 15:42:42.067316563 +0100
++++ platform.h	2015-02-10 15:44:56.039320252 +0100
+@@ -159,6 +159,10 @@
+ #define usleep(useconds) (void)SleepEx((useconds)/1000, 1)
+ #endif
+ 
++namespace ufal {
++namespace microrestd {
++namespace libmicrohttpd {
++
+ #if !defined(SHUT_WR) && defined(SD_SEND)
+ #define SHUT_WR SD_SEND
+ #endif
+@@ -207,4 +211,8 @@
+ #define IPPROTO_IPV6 IPPROTO_IPV6
+ #endif
+ 
++} // namespace libmicrohttpd
++} // namespace microrestd
++} // namespace ufal
++
+ #endif

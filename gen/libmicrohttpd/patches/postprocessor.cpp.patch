@@ -1,0 +1,85 @@
+--- postprocessor.cpp.orig	2015-02-10 15:42:42.111316564 +0100
++++ postprocessor.cpp	2015-02-10 15:44:56.403320262 +0100
+@@ -30,6 +30,10 @@
+ 
+ #include "internal.h"
+ 
++namespace ufal {
++namespace microrestd {
++namespace libmicrohttpd {
++
+ /**
+  * Size of on-stack buffer that we use for un-escaping of the value.
+  * We use a pretty small value to be nice to the stack on embedded
+@@ -319,7 +323,7 @@
+   buffer_size += 4; /* round up to get nice block sizes despite boundary search */
+ 
+   /* add +1 to ensure we ALWAYS have a zero-termination at the end */
+-  if (NULL == (ret = malloc (sizeof (struct MHD_PostProcessor) + buffer_size + 1)))
++  if (NULL == (ret = (struct MHD_PostProcessor*) malloc (sizeof (struct MHD_PostProcessor) + buffer_size + 1)))
+     return NULL;
+   memset (ret, 0, sizeof (struct MHD_PostProcessor) + buffer_size + 1);
+   ret->connection = connection;
+@@ -558,7 +562,7 @@
+       else
+         {
+           /* skip over garbage (RFC 2046, 5.1.1) */
+-          dash = memchr (buf, '-', pp->buffer_pos);
++          dash = (const char*) memchr (buf, '-', pp->buffer_pos);
+           if (NULL == dash)
+             (*ioffptr) += pp->buffer_pos; /* skip entire buffer */
+           else
+@@ -613,7 +617,7 @@
+       if (NULL == (endv = strchr (&spos[klen + 2], '\"')))
+         return;                 /* no end-quote */
+       vlen = endv - spos - klen - 1;
+-      *destination = malloc (vlen);
++      *destination = (char*) malloc (vlen);
+       if (NULL == *destination)
+         return;                 /* out of memory */
+       (*destination)[vlen - 1] = '\0';
+@@ -706,7 +710,7 @@
+ process_value_to_boundary (struct MHD_PostProcessor *pp,
+                            size_t *ioffptr,
+                            const char *boundary,
+-                           size_t blen,
++                           size_t /*blen*/,
+                            enum PP_State next_state,
+                            enum PP_State next_dash_state)
+ {
+@@ -721,7 +725,7 @@
+     {
+       while (newline + 4 < pp->buffer_pos)
+         {
+-          r = memchr (&buf[newline], '\r', pp->buffer_pos - newline - 4);
++          r = (const char*) memchr (&buf[newline], '\r', pp->buffer_pos - newline - 4);
+           if (NULL == r)
+           {
+             newline = pp->buffer_pos - 4;
+@@ -1052,13 +1056,13 @@
+              globally */
+           pp->have = NE_none;
+           if (pp->content_name != NULL)
+-            pp->have |= NE_content_name;
++            pp->have = (NE_State) (pp->have | NE_content_name);
+           if (pp->content_type != NULL)
+-            pp->have |= NE_content_type;
++            pp->have = (NE_State) (pp->have | NE_content_type);
+           if (pp->content_filename != NULL)
+-            pp->have |= NE_content_filename;
++            pp->have = (NE_State) (pp->have | NE_content_filename);
+           if (pp->content_transfer_encoding != NULL)
+-            pp->have |= NE_content_transfer_encoding;
++            pp->have = (NE_State) (pp->have | NE_content_transfer_encoding);
+           pp->state = PP_Nested_ProcessEntryHeaders;
+           state_changed = 1;
+           break;
+@@ -1193,4 +1197,8 @@
+   return ret;
+ }
+ 
++} // namespace libmicrohttpd
++} // namespace microrestd
++} // namespace ufal
++
+ /* end of postprocessor.c */

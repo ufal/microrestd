@@ -1,0 +1,22 @@
+--- platform_interface.h.orig	2015-02-10 15:42:42.075316563 +0100
++++ platform_interface.h	2015-02-10 15:44:56.071320253 +0100
+@@ -36,6 +36,10 @@
+ #include "w32functions.h"
+ #endif
+ 
++namespace ufal {
++namespace microrestd {
++namespace libmicrohttpd {
++
+ /* ***************************** 
+      General function mapping 
+    *****************************/
+@@ -337,4 +341,8 @@
+   ((NULL != (mutex)) ? (LeaveCriticalSection((mutex)), MHD_YES) : MHD_NO)
+ #endif
+ 
++} // namespace libmicrohttpd
++} // namespace microrestd
++} // namespace ufal
++
+ #endif // MHD_PLATFORM_INTERFACE_H

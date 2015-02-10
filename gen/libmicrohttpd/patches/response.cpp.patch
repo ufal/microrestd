@@ -1,0 +1,89 @@
+--- response.cpp.orig	2015-02-10 15:42:42.119316564 +0100
++++ response.cpp	2015-02-10 15:44:56.479320264 +0100
+@@ -42,6 +42,9 @@
+ #include <io.h> /* for lseek(), read() */
+ #endif /* _WIN32 */
+ 
++namespace ufal {
++namespace microrestd {
++namespace libmicrohttpd {
+ 
+ /**
+  * Add a header or footer line to the response.
+@@ -72,7 +75,7 @@
+        (NULL != strchr (content, '\r')) ||
+        (NULL != strchr (content, '\n')) )
+     return MHD_NO;
+-  if (NULL == (hdr = malloc (sizeof (struct MHD_HTTP_Header))))
++  if (NULL == (hdr = (struct MHD_HTTP_Header*) malloc (sizeof (struct MHD_HTTP_Header))))
+     return MHD_NO;
+   if (NULL == (hdr->header = strdup (header)))
+     {
+@@ -253,11 +256,11 @@
+ 
+   if ((NULL == crc) || (0 == block_size))
+     return NULL;
+-  if (NULL == (response = malloc (sizeof (struct MHD_Response) + block_size)))
++  if (NULL == (response = (struct MHD_Response*) malloc (sizeof (struct MHD_Response) + block_size)))
+     return NULL;
+   memset (response, 0, sizeof (struct MHD_Response));
+   response->fd = -1;
+-  response->data = (void *) &response[1];
++  response->data = (char *) &response[1];
+   response->data_buffer_size = block_size;
+   if (MHD_YES != MHD_mutex_create_ (&response->mutex))
+     {
+@@ -293,7 +296,7 @@
+   ret = MHD_YES;
+   response->flags = flags;
+   va_start (ap, flags);
+-  while (MHD_RO_END != (ro = va_arg (ap, enum MHD_ResponseOptions)))
++  while (MHD_RO_END != (ro = (enum MHD_ResponseOptions) va_arg (ap, int)))
+   {
+     switch (ro)
+     {
+@@ -320,7 +323,7 @@
+ static ssize_t
+ file_reader (void *cls, uint64_t pos, char *buf, size_t max)
+ {
+-  struct MHD_Response *response = cls;
++  struct MHD_Response *response = (struct MHD_Response*) cls;
+   ssize_t n;
+ 
+   (void) lseek (response->fd, pos + response->fd_off, SEEK_SET);
+@@ -342,7 +345,7 @@
+ static void
+ free_callback (void *cls)
+ {
+-  struct MHD_Response *response = cls;
++  struct MHD_Response *response = (struct MHD_Response*) cls;
+ 
+   (void) close (response->fd);
+   response->fd = -1;
+@@ -426,7 +429,7 @@
+ 
+   if ((NULL == data) && (size > 0))
+     return NULL;
+-  if (NULL == (response = malloc (sizeof (struct MHD_Response))))
++  if (NULL == (response = (struct MHD_Response*) malloc (sizeof (struct MHD_Response))))
+     return NULL;
+   memset (response, 0, sizeof (struct MHD_Response));
+   response->fd = -1;
+@@ -452,7 +455,7 @@
+   response->crc_cls = must_free ? data : NULL;
+   response->reference_count = 1;
+   response->total_size = size;
+-  response->data = data;
++  response->data = (char*) data;
+   response->data_size = size;
+   return response;
+ }
+@@ -526,5 +529,8 @@
+   (void) MHD_mutex_unlock_ (&response->mutex);
+ }
+ 
++} // namespace libmicrohttpd
++} // namespace microrestd
++} // namespace ufal
+ 
+ /* end of response.c */

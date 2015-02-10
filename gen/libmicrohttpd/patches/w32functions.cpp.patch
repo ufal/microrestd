@@ -1,0 +1,31 @@
+--- w32functions.cpp.orig	2015-02-10 15:42:42.079316563 +0100
++++ w32functions.cpp	2015-02-10 15:44:52.951320167 +0100
+@@ -28,6 +28,8 @@
+  * @author Karlson2k (Evgeny Grin)
+  */
+ 
++#ifdef WINDOWS
++
+ #include "w32functions.h"
+ #include <errno.h>
+ #include <winsock2.h>
+@@ -37,6 +39,9 @@
+ #include <stdio.h>
+ #include <stdarg.h>
+ 
++namespace ufal {
++namespace microrestd {
++namespace libmicrohttpd {
+ 
+ /**
+  * Return errno equivalent of last winsock error
+@@ -671,3 +676,9 @@
+ 
+   return ret;
+ }
++
++} // namespace libmicrohttpd
++} // namespace microrestd
++} // namespace ufal
++
++#endif // defined(WINDOWS)

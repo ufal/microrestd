@@ -1,0 +1,21 @@
+--- connection.h.orig	2015-02-10 15:42:42.091316564 +0100
++++ connection.h	2015-02-10 15:44:55.895320248 +0100
+@@ -34,6 +34,9 @@
+ 
+ #include "internal.h"
+ 
++namespace ufal {
++namespace microrestd {
++namespace libmicrohttpd {
+ 
+ /**
+  * Set callbacks for this connection to those for HTTP.
+@@ -111,5 +114,8 @@
+ MHD_connection_epoll_update_ (struct MHD_Connection *connection);
+ #endif
+ 
++} // namespace libmicrohttpd
++} // namespace microrestd
++} // namespace ufal
+ 
+ #endif

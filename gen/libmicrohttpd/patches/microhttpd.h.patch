@@ -1,0 +1,44 @@
+--- microhttpd.h.orig	2015-02-10 15:42:42.063316563 +0100
++++ microhttpd.h	2015-02-10 15:44:55.999320251 +0100
+@@ -91,14 +91,6 @@
+ #ifndef MHD_MICROHTTPD_H
+ #define MHD_MICROHTTPD_H
+ 
+-#ifdef __cplusplus
+-extern "C"
+-{
+-#if 0                           /* keep Emacsens' auto-indent happy */
+-}
+-#endif
+-#endif
+-
+ /* While we generally would like users to use a configure-driven
+    build process which detects which headers are present and
+    hence works on any platform, we use "standard" includes here
+@@ -126,6 +118,10 @@
+ #endif
+ #endif
+ 
++namespace ufal {
++namespace microrestd {
++namespace libmicrohttpd {
++
+ #if defined(__CYGWIN__) && !defined(_SYS_TYPES_FD_SET)
+ /* Do not define __USE_W32_SOCKETS under Cygwin! */
+ #error Cygwin with winsock fd_set is not supported
+@@ -2576,12 +2572,8 @@
+ _MHD_EXTERN int
+ MHD_is_feature_supported(enum MHD_FEATURE feature);
+ 
+-
+-#if 0                           /* keep Emacsens' auto-indent happy */
+-{
+-#endif
+-#ifdef __cplusplus
+-}
+-#endif
++} // namespace libmicrohttpd
++} // namespace microrestd
++} // namespace ufal
+ 
+ #endif

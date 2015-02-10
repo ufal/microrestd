@@ -10,6 +10,7 @@ compile: $(OBJECTS)
 compile = $(CXX) $< -std=c++11 -W -Wall -Werror -c -o $@
 %.o: ../src/%.cpp; $(compile)
 %.o: ../src/pugixml/%.cpp; $(compile)
+%.o: ../src/libmicrohttpd/%.cpp; $(compile)
 
 .PHONY: clean
 clean:

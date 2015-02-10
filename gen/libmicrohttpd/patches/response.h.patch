@@ -1,0 +1,22 @@
+--- response.h.orig	2015-02-10 15:42:42.123316564 +0100
++++ response.h	2015-02-10 15:44:56.139320255 +0100
+@@ -32,6 +32,10 @@
+ #ifndef RESPONSE_H
+ #define RESPONSE_H
+ 
++namespace ufal {
++namespace microrestd {
++namespace libmicrohttpd {
++
+ /**
+  * Increment response RC.  Should this be part of the
+  * public API?
+@@ -39,5 +43,8 @@
+ void
+ MHD_increment_response_rc (struct MHD_Response *response);
+ 
++} // namespace libmicrohttpd
++} // namespace microrestd
++} // namespace ufal
+ 
+ #endif

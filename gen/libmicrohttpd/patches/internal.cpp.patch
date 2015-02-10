@@ -1,0 +1,22 @@
+--- internal.cpp.orig	2015-02-10 15:42:42.099316564 +0100
++++ internal.cpp	2015-02-10 15:44:56.327320260 +0100
+@@ -31,6 +31,10 @@
+ 
+ #include "internal.h"
+ 
++namespace ufal {
++namespace microrestd {
++namespace libmicrohttpd {
++
+ #if HAVE_MESSAGES
+ #if DEBUG_STATES
+ /**
+@@ -197,4 +201,8 @@
+   return time (NULL);
+ }
+ 
++} // namespace libmicrohttpd
++} // namespace microrestd
++} // namespace ufal
++
+ /* end of internal.c */

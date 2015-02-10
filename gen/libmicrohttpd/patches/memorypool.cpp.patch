@@ -1,0 +1,54 @@
+--- memorypool.cpp.orig	2015-02-10 15:42:42.103316564 +0100
++++ memorypool.cpp	2015-02-10 15:44:56.367320261 +0100
+@@ -29,6 +29,10 @@
+  */
+ #include "memorypool.h"
+ 
++namespace ufal {
++namespace microrestd {
++namespace libmicrohttpd {
++
+ /* define MAP_ANONYMOUS for Mac OS X */
+ #if defined(MAP_ANON) && !defined(MAP_ANONYMOUS)
+ #define MAP_ANONYMOUS MAP_ANON
+@@ -93,26 +97,26 @@
+ {
+   struct MemoryPool *pool;
+ 
+-  pool = malloc (sizeof (struct MemoryPool));
++  pool = (struct MemoryPool*) malloc (sizeof (struct MemoryPool));
+   if (NULL == pool)
+     return NULL;
+ #if defined(MAP_ANONYMOUS) || defined(_WIN32)
+   if (max <= 32 * 1024)
+-    pool->memory = MAP_FAILED;
++    pool->memory = (char*) MAP_FAILED;
+   else
+ #if defined(MAP_ANONYMOUS) && !defined(_WIN32)
+-    pool->memory = mmap (NULL, max, PROT_READ | PROT_WRITE,
++    pool->memory = (char*) mmap (NULL, max, PROT_READ | PROT_WRITE,
+ 			 MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+ #elif defined(_WIN32)
+     pool->memory = VirtualAlloc(NULL, max, MEM_COMMIT | MEM_RESERVE,
+         PAGE_READWRITE);
+ #endif
+ #else
+-  pool->memory = MAP_FAILED;
++  pool->memory = (char*) MAP_FAILED;
+ #endif
+   if ((pool->memory == MAP_FAILED) || (pool->memory == NULL))
+     {
+-      pool->memory = malloc (max);
++      pool->memory = (char*) malloc (max);
+       if (pool->memory == NULL)
+         {
+           free (pool);
+@@ -285,5 +289,8 @@
+   return keep;
+ }
+ 
++} // namespace libmicrohttpd
++} // namespace microrestd
++} // namespace ufal
+ 
+ /* end of memorypool.c */

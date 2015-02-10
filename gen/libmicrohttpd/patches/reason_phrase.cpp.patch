@@ -1,0 +1,21 @@
+--- reason_phrase.cpp.orig	2015-02-10 15:42:42.115316564 +0100
++++ reason_phrase.cpp	2015-02-10 15:44:56.435320263 +0100
+@@ -36,6 +36,10 @@
+ #define NULL (void*)0
+ #endif
+ 
++namespace ufal {
++namespace microrestd {
++namespace libmicrohttpd {
++
+ static const char *invalid_hundred[] = { NULL };
+ 
+ static const char *const one_hundred[] = {
+@@ -163,3 +167,7 @@
+     return reasons[code / 100].data[code % 100];
+   return "Unknown";
+ }
++
++} // namespace libmicrohttpd
++} // namespace microrestd
++} // namespace ufal

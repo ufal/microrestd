@@ -1,0 +1,154 @@
+--- connection.cpp.orig	2015-02-10 15:42:42.083316563 +0100
++++ connection.cpp	2015-02-10 15:44:56.227320257 +0100
+@@ -49,6 +49,9 @@
+ #include <windows.h>
+ #endif /* _WIN32 && MHD_W32_MUTEX_ */
+ 
++namespace ufal {
++namespace microrestd {
++namespace libmicrohttpd {
+ 
+ /**
+  * Message to transmit when http 1.1 request is received
+@@ -185,7 +188,7 @@
+ {
+   struct MHD_HTTP_Header *pos;
+ 
+-  pos = MHD_pool_allocate (connection->pool,
++  pos = (struct MHD_HTTP_Header*) MHD_pool_allocate (connection->pool,
+                            sizeof (struct MHD_HTTP_Header), MHD_YES);
+   if (NULL == pos)
+     return MHD_NO;
+@@ -424,7 +427,7 @@
+ 				      "Closing connection (out of memory)\n");
+               return MHD_NO;
+             }
+-          buf = MHD_pool_allocate (connection->pool, size, MHD_NO);
++          buf = (char*) MHD_pool_allocate (connection->pool, size, MHD_NO);
+         }
+       while (NULL == buf);
+       connection->write_buffer_size = size;
+@@ -626,7 +629,7 @@
+   if (NULL == buf)
+     return MHD_NO;
+   /* we can actually grow the buffer, do it! */
+-  connection->read_buffer = buf;
++  connection->read_buffer = (char*) buf;
+   connection->read_buffer_size = new_size;
+   return MHD_YES;
+ }
+@@ -657,7 +660,7 @@
+   uint32_t rc;
+   const char *client_requested_close;
+   const char *response_has_close;
+-  const char *response_has_keepalive;
++  const char *response_has_keepalive = NULL;
+   const char *have_encoding;
+   const char *have_content_length;
+   int must_add_close;
+@@ -668,7 +671,7 @@
+   EXTRA_CHECK (NULL != connection->version);
+   if (0 == strlen (connection->version))
+     {
+-      data = MHD_pool_allocate (connection->pool, 0, MHD_YES);
++      data = (char*) MHD_pool_allocate (connection->pool, 0, MHD_YES);
+       connection->write_buffer = data;
+       connection->write_buffer_append_offset = 0;
+       connection->write_buffer_send_offset = 0;
+@@ -845,7 +848,7 @@
+                                 MHD_HTTP_HEADER_CONNECTION) ) ) ) )
+       size += strlen (pos->header) + strlen (pos->value) + 4; /* colon, space, linefeeds */
+   /* produce data */
+-  data = MHD_pool_allocate (connection->pool, size + 1, MHD_NO);
++  data = (char*) MHD_pool_allocate (connection->pool, size + 1, MHD_NO);
+   if (NULL == data)
+     {
+ #if HAVE_MESSAGES
+@@ -938,7 +941,7 @@
+     {
+       /* we were unable to process the full header line, so we don't
+ 	 really know what version the client speaks; assume 1.0 */
+-      connection->version = MHD_HTTP_VERSION_1_0;
++      connection->version = (char*) MHD_HTTP_VERSION_1_0;
+     }
+   connection->state = MHD_CONNECTION_FOOTERS_RECEIVED;
+   connection->read_closed = MHD_YES;
+@@ -1308,7 +1311,7 @@
+ 				     MHD_HTTP_HEADER_COOKIE);
+   if (NULL == hdr)
+     return MHD_YES;
+-  cpy = MHD_pool_allocate (connection->pool, strlen (hdr) + 1, MHD_YES);
++  cpy = (char*) MHD_pool_allocate (connection->pool, strlen (hdr) + 1, MHD_YES);
+   if (NULL == cpy)
+     {
+ #if HAVE_MESSAGES
+@@ -1340,7 +1343,7 @@
+         {
+           /* value part omitted, use empty string... */
+           if (MHD_NO ==
+-              connection_add_header (connection, pos, "", MHD_COOKIE_KIND))
++              connection_add_header (connection, pos, (char*) "", MHD_COOKIE_KIND))
+             return MHD_NO;
+           if (old == '\0')
+             break;
+@@ -1427,7 +1430,7 @@
+ 					 uri);
+   connection->url = uri;
+   if (NULL == http_version)
+-    connection->version = "";
++    connection->version = (char*) "";
+   else
+     connection->version = http_version;
+   return MHD_YES;
+@@ -1865,7 +1868,7 @@
+ 	 (not sure how it can happen!), we would want to allocate from
+ 	 the end of the pool, so as to not destroy the read-buffer's
+ 	 ability to grow nicely. */
+-      last = MHD_pool_reallocate (connection->pool,
++      last = (char*) MHD_pool_reallocate (connection->pool,
+                                   last,
+                                   last_len + 1,
+                                   last_len + tmp_len + 1);
+@@ -1938,7 +1941,7 @@
+       EXTRA_CHECK (NULL == connection->response);
+       response =
+         MHD_create_response_from_buffer (strlen (REQUEST_LACKS_HOST),
+-					 REQUEST_LACKS_HOST,
++					 (void*) REQUEST_LACKS_HOST,
+ 					 MHD_RESPMEM_PERSISTENT);
+       MHD_queue_response (connection, MHD_HTTP_BAD_REQUEST, response);
+       MHD_destroy_response (response);
+@@ -2151,6 +2154,7 @@
+           EXTRA_CHECK (0);
+           break;
+         case MHD_CONNECTION_NORMAL_BODY_READY:
++          {
+           response = connection->response;
+           if (NULL != response->crc)
+             (void) MHD_mutex_lock_ (&response->mutex);
+@@ -2191,6 +2195,7 @@
+               connection->response->total_size)
+             connection->state = MHD_CONNECTION_FOOTERS_SENT; /* have no footers */
+           break;
++          }
+         case MHD_CONNECTION_NORMAL_BODY_UNREADY:
+           EXTRA_CHECK (0);
+           break;
+@@ -2636,7 +2641,7 @@
+               connection->version = NULL;
+               connection->state = MHD_CONNECTION_INIT;
+               connection->read_buffer
+-                = MHD_pool_reset (connection->pool,
++                = (char*) MHD_pool_reset (connection->pool,
+                                   connection->read_buffer,
+                                   connection->read_buffer_size);
+             }
+@@ -2946,5 +2951,8 @@
+   return MHD_YES;
+ }
+ 
++} // namespace libmicrohttpd
++} // namespace microrestd
++} // namespace ufal
+ 
+ /* end of connection.c */
