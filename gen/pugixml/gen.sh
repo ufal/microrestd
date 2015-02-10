@@ -6,7 +6,7 @@ wget https://github.com/zeux/pugixml/releases/download/v1.5/pugixml-1.5.tar.gz
 tar xf pugixml-1.5.tar.gz
 rm pugixml-1.5.tar.gz
 
-SRC=pugixml-*/src
+SRC=pugixml-1.5/src
 TGT=../../src/pugixml
 
 for f in pugiconfig.h pugixml.h pugixml.cpp; do
