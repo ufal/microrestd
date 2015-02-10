@@ -13,4 +13,4 @@ before_install:
   - if [ -n "$GCC" ]; then sudo apt-get update -qq; fi
   - if [ -n "$GCC" ]; then sudo apt-get install -qq g++-$GCC;fi
   - if [ -n "$GCC" ]; then export CXX=g++-$GCC; fi
-script: true #make -C tests test
+script: make -C tests compile
