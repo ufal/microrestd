@@ -2446,8 +2446,10 @@ MHD_poll_listen_socket (struct MHD_Daemon *daemon,
   if (MHD_YES == daemon->shutdown)
     return MHD_NO;
   if ( (-1 != poll_listen) &&
-       (0 != (p[poll_listen].revents & POLLIN)) )
+       (0 != (p[poll_listen].revents & POLLIN)) ) {
+    MHD_cleanup_connections (daemon); // Cleanup connections before potential accept, by Milan Straka.
     (void) MHD_accept_connection (daemon);
+  }
   return MHD_YES;
 }
 #endif
