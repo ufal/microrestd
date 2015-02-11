@@ -23,20 +23,20 @@ struct tsearch_comparer {
 };
 typedef std::set<const void*, tsearch_comparer> tsearch_set;
 
-inline const void *tsearch(const void *key, void **rootp, int (*compar)(const void *, const void *)) {
+inline void *tsearch(const void *key, void **rootp, int (*compar)(const void *, const void *)) {
   if (rootp == nullptr) return nullptr;
 
   if (!*rootp)
     *rootp = (void*) new tsearch_set(tsearch_comparer(compar));
 
-  return *((tsearch_set*) *rootp)->insert(key).first;
+  return (void*) &*((tsearch_set*) *rootp)->insert(key).first;
 }
 
-inline const void *tfind(const void *key, void *const *rootp, int (* /*compar*/)(const void *, const void *)) {
+inline void *tfind(const void *key, void *const *rootp, int (* /*compar*/)(const void *, const void *)) {
   if (rootp == nullptr || !*rootp) return nullptr;
 
   auto found = ((tsearch_set*) *rootp)->find(key);
-  return found == ((tsearch_set*) *rootp)->end() ? nullptr : *found;
+  return found == ((tsearch_set*) *rootp)->end() ? nullptr : (void*) &*found;
 }
 
 inline void tdelete(const void *key, void **rootp, int (* /*compar*/)(const void *, const void *)) {
