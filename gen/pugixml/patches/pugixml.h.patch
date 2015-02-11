@@ -1,5 +1,5 @@
---- pugixml.h.orig	2015-02-10 08:33:12.676365688 +0100
-+++ pugixml.h	2015-02-10 08:33:12.676365688 +0100
+--- pugixml.h.orig	2015-02-11 07:48:39.149347008 +0100
++++ pugixml.h	2015-02-11 07:50:58.457343900 +0100
 @@ -22,7 +22,7 @@
  #endif
  
@@ -9,7 +9,23 @@
  
  #ifndef HEADER_PUGIXML_HPP
  #define HEADER_PUGIXML_HPP
-@@ -84,6 +84,8 @@
+@@ -67,6 +67,7 @@
+ #endif
+ 
+ // If the platform is known to have long long support, enable long long functions
++#if 0 // Disabled by Milan Straka because this triggers on MingW, but %lld does not work.
+ #ifndef PUGIXML_HAS_LONG_LONG
+ #	if defined(__cplusplus) && __cplusplus >= 201103
+ #		define PUGIXML_HAS_LONG_LONG
+@@ -74,6 +75,7 @@
+ #		define PUGIXML_HAS_LONG_LONG
+ #	endif
+ #endif
++#endif
+ 
+ // Character interface macros
+ #ifdef PUGIXML_WCHAR_MODE
+@@ -84,6 +86,8 @@
  #	define PUGIXML_CHAR char
  #endif
  
@@ -18,7 +34,7 @@
  namespace pugi
  {
  	// Character type used for all internal storage and operations; depends on PUGIXML_WCHAR_MODE
-@@ -93,8 +95,12 @@
+@@ -93,8 +97,12 @@
  // Removed the XPATH and STL module, by Milan Straka
  #endif
  }
@@ -31,7 +47,7 @@
  namespace pugi
  {
  	// Tree node types
-@@ -986,6 +992,8 @@
+@@ -986,6 +994,8 @@
  	allocation_function PUGIXML_FUNCTION get_memory_allocation_function();
  	deallocation_function PUGIXML_FUNCTION get_memory_deallocation_function();
  }

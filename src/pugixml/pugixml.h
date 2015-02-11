@@ -67,12 +67,14 @@
 #endif
 
 // If the platform is known to have long long support, enable long long functions
+#if 0 // Disabled by Milan Straka because this triggers on MingW, but %lld does not work.
 #ifndef PUGIXML_HAS_LONG_LONG
 #	if defined(__cplusplus) && __cplusplus >= 201103
 #		define PUGIXML_HAS_LONG_LONG
 #	elif defined(_MSC_VER) && _MSC_VER >= 1400
 #		define PUGIXML_HAS_LONG_LONG
 #	endif
+#endif
 #endif
 
 // Character interface macros
