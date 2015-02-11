@@ -787,7 +787,7 @@ MHD_handle_connection (void *data)
       if (timeout > 0)
 	{
 	  now = MHD_monotonic_time();
-	  if (now - con->last_activity > timeout)
+	  if (unsigned(now - con->last_activity) > timeout)
 	    tv.tv_sec = 0;
 	  else
 	    tv.tv_sec = timeout - (now - con->last_activity);
@@ -2004,7 +2004,7 @@ MHD_get_timeout (struct MHD_Daemon *daemon,
       if (0 != pos->connection_timeout)
 	{
 	  if ( (! have_timeout) ||
-	       (earliest_deadline > pos->last_activity + pos->connection_timeout) )
+	       (earliest_deadline > time_t(pos->last_activity + pos->connection_timeout)) )
 	    earliest_deadline = pos->last_activity + pos->connection_timeout;
 #if HTTPS_SUPPORT
 	  if (  (0 != (daemon->options & MHD_USE_SSL)) &&
@@ -2020,7 +2020,7 @@ MHD_get_timeout (struct MHD_Daemon *daemon,
        (0 != pos->connection_timeout) )
     {
       if ( (! have_timeout) ||
-	   (earliest_deadline > pos->last_activity + pos->connection_timeout) )
+	   (earliest_deadline > time_t(pos->last_activity + pos->connection_timeout)) )
 	earliest_deadline = pos->last_activity + pos->connection_timeout;
 #if HTTPS_SUPPORT
       if (  (0 != (daemon->options & MHD_USE_SSL)) &&

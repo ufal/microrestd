@@ -2671,7 +2671,7 @@ MHD_connection_handle_idle (struct MHD_Connection *connection)
     }
   timeout = connection->connection_timeout;
   if ( (0 != timeout) &&
-       (timeout <= (MHD_monotonic_time() - connection->last_activity)) )
+       (timeout <= unsigned(MHD_monotonic_time() - connection->last_activity)) )
     {
       MHD_connection_close (connection, MHD_REQUEST_TERMINATED_TIMEOUT_REACHED);
       connection->in_idle = MHD_NO;
