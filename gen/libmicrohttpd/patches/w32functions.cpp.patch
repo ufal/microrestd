@@ -1,5 +1,5 @@
 --- w32functions.cpp.orig	2015-02-11 07:18:13.889387734 +0100
-+++ w32functions.cpp	2015-02-11 08:12:41.833314818 +0100
++++ w32functions.cpp	2015-02-11 08:20:41.557304114 +0100
 @@ -28,6 +28,10 @@
   * @author Karlson2k (Evgeny Grin)
   */
@@ -21,6 +21,15 @@
  
  /**
   * Return errno equivalent of last winsock error
+@@ -658,7 +665,7 @@
+     va_start(args, format);
+     ret = _vsnprintf(s, n, format, args);
+     va_end(args);
+-    if (n == ret)
++    if (ret >= 0 && n == size_t(ret))
+       s[n - 1] = 0;
+     if (ret >= 0)
+       return ret;
 @@ -671,3 +678,9 @@
  
    return ret;

@@ -665,7 +665,7 @@ int W32_snprintf(char *__restrict s, size_t n, const char *__restrict format, ..
     va_start(args, format);
     ret = _vsnprintf(s, n, format, args);
     va_end(args);
-    if (n == ret)
+    if (ret >= 0 && n == size_t(ret))
       s[n - 1] = 0;
     if (ret >= 0)
       return ret;
