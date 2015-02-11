@@ -51,15 +51,16 @@
 // 4) Generic settings
 
 #define _MHD_EXTERN /* defines how to decorate public symbols while building */
-#define BAUTH_SUPPORT 0 /* disable basic Auth support */
-#define DAUTH_SUPPORT 0 /* disable digest Auth support */
+// #undef BAUTH_SUPPORT /* disable basic Auth support */
+// #undef DAUTH_SUPPORT /* disable digest Auth support */
 #define EPOLL_SUPPORT 0 /* define to 0 to disable epoll support */
 #define HAVE_ACCEPT4 0 /* Define to 1 if you have the `accept4' function. */
+// #undef HAVE_CLOCK_GETTIME /* Have clock_gettime */
 #define HAVE_INET6 1 /* Provides IPv6 headers */
 #define HAVE_MEMORY_H 0 /* Define to 1 if you have the <memory.h> header file. */
 #define HAVE_MESSAGES 1 /* Disable error messages */
 #define HAVE_POSTPROCESSOR 1 /* define to 1 if MHD was build with postprocessor.c */
-#define HAVE_PTHREAD_SETNAME_NP 0 /* Define if you have pthread_setname_np function. */
+// #undef HAVE_PTHREAD_SETNAME_NP /* Define if you have pthread_setname_np function. */
 #define HAVE_SEARCH_H 0 /* Define to 1 if you have the <search.h> header file. */
 #define HAVE_SYS_MSG_H 0 /* Define to 1 if you have the <sys/msg.h> header file. */
 #define HAVE_TIME_H 1 /* Define to 1 if you have the <time.h> header file. */
