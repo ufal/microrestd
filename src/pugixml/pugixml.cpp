@@ -212,6 +212,9 @@ PUGI__NS_BEGIN
 		return lhs[count] == 0;
 	}
 
+// Define the following functions only when using them, by Milan Straka
+#if defined(PUGI__MSVC_CRT_VERSION) || defined(__BORLANDC__) || (defined(__MINGW32__) && (!defined(__STRICT_ANSI__) || defined(__MINGW64_VERSION_MAJOR)))
+#else
 	// Get length of wide string, even if CRT lacks wide character support
 	PUGI__FN size_t strlength_wide(const wchar_t* s)
 	{
@@ -225,6 +228,7 @@ PUGI__NS_BEGIN
 		return static_cast<size_t>(end - s);
 	#endif
 	}
+#endif
 
 #ifdef PUGIXML_WCHAR_MODE
 	// Convert string to wide string, assuming all symbols are ASCII
@@ -1658,6 +1662,9 @@ PUGI__NS_BEGIN
 	}
 #endif
 
+// Define the following functions only when using them, by Milan Straka
+#if defined(PUGI__MSVC_CRT_VERSION) || defined(__BORLANDC__) || (defined(__MINGW32__) && (!defined(__STRICT_ANSI__) || defined(__MINGW64_VERSION_MAJOR)))
+#else
 	PUGI__FN size_t as_utf8_begin(const wchar_t* str, size_t length)
 	{
 		// get length in utf8 characters
@@ -1676,6 +1683,7 @@ PUGI__NS_BEGIN
 		// zero-terminate
 		buffer[size] = 0;
 	}
+#endif
 	
 #ifndef PUGIXML_NO_STL
 // Removed the XPATH and STL module, by Milan Straka

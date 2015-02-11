@@ -1,5 +1,5 @@
---- pugixml.cpp.orig	2015-02-10 08:33:12.696365689 +0100
-+++ pugixml.cpp	2015-02-10 08:33:12.700365689 +0100
+--- pugixml.cpp.orig	2015-02-11 07:48:39.177347007 +0100
++++ pugixml.cpp	2015-02-11 08:06:49.153322687 +0100
 @@ -19,7 +19,7 @@
  #ifndef SOURCE_PUGIXML_CPP
  #define SOURCE_PUGIXML_CPP
@@ -48,7 +48,25 @@
  		return strcmp(src, dst) == 0;
  	#endif
  	}
-@@ -467,6 +472,8 @@
+@@ -207,6 +212,9 @@
+ 		return lhs[count] == 0;
+ 	}
+ 
++// Define the following functions only when using them, by Milan Straka
++#if defined(PUGI__MSVC_CRT_VERSION) || defined(__BORLANDC__) || (defined(__MINGW32__) && (!defined(__STRICT_ANSI__) || defined(__MINGW64_VERSION_MAJOR)))
++#else
+ 	// Get length of wide string, even if CRT lacks wide character support
+ 	PUGI__FN size_t strlength_wide(const wchar_t* s)
+ 	{
+@@ -220,6 +228,7 @@
+ 		return static_cast<size_t>(end - s);
+ 	#endif
+ 	}
++#endif
+ 
+ #ifdef PUGIXML_WCHAR_MODE
+ 	// Convert string to wide string, assuming all symbols are ASCII
+@@ -467,6 +476,8 @@
  	}
  PUGI__NS_END
  
@@ -57,7 +75,7 @@
  namespace pugi
  {
  	/// A 'name=value' XML attribute structure.
-@@ -510,6 +517,8 @@
+@@ -510,6 +521,8 @@
  		xml_attribute_struct*	first_attribute;		///< First attribute
  	};
  }
@@ -66,7 +84,25 @@
  
  PUGI__NS_BEGIN
  	struct xml_extra_buffer
-@@ -4123,6 +4132,8 @@
+@@ -1649,6 +1662,9 @@
+ 	}
+ #endif
+ 
++// Define the following functions only when using them, by Milan Straka
++#if defined(PUGI__MSVC_CRT_VERSION) || defined(__BORLANDC__) || (defined(__MINGW32__) && (!defined(__STRICT_ANSI__) || defined(__MINGW64_VERSION_MAJOR)))
++#else
+ 	PUGI__FN size_t as_utf8_begin(const wchar_t* str, size_t length)
+ 	{
+ 		// get length in utf8 characters
+@@ -1667,6 +1683,7 @@
+ 		// zero-terminate
+ 		buffer[size] = 0;
+ 	}
++#endif
+ 	
+ #ifndef PUGIXML_NO_STL
+ // Removed the XPATH and STL module, by Milan Straka
+@@ -4123,6 +4140,8 @@
  	}
  PUGI__NS_END
  
@@ -75,7 +111,7 @@
  namespace pugi
  {
  	PUGI__FN xml_writer_file::xml_writer_file(void* file_): file(file_)
-@@ -5885,6 +5896,8 @@
+@@ -5885,6 +5904,8 @@
  		return impl::xml_memory::deallocate;
  	}
  }
