@@ -3,12 +3,10 @@
 // 1) Detect platform
 // One of LINUX, OSX, WINDOWS (no CYGWIN), CYGWIN, OTHEROS
 
-#ifdef _WIN32
-# ifdef __CYGWIN__
-#  define CYGWIN 1
-# else
-#  define WINDOWS 1
-# endif
+#ifdef __CYGWIN__
+# define CYGWIN 1
+#elif defined(_WIN32)
+# define WINDOWS 1
 #elif defined(__APPLE__)
 # define OSX 1
 #elif defined(__linux__)
