@@ -55,7 +55,6 @@
 #define DAUTH_SUPPORT 0 /* disable digest Auth support */
 #define EPOLL_SUPPORT 0 /* define to 0 to disable epoll support */
 #define HAVE_ACCEPT4 0 /* Define to 1 if you have the `accept4' function. */
-#define HAVE_CLOCK_GETTIME 0 /* Have clock_gettime */
 #define HAVE_INET6 1 /* Provides IPv6 headers */
 #define HAVE_MEMORY_H 0 /* Define to 1 if you have the <memory.h> header file. */
 #define HAVE_MESSAGES 1 /* Disable error messages */
