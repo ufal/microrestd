@@ -1,15 +1,17 @@
---- w32functions.cpp.orig	2015-02-10 15:42:42.079316563 +0100
-+++ w32functions.cpp	2015-02-10 15:44:52.951320167 +0100
-@@ -28,6 +28,8 @@
+--- w32functions.cpp.orig	2015-02-11 07:18:13.889387734 +0100
++++ w32functions.cpp	2015-02-11 08:12:41.833314818 +0100
+@@ -28,6 +28,10 @@
   * @author Karlson2k (Evgeny Grin)
   */
  
++#include "MHD_config.h"
++
 +#ifdef WINDOWS
 +
  #include "w32functions.h"
  #include <errno.h>
  #include <winsock2.h>
-@@ -37,6 +39,9 @@
+@@ -37,6 +41,9 @@
  #include <stdio.h>
  #include <stdarg.h>
  
@@ -19,7 +21,7 @@
  
  /**
   * Return errno equivalent of last winsock error
-@@ -671,3 +676,9 @@
+@@ -671,3 +678,9 @@
  
    return ret;
  }

@@ -28,6 +28,8 @@
  * @author Karlson2k (Evgeny Grin)
  */
 
+#include "MHD_config.h"
+
 #ifdef WINDOWS
 
 #include "w32functions.h"
