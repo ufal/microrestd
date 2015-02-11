@@ -108,7 +108,7 @@ MHD_pool_create (size_t max)
     pool->memory = (char*) mmap (NULL, max, PROT_READ | PROT_WRITE,
 			 MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 #elif defined(_WIN32)
-    pool->memory = VirtualAlloc(NULL, max, MEM_COMMIT | MEM_RESERVE,
+    pool->memory = (char*) VirtualAlloc(NULL, max, MEM_COMMIT | MEM_RESERVE,
         PAGE_READWRITE);
 #endif
 #else

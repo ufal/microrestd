@@ -966,7 +966,11 @@ recv_param_adapter (struct MHD_Connection *connection,
       MHD_set_socket_errno_ (ENOTCONN);
       return -1;
     }
+#if WINDOWS
+  ret = recv (connection->socket_fd, (char*) other, i, MSG_NOSIGNAL);
+#else
   ret = recv (connection->socket_fd, other, i, MSG_NOSIGNAL);
+#endif
 #if EPOLL_SUPPORT
   if (ret < (ssize_t) i)
     {
@@ -1005,7 +1009,11 @@ send_param_adapter (struct MHD_Connection *connection,
       return -1;
     }
   if (0 != (connection->daemon->options & MHD_USE_SSL))
+#if WINDOWS
+    return send (connection->socket_fd, (const char*) other, i, MSG_NOSIGNAL);
+#else
     return send (connection->socket_fd, other, i, MSG_NOSIGNAL);
+#endif
 #if LINUX
   if ( (connection->write_buffer_append_offset ==
 	connection->write_buffer_send_offset) &&
@@ -1042,7 +1050,11 @@ send_param_adapter (struct MHD_Connection *connection,
 	 http://lists.gnu.org/archive/html/libmicrohttpd/2011-02/msg00015.html */
     }
 #endif
+#if WINDOWS
+  ret = send (connection->socket_fd, (const char*) other, i, MSG_NOSIGNAL);
+#else
   ret = send (connection->socket_fd, other, i, MSG_NOSIGNAL);
+#endif
 #if EPOLL_SUPPORT
   if (ret < (ssize_t) i)
     {
@@ -2448,21 +2460,30 @@ MHD_poll_listen_socket (struct MHD_Daemon *daemon,
  * @param may_block #MHD_YES if blocking, #MHD_NO if non-blocking
  * @return #MHD_NO on serious errors, #MHD_YES on success
  */
+#ifdef HAVE_POLL_H
+
 static int
 MHD_poll (struct MHD_Daemon *daemon,
 	  int may_block)
 {
-#ifdef HAVE_POLL_H
   if (MHD_YES == daemon->shutdown)
     return MHD_NO;
   if (0 == (daemon->options & MHD_USE_THREAD_PER_CONNECTION))
     return MHD_poll_all (daemon, may_block);
   else
     return MHD_poll_listen_socket (daemon, may_block);
-#else
-  return MHD_NO;
-#endif
 }
+
+#else
+
+static int
+MHD_poll (struct MHD_Daemon * /*daemon*/,
+	  int /*may_block*/)
+{
+  return MHD_NO;
+}
+
+#endif
 
 
 #if EPOLL_SUPPORT
@@ -3430,7 +3451,7 @@ MHD_start_daemon_va (unsigned int flags,
 #if WINDOWS
   /* Winsock is broken with respect to 'shutdown';
      this disables us calling 'shutdown' on W32. */
-  daemon->options |= MHD_USE_EPOLL_TURBO;
+  daemon->options = (enum MHD_OPTION) (daemon->options | MHD_USE_EPOLL_TURBO);
 #endif
   daemon->port = port;
   daemon->apc = apc;
@@ -3615,7 +3636,11 @@ MHD_start_daemon_va (unsigned int flags,
           if (0 > setsockopt (socket_fd,
                               SOL_SOCKET,
                               SO_REUSEADDR,
+#if WINDOWS
+                              (const char*)&on, sizeof (on)))
+#else
                               (void*)&on, sizeof (on)))
+#endif
           {
 #if HAVE_MESSAGES
             MHD_DLOG (daemon,
@@ -3636,7 +3661,7 @@ MHD_start_daemon_va (unsigned int flags,
           if (0 > setsockopt (socket_fd,
                               SOL_SOCKET,
                               SO_REUSEADDR,
-                              (void*)&on, sizeof (on)))
+                              (const char*)&on, sizeof (on)))
             {
 #if HAVE_MESSAGES
               MHD_DLOG (daemon,
@@ -3689,7 +3714,7 @@ MHD_start_daemon_va (unsigned int flags,
           if (0 > setsockopt (socket_fd,
                               SOL_SOCKET,
                               SO_EXCLUSIVEADDRUSE,
-                              (void*)&on, sizeof (on)))
+                              (const char*)&on, sizeof (on)))
             {
 #if HAVE_MESSAGES
               MHD_DLOG (daemon,
