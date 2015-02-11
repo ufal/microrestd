@@ -11,3 +11,6 @@ MICRORESTD_VERSION := 0.9.0-devel
 
 MICRORESTD_OBJECTS := libmicrohttpd/connection libmicrohttpd/daemon libmicrohttpd/internal libmicrohttpd/memorypool libmicrohttpd/postprocessor libmicrohttpd/reason_phrase libmicrohttpd/response libmicrohttpd/w32functions
 MICRORESTD_PUGIXML_OBJECTS := pugixml/pugixml
+
+MICRORESTD_LIBRARIES_POSIX := pthread
+MICRORESTD_LIBRARIES_WIN := ws2_32
