@@ -1,17 +1,20 @@
+include Makefile.builtem
+
 include ../src/Makefile.include
 
-OBJECTS = $(addsuffix .o,$(notdir $(MICRORESTD_OBJECTS) $(MICRORESTD_PUGIXML_OBJECTS)))
+TARGETS = libmicrohttpd_fileserver
+C_FLAGS += $(call include_dir,../src/libmicrohttpd)
+LD_FLAGS += $(call use_library,$(if $(filter win-%,$(PLATFORM)),$(MICRORESTD_LIBRARIES_WIN),$(MICRORESTD_LIBRARIES_POSIX)))
 
 .PHONY: all compile
 all: compile
 
-compile: $(OBJECTS)
+compile: $(call obj,$(MICRORESTD_OBJECTS:%=../src/%) $(MICRORESTD_PUGIXML_OBJECTS:%=../src/%)) $(call exe,$(TARGETS))
 
-compile = $(CXX) $< -std=c++11 -W -Wall -Werror -c -o $@
-%.o: ../src/%.cpp; $(compile)
-%.o: ../src/pugixml/%.cpp; $(compile)
-%.o: ../src/libmicrohttpd/%.cpp; $(compile)
+$(call exe,libmicrohttpd_fileserver): $(call obj,libmicrohttpd_fileserver) $(call obj,$(MICRORESTD_OBJECTS:%=../src/%))
+$(call exe,$(TARGETS)):
+	$(call link_exe,$@,$^,$(call win_subsystem,console))
 
 .PHONY: clean
 clean:
-	rm -f $(OBJECTS)
+	$(call rm,.build $(call all_exe,$(TARGETS)))
