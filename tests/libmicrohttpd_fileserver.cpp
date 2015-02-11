@@ -122,16 +122,21 @@ main (int argc, char *const *argv)
       printf ("%s PORT\n", argv[0]);
       return 1;
     }
-  d = MHD_start_daemon (MHD_USE_THREAD_PER_CONNECTION | MHD_USE_POLL | MHD_USE_PIPE_FOR_SHUTDOWN,
-                        atoi (argv[1]), nullptr, nullptr, &ahc_echo, (void*) PAGE,
-                        MHD_OPTION_LISTENING_ADDRESS_REUSE, 1,
-                        MHD_OPTION_CONNECTION_LIMIT, 5,
-                        MHD_OPTION_PER_IP_CONNECTION_LIMIT, 2,
-                        MHD_OPTION_CONNECTION_MEMORY_LIMIT, size_t(64 * 1024),
-                        MHD_OPTION_CONNECTION_TIMEOUT, 60,
-                        MHD_OPTION_END);
-  if (d == NULL)
-    return 1;
+  // Try using POLL first, then SELECT.
+  for (int poll = 1; poll >= 0; poll--) {
+    d = MHD_start_daemon (MHD_USE_THREAD_PER_CONNECTION | (poll ? MHD_USE_POLL : 0) | MHD_USE_PIPE_FOR_SHUTDOWN,
+                          atoi (argv[1]), nullptr, nullptr, &ahc_echo, (void*) PAGE,
+                          MHD_OPTION_LISTENING_ADDRESS_REUSE, 1,
+                          MHD_OPTION_CONNECTION_LIMIT, 5,
+                          MHD_OPTION_PER_IP_CONNECTION_LIMIT, 2,
+                          MHD_OPTION_CONNECTION_MEMORY_LIMIT, size_t(64 * 1024),
+                          MHD_OPTION_CONNECTION_TIMEOUT, 60,
+                          MHD_OPTION_END);
+    if (d) break;
+  }
+  if (!d) return 1;
+
+  fprintf(stderr, "Running...\n");
   (void) getc (stdin);
   MHD_stop_daemon (d);
   return 0;
