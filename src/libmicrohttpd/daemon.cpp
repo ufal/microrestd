@@ -1137,6 +1137,7 @@ create_thread (MHD_thread_handle_ *thread,
 #endif
 }
 
+static void MHD_cleanup_connections (struct MHD_Daemon *daemon);
 
 /**
  * Add another client connection to the set of connections
@@ -1188,7 +1189,7 @@ internal_add_connection (struct MHD_Daemon *daemon,
       for (i=0;i<daemon->worker_pool_size;i++)
         {
           worker = &daemon->worker_pool[(i + client_socket) % daemon->worker_pool_size];
-          if (worker->connections < worker->connection_limit)
+          if (worker->connections < worker->connection_limit || worker->cleanup_head) // Allow choosing worker with connections to be cleaned up, by Milan Straka.
             return internal_add_connection (worker,
                                             client_socket,
                                             addr, addrlen,
@@ -1222,6 +1223,8 @@ internal_add_connection (struct MHD_Daemon *daemon,
     }
 #endif
 
+  if (daemon->cleanup_head) // Cleanup connections if there are some to be cleaned, by Milan Straka
+    MHD_cleanup_connections(daemon);
 
 #if HAVE_MESSAGES
 #if DEBUG_CONNECT
@@ -2446,10 +2449,8 @@ MHD_poll_listen_socket (struct MHD_Daemon *daemon,
   if (MHD_YES == daemon->shutdown)
     return MHD_NO;
   if ( (-1 != poll_listen) &&
-       (0 != (p[poll_listen].revents & POLLIN)) ) {
-    MHD_cleanup_connections (daemon); // Cleanup connections before potential accept, by Milan Straka.
+       (0 != (p[poll_listen].revents & POLLIN)) )
     (void) MHD_accept_connection (daemon);
-  }
   return MHD_YES;
 }
 #endif
