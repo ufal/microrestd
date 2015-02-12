@@ -29,7 +29,7 @@
 #include <cstdlib>
 #include <cstring>
 
-#include "microhttpd.h"
+#include "libmicrohttpd/microhttpd.h"
 
 namespace ufal {
 namespace microrestd {

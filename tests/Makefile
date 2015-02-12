@@ -3,7 +3,7 @@ include Makefile.builtem
 include ../src/Makefile.include
 
 TARGETS = libmicrohttpd_fileserver
-C_FLAGS += $(call include_dir,../src/libmicrohttpd)
+C_FLAGS += $(call include_dir,../src)
 LD_FLAGS += $(call use_library,$(if $(filter win-%,$(PLATFORM)),$(MICRORESTD_LIBRARIES_WIN),$(MICRORESTD_LIBRARIES_POSIX)))
 
 .PHONY: all compile
