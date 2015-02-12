@@ -8,6 +8,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "microrestd.h"
+#include "pugixml.h"
 
 int main(void) {
   return 0;
