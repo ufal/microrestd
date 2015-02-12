@@ -1,5 +1,5 @@
 --- daemon.cpp.orig	2015-02-11 07:18:13.897387734 +0100
-+++ daemon.cpp	2015-02-12 09:03:19.537858619 +0100
++++ daemon.cpp	2015-02-12 09:49:20.649797011 +0100
 @@ -70,6 +70,10 @@
  #include <windows.h>
  #endif
@@ -171,7 +171,17 @@
    s = accept (fd, addr, &addrlen);
  #endif
    if ((MHD_INVALID_SOCKET == s) || (addrlen <= 0))
-@@ -1999,7 +2019,7 @@
+@@ -1933,9 +1953,6 @@
+ 	}
+       if (MHD_INVALID_SOCKET != pos->socket_fd)
+ 	{
+-#ifdef WINDOWS
+-	  shutdown (pos->socket_fd, SHUT_WR);
+-#endif
+ 	  if (0 != MHD_socket_close_ (pos->socket_fd))
+ 	    MHD_PANIC ("close failed\n");
+ 	}
+@@ -1999,7 +2016,7 @@
        if (0 != pos->connection_timeout)
  	{
  	  if ( (! have_timeout) ||
@@ -180,7 +190,7 @@
  	    earliest_deadline = pos->last_activity + pos->connection_timeout;
  #if HTTPS_SUPPORT
  	  if (  (0 != (daemon->options & MHD_USE_SSL)) &&
-@@ -2015,7 +2035,7 @@
+@@ -2015,7 +2032,7 @@
         (0 != pos->connection_timeout) )
      {
        if ( (! have_timeout) ||
@@ -189,7 +199,7 @@
  	earliest_deadline = pos->last_activity + pos->connection_timeout;
  #if HTTPS_SUPPORT
        if (  (0 != (daemon->options & MHD_USE_SSL)) &&
-@@ -2059,7 +2079,7 @@
+@@ -2059,7 +2076,7 @@
  MHD_run_from_select (struct MHD_Daemon *daemon,
  		     const fd_set *read_fd_set,
  		     const fd_set *write_fd_set,
@@ -198,7 +208,7 @@
  {
    MHD_socket ds;
    char tmp;
-@@ -2443,22 +2463,31 @@
+@@ -2443,22 +2460,31 @@
   * @param may_block #MHD_YES if blocking, #MHD_NO if non-blocking
   * @return #MHD_NO on serious errors, #MHD_YES on success
   */
@@ -232,7 +242,7 @@
  
  #if EPOLL_SUPPORT
  
-@@ -2730,7 +2759,7 @@
+@@ -2730,7 +2756,7 @@
  static MHD_THRD_RTRN_TYPE_ MHD_THRD_CALL_SPEC_
  MHD_select_thread (void *cls)
  {
@@ -241,7 +251,7 @@
  
    while (MHD_YES != daemon->shutdown)
      {
-@@ -2760,8 +2789,8 @@
+@@ -2760,8 +2786,8 @@
   *  shorter afterwards due to elimination of escape sequences)
   */
  static size_t
@@ -252,7 +262,7 @@
                    char *val)
  {
    return MHD_http_unescape (val);
-@@ -2979,7 +3008,7 @@
+@@ -2979,7 +3005,7 @@
            break;
          case MHD_OPTION_THREAD_POOL_SIZE:
            daemon->worker_pool_size = va_arg (ap, unsigned int);
@@ -261,7 +271,7 @@
  	    {
  #if HAVE_MESSAGES
  	      MHD_DLOG (daemon,
-@@ -3404,7 +3433,7 @@
+@@ -3404,7 +3430,7 @@
  #endif
    if (NULL == dh)
      return NULL;
@@ -270,16 +280,19 @@
      return NULL;
    memset (daemon, 0, sizeof (struct MHD_Daemon));
  #if EPOLL_SUPPORT
-@@ -3425,7 +3454,7 @@
- #if WINDOWS
-   /* Winsock is broken with respect to 'shutdown';
-      this disables us calling 'shutdown' on W32. */
+@@ -3422,11 +3448,6 @@
+   daemon->socket_fd = MHD_INVALID_SOCKET;
+   daemon->listening_address_reuse = 0;
+   daemon->options = (enum MHD_OPTION) flags;
+-#if WINDOWS
+-  /* Winsock is broken with respect to 'shutdown';
+-     this disables us calling 'shutdown' on W32. */
 -  daemon->options |= MHD_USE_EPOLL_TURBO;
-+  daemon->options = (enum MHD_OPTION) (daemon->options | MHD_USE_EPOLL_TURBO);
- #endif
+-#endif
    daemon->port = port;
    daemon->apc = apc;
-@@ -3518,7 +3547,7 @@
+   daemon->apc_cls = apc_cls;
+@@ -3518,7 +3539,7 @@
  	  free (daemon);
  	  return NULL;
  	}
@@ -288,7 +301,7 @@
        if (NULL == daemon->nnc)
  	{
  #if HAVE_MESSAGES
-@@ -3610,7 +3639,11 @@
+@@ -3610,7 +3631,11 @@
            if (0 > setsockopt (socket_fd,
                                SOL_SOCKET,
                                SO_REUSEADDR,
@@ -300,7 +313,7 @@
            {
  #if HAVE_MESSAGES
              MHD_DLOG (daemon,
-@@ -3631,7 +3664,7 @@
+@@ -3631,7 +3656,7 @@
            if (0 > setsockopt (socket_fd,
                                SOL_SOCKET,
                                SO_REUSEADDR,
@@ -309,7 +322,7 @@
              {
  #if HAVE_MESSAGES
                MHD_DLOG (daemon,
-@@ -3684,7 +3717,7 @@
+@@ -3684,7 +3709,7 @@
            if (0 > setsockopt (socket_fd,
                                SOL_SOCKET,
                                SO_EXCLUSIVEADDRUSE,
@@ -318,7 +331,7 @@
              {
  #if HAVE_MESSAGES
                MHD_DLOG (daemon,
-@@ -3964,7 +3997,7 @@
+@@ -3964,7 +3989,7 @@
  #endif /* WINDOWS && !CYGWIN */
  
        /* Allocate memory for pooled objects */
@@ -327,7 +340,7 @@
                                      * daemon->worker_pool_size);
        if (NULL == daemon->worker_pool)
          goto thread_failed;
-@@ -4630,5 +4663,9 @@
+@@ -4630,5 +4655,9 @@
  
  _SET_INIT_AND_DEINIT_FUNCS(MHD_init, MHD_fini);
  

@@ -1953,9 +1953,6 @@ MHD_cleanup_connections (struct MHD_Daemon *daemon)
 	}
       if (MHD_INVALID_SOCKET != pos->socket_fd)
 	{
-#ifdef WINDOWS
-	  shutdown (pos->socket_fd, SHUT_WR);
-#endif
 	  if (0 != MHD_socket_close_ (pos->socket_fd))
 	    MHD_PANIC ("close failed\n");
 	}
@@ -3451,11 +3448,6 @@ MHD_start_daemon_va (unsigned int flags,
   daemon->socket_fd = MHD_INVALID_SOCKET;
   daemon->listening_address_reuse = 0;
   daemon->options = (enum MHD_OPTION) flags;
-#if WINDOWS
-  /* Winsock is broken with respect to 'shutdown';
-     this disables us calling 'shutdown' on W32. */
-  daemon->options = (enum MHD_OPTION) (daemon->options | MHD_USE_EPOLL_TURBO);
-#endif
   daemon->port = port;
   daemon->apc = apc;
   daemon->apc_cls = apc_cls;
