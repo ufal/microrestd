@@ -1,3 +1,4 @@
 .build/
+compile_test
 libmicrohttpd_fileserver
-libmicrohttpd_fileserver.exe
+*.exe
