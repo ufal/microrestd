@@ -9,8 +9,8 @@
 
 #pragma once
 
-#include "json_builder.h"
-#include "response_generator.h"
-#include "rest_request.h"
-#include "rest_service.h"
-#include "string_piece.h"
+#include "rest_server/json_builder.h"
+#include "rest_server/response_generator.h"
+#include "rest_server/rest_request.h"
+#include "rest_server/rest_service.h"
+#include "rest_server/string_piece.h"
