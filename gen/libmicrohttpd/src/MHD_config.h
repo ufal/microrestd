@@ -31,7 +31,6 @@
 # define HAVE_SYS_SOCKET_H 1 /* Define to 1 if you have the <sys/socket.h> header file. */
 # define HAVE_SYS_STAT_H 1 /* Define to 1 if you have the <sys/stat.h> header file. */
 # define HAVE_SYS_TIME_H 1 /* Define to 1 if you have the <sys/time.h> header file. */
-# define HAVE_SYS_TYPES_H 1 /* Define to 1 if you have the <sys/types.h> header file. */
 # define HAVE_UNISTD_H 1 /* Define to 1 if you have the <unistd.h> header file. */
 #endif
 
@@ -63,6 +62,7 @@
 // #undef HAVE_PTHREAD_SETNAME_NP /* Define if you have pthread_setname_np function. */
 #define HAVE_SEARCH_H 0 /* Define to 1 if you have the <search.h> header file. */
 #define HAVE_SYS_MSG_H 0 /* Define to 1 if you have the <sys/msg.h> header file. */
+#define HAVE_SYS_TYPES_H 1 /* Define to 1 if you have the <sys/types.h> header file. */
 #define HAVE_TIME_H 1 /* Define to 1 if you have the <time.h> header file. */
 #define HTTPS_SUPPORT 0 /* disable HTTPS support */
 
