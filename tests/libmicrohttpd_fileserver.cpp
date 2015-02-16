@@ -128,7 +128,6 @@ main (int argc, char *const *argv)
                           atoi (argv[1]), nullptr, nullptr, &ahc_echo, (void*) PAGE,
                           MHD_OPTION_LISTENING_ADDRESS_REUSE, 1,
                           MHD_OPTION_CONNECTION_LIMIT, 5,
-                          MHD_OPTION_PER_IP_CONNECTION_LIMIT, 2,
                           MHD_OPTION_CONNECTION_MEMORY_LIMIT, size_t(64 * 1024),
                           MHD_OPTION_CONNECTION_TIMEOUT, 60,
                           MHD_OPTION_END);
