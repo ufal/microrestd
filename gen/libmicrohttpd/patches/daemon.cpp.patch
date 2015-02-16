@@ -1,5 +1,5 @@
 --- daemon.cpp.orig	2015-02-16 12:44:31.294134784 +0100
-+++ daemon.cpp	2015-02-16 13:50:14.054164178 +0100
++++ daemon.cpp	2015-02-16 22:04:00.901655701 +0100
 @@ -70,6 +70,10 @@
  #include <windows.h>
  #endif
@@ -213,7 +213,7 @@
 +  else if ( (0 != (daemon->options & MHD_USE_THREAD_PER_CONNECTION)) && at_connection_limit)
 +    {
 +      // We are ignoring the listening socket because of reaching connection limit, by Milan Straka
-+      timeout.tv_usec = 50000;
++      timeout.tv_usec = 5000;
 +      timeout.tv_sec = 0;
 +      tv = &timeout;
 +    }
@@ -247,7 +247,7 @@
      timeout = 0;
    else
 -    timeout = -1;
-+    timeout = at_connection_limit ? 50 : -1;
++    timeout = at_connection_limit ? 5 : -1;
    if (0 == poll_count)
      return MHD_YES;
    if (poll (p, poll_count, timeout) < 0)

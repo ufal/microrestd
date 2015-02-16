@@ -2221,7 +2221,7 @@ MHD_select (struct MHD_Daemon *daemon,
   else if ( (0 != (daemon->options & MHD_USE_THREAD_PER_CONNECTION)) && at_connection_limit)
     {
       // We are ignoring the listening socket because of reaching connection limit, by Milan Straka
-      timeout.tv_usec = 50000;
+      timeout.tv_usec = 5000;
       timeout.tv_sec = 0;
       tv = &timeout;
     }
@@ -2437,7 +2437,7 @@ MHD_poll_listen_socket (struct MHD_Daemon *daemon,
   if (MHD_NO == may_block)
     timeout = 0;
   else
-    timeout = at_connection_limit ? 50 : -1;
+    timeout = at_connection_limit ? 5 : -1;
   if (0 == poll_count)
     return MHD_YES;
   if (poll (p, poll_count, timeout) < 0)
