@@ -28,6 +28,7 @@ class rest_request {
   virtual bool respond_error(string_piece error, int code = 400) = 0;
 
   std::string url;
+  std::string method;
   std::string content_type;
   std::string body;
   std::unordered_map<std::string, std::string> params;
