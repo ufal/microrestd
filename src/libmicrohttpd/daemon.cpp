@@ -3833,7 +3833,7 @@ MHD_start_daemon_va (unsigned int flags,
 	    }
 	}
 #endif
-      if (listen (socket_fd, 32) < 0)
+      if (listen (socket_fd, 128) < 0) // Increased to 128 from 32 by Milan Straka.
 	{
 #if HAVE_MESSAGES
           MHD_DLOG (daemon,

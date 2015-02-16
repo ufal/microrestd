@@ -1,5 +1,5 @@
---- daemon.cpp.orig	2015-02-16 08:20:53.456182247 +0100
-+++ daemon.cpp	2015-02-16 08:24:02.796178022 +0100
+--- daemon.cpp.orig	2015-02-16 12:44:31.294134784 +0100
++++ daemon.cpp	2015-02-16 12:57:19.007785438 +0100
 @@ -70,6 +70,10 @@
  #include <windows.h>
  #endif
@@ -305,6 +305,15 @@
              {
  #if HAVE_MESSAGES
                MHD_DLOG (daemon,
+@@ -3811,7 +3833,7 @@
+ 	    }
+ 	}
+ #endif
+-      if (listen (socket_fd, 32) < 0)
++      if (listen (socket_fd, 128) < 0) // Increased to 128 from 32 by Milan Straka.
+ 	{
+ #if HAVE_MESSAGES
+           MHD_DLOG (daemon,
 @@ -3964,7 +3986,7 @@
  #endif /* WINDOWS && !CYGWIN */
  
