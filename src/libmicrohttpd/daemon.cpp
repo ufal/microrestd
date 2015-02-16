@@ -2404,10 +2404,12 @@ MHD_poll_listen_socket (struct MHD_Daemon *daemon,
   unsigned int poll_count;
   int poll_listen;
 
+  bool at_connection_limit = daemon->connections == daemon->connection_limit; // Do not accept when at connection limit, by Milan Straka
+
   memset (&p, 0, sizeof (p));
   poll_count = 0;
   poll_listen = -1;
-  if (MHD_INVALID_SOCKET != daemon->socket_fd)
+  if (!at_connection_limit && MHD_INVALID_SOCKET != daemon->socket_fd)
     {
       p[poll_count].fd = daemon->socket_fd;
       p[poll_count].events = POLLIN;
@@ -2425,7 +2427,7 @@ MHD_poll_listen_socket (struct MHD_Daemon *daemon,
   if (MHD_NO == may_block)
     timeout = 0;
   else
-    timeout = -1;
+    timeout = at_connection_limit ? 50 : -1;
   if (0 == poll_count)
     return MHD_YES;
   if (poll (p, poll_count, timeout) < 0)
