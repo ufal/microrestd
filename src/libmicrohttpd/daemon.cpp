@@ -2175,6 +2175,7 @@ MHD_select (struct MHD_Daemon *daemon,
   FD_ZERO (&ws);
   FD_ZERO (&es);
   max = MHD_INVALID_SOCKET;
+  bool at_connection_limit = daemon->connections == daemon->connection_limit; // Do not accept when at connection limit, by Milan Straka
   if (0 == (daemon->options & MHD_USE_THREAD_PER_CONNECTION))
     {
       if (MHD_USE_SUSPEND_RESUME == (daemon->options & MHD_USE_SUSPEND_RESUME))
@@ -2186,13 +2187,14 @@ MHD_select (struct MHD_Daemon *daemon,
 
       /* If we're at the connection limit, no need to
          accept new connections. */
-      if ( (daemon->connections == daemon->connection_limit) &&
+      if ( at_connection_limit &&
 	   (MHD_INVALID_SOCKET != daemon->socket_fd) )
         FD_CLR (daemon->socket_fd, &rs);
     }
   else
     {
       /* accept only, have one thread per connection */
+      if (!at_connection_limit)
       if (MHD_INVALID_SOCKET != daemon->socket_fd &&
           MHD_YES != add_to_fd_set(daemon->socket_fd, &rs, &max, FD_SETSIZE))
         return MHD_NO;
@@ -2214,6 +2216,13 @@ MHD_select (struct MHD_Daemon *daemon,
       /* ltimeout is in ms */
       timeout.tv_usec = (ltimeout % 1000) * 1000;
       timeout.tv_sec = ltimeout / 1000;
+      tv = &timeout;
+    }
+  else if ( (0 != (daemon->options & MHD_USE_THREAD_PER_CONNECTION)) && at_connection_limit)
+    {
+      // We are ignoring the listening socket because of reaching connection limit, by Milan Straka
+      timeout.tv_usec = 50000;
+      timeout.tv_sec = 0;
       tv = &timeout;
     }
   if (MHD_INVALID_SOCKET == max)
