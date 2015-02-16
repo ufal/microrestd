@@ -1,5 +1,5 @@
---- daemon.cpp.orig	2015-02-11 07:18:13.897387734 +0100
-+++ daemon.cpp	2015-02-12 09:49:20.649797011 +0100
+--- daemon.cpp.orig	2015-02-16 08:20:53.456182247 +0100
++++ daemon.cpp	2015-02-16 08:24:02.796178022 +0100
 @@ -70,6 +70,10 @@
  #include <windows.h>
  #endif
@@ -119,33 +119,7 @@
  #if EPOLL_SUPPORT
    if (ret < (ssize_t) i)
      {
-@@ -1121,6 +1137,7 @@
- #endif
- }
- 
-+static void MHD_cleanup_connections (struct MHD_Daemon *daemon);
- 
- /**
-  * Add another client connection to the set of connections
-@@ -1172,7 +1189,7 @@
-       for (i=0;i<daemon->worker_pool_size;i++)
-         {
-           worker = &daemon->worker_pool[(i + client_socket) % daemon->worker_pool_size];
--          if (worker->connections < worker->connection_limit)
-+          if (worker->connections < worker->connection_limit || worker->cleanup_head) // Allow choosing worker with connections to be cleaned up, by Milan Straka.
-             return internal_add_connection (worker,
-                                             client_socket,
-                                             addr, addrlen,
-@@ -1206,6 +1223,8 @@
-     }
- #endif
- 
-+  if (daemon->cleanup_head) // Cleanup connections if there are some to be cleaned, by Milan Straka
-+    MHD_cleanup_connections(daemon);
- 
- #if HAVE_MESSAGES
- #if DEBUG_CONNECT
-@@ -1260,7 +1279,7 @@
+@@ -1260,7 +1276,7 @@
  #endif
  #endif
  
@@ -154,7 +128,7 @@
      {
        eno = errno;
  #if HAVE_MESSAGES
-@@ -1294,7 +1313,7 @@
+@@ -1294,7 +1310,7 @@
      }
  
    connection->connection_timeout = daemon->connection_timeout;
@@ -163,7 +137,7 @@
      {
        eno = errno;
  #if HAVE_MESSAGES
-@@ -1827,6 +1846,7 @@
+@@ -1827,6 +1843,7 @@
  #if HAVE_ACCEPT4
    s = accept4 (fd, addr, &addrlen, SOCK_CLOEXEC | nonblock);
  #else
@@ -171,7 +145,7 @@
    s = accept (fd, addr, &addrlen);
  #endif
    if ((MHD_INVALID_SOCKET == s) || (addrlen <= 0))
-@@ -1933,9 +1953,6 @@
+@@ -1933,9 +1950,6 @@
  	}
        if (MHD_INVALID_SOCKET != pos->socket_fd)
  	{
@@ -181,7 +155,7 @@
  	  if (0 != MHD_socket_close_ (pos->socket_fd))
  	    MHD_PANIC ("close failed\n");
  	}
-@@ -1999,7 +2016,7 @@
+@@ -1999,7 +2013,7 @@
        if (0 != pos->connection_timeout)
  	{
  	  if ( (! have_timeout) ||
@@ -190,7 +164,7 @@
  	    earliest_deadline = pos->last_activity + pos->connection_timeout;
  #if HTTPS_SUPPORT
  	  if (  (0 != (daemon->options & MHD_USE_SSL)) &&
-@@ -2015,7 +2032,7 @@
+@@ -2015,7 +2029,7 @@
         (0 != pos->connection_timeout) )
      {
        if ( (! have_timeout) ||
@@ -199,7 +173,7 @@
  	earliest_deadline = pos->last_activity + pos->connection_timeout;
  #if HTTPS_SUPPORT
        if (  (0 != (daemon->options & MHD_USE_SSL)) &&
-@@ -2059,7 +2076,7 @@
+@@ -2059,7 +2073,7 @@
  MHD_run_from_select (struct MHD_Daemon *daemon,
  		     const fd_set *read_fd_set,
  		     const fd_set *write_fd_set,
@@ -208,7 +182,7 @@
  {
    MHD_socket ds;
    char tmp;
-@@ -2443,22 +2460,31 @@
+@@ -2443,22 +2457,31 @@
   * @param may_block #MHD_YES if blocking, #MHD_NO if non-blocking
   * @return #MHD_NO on serious errors, #MHD_YES on success
   */
@@ -242,7 +216,7 @@
  
  #if EPOLL_SUPPORT
  
-@@ -2730,7 +2756,7 @@
+@@ -2730,7 +2753,7 @@
  static MHD_THRD_RTRN_TYPE_ MHD_THRD_CALL_SPEC_
  MHD_select_thread (void *cls)
  {
@@ -251,7 +225,7 @@
  
    while (MHD_YES != daemon->shutdown)
      {
-@@ -2760,8 +2786,8 @@
+@@ -2760,8 +2783,8 @@
   *  shorter afterwards due to elimination of escape sequences)
   */
  static size_t
@@ -262,7 +236,7 @@
                    char *val)
  {
    return MHD_http_unescape (val);
-@@ -2979,7 +3005,7 @@
+@@ -2979,7 +3002,7 @@
            break;
          case MHD_OPTION_THREAD_POOL_SIZE:
            daemon->worker_pool_size = va_arg (ap, unsigned int);
@@ -271,7 +245,7 @@
  	    {
  #if HAVE_MESSAGES
  	      MHD_DLOG (daemon,
-@@ -3404,7 +3430,7 @@
+@@ -3404,7 +3427,7 @@
  #endif
    if (NULL == dh)
      return NULL;
@@ -280,7 +254,7 @@
      return NULL;
    memset (daemon, 0, sizeof (struct MHD_Daemon));
  #if EPOLL_SUPPORT
-@@ -3422,11 +3448,6 @@
+@@ -3422,11 +3445,6 @@
    daemon->socket_fd = MHD_INVALID_SOCKET;
    daemon->listening_address_reuse = 0;
    daemon->options = (enum MHD_OPTION) flags;
@@ -292,7 +266,7 @@
    daemon->port = port;
    daemon->apc = apc;
    daemon->apc_cls = apc_cls;
-@@ -3518,7 +3539,7 @@
+@@ -3518,7 +3536,7 @@
  	  free (daemon);
  	  return NULL;
  	}
@@ -301,7 +275,7 @@
        if (NULL == daemon->nnc)
  	{
  #if HAVE_MESSAGES
-@@ -3610,7 +3631,11 @@
+@@ -3610,7 +3628,11 @@
            if (0 > setsockopt (socket_fd,
                                SOL_SOCKET,
                                SO_REUSEADDR,
@@ -313,7 +287,7 @@
            {
  #if HAVE_MESSAGES
              MHD_DLOG (daemon,
-@@ -3631,7 +3656,7 @@
+@@ -3631,7 +3653,7 @@
            if (0 > setsockopt (socket_fd,
                                SOL_SOCKET,
                                SO_REUSEADDR,
@@ -322,7 +296,7 @@
              {
  #if HAVE_MESSAGES
                MHD_DLOG (daemon,
-@@ -3684,7 +3709,7 @@
+@@ -3684,7 +3706,7 @@
            if (0 > setsockopt (socket_fd,
                                SOL_SOCKET,
                                SO_EXCLUSIVEADDRUSE,
@@ -331,7 +305,7 @@
              {
  #if HAVE_MESSAGES
                MHD_DLOG (daemon,
-@@ -3964,7 +3989,7 @@
+@@ -3964,7 +3986,7 @@
  #endif /* WINDOWS && !CYGWIN */
  
        /* Allocate memory for pooled objects */
@@ -340,7 +314,7 @@
                                      * daemon->worker_pool_size);
        if (NULL == daemon->worker_pool)
          goto thread_failed;
-@@ -4630,5 +4655,9 @@
+@@ -4630,5 +4652,9 @@
  
  _SET_INIT_AND_DEINIT_FUNCS(MHD_init, MHD_fini);
  
