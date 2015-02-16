@@ -2376,6 +2376,7 @@ MHD_poll_all (struct MHD_Daemon *daemon,
 	    break;
 	  case MHD_EVENT_LOOP_INFO_CLEANUP:
 	    /* should never happen */
+	    pos->idle_handler (pos); // Add forgotten idle_handler, by Milan Straka.
 	    break;
 	  }
       }
