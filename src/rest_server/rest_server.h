@@ -29,7 +29,7 @@ class rest_server {
   rest_server();
 
   bool set_log_file(const std::string& file_name, unsigned max_log_size);
-  void set_generator_limits(unsigned generator_minimum, unsigned generator_maximum);
+  void set_min_generated(unsigned min_generated);
   void set_max_connections(unsigned max_connections);
   void set_max_post_size(unsigned max_post_size);
   void set_timeout(unsigned timeout);
@@ -56,8 +56,7 @@ class rest_server {
   std::mutex log_file_mutex;
   unsigned max_log_size = 0;
 
-  unsigned generator_minimum = 16 << 10;
-  unsigned generator_maximum = 32 << 10;
+  unsigned min_generated = (1 << 10) + (1 << 8);
   unsigned max_connections = 0;
   unsigned max_post_size = 0;
   unsigned timeout = 0;

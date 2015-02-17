@@ -70,10 +70,14 @@ class rest_server::microhttpd_request : public rest_request {
  private:
   const rest_server& server;
   MHD_Connection* connection;
-  unique_ptr<MHD_PostProcessor, MHD_PostProcessorDeleter> post_processor; bool need_post_processor;
-  unique_ptr<response_generator> generator; unsigned generator_offset;
-  unsigned remaining_post_limit;
+
+  unique_ptr<MHD_PostProcessor, MHD_PostProcessorDeleter> post_processor;
+  bool need_post_processor;
   bool unsupported_post_data;
+  unsigned remaining_post_limit;
+
+  unique_ptr<response_generator> generator;
+  unsigned generator_offset;
 
   static MHD_Response* create_response(string_piece data, const char* content_type, bool make_copy);
   static MHD_Response* create_generator_response(microhttpd_request* request, const char* content_type);
@@ -99,7 +103,7 @@ unique_ptr<MHD_Response, MHD_ResponseDeleter> rest_server::microhttpd_request::r
                                               rest_server::microhttpd_request::response_invalid_utf8;
 
 rest_server::microhttpd_request::microhttpd_request(const rest_server& server, MHD_Connection* connection, const char* url, const char* content_type, const char* method)
-  : server(server), connection(connection), remaining_post_limit(server.max_post_size + 1), unsupported_post_data(false) {
+  : server(server), connection(connection), unsupported_post_data(false), remaining_post_limit(server.max_post_size + 1) {
   // Initialize rest_request fields
   this->url = url;
   this->method = method;
@@ -224,7 +228,7 @@ MHD_Response* rest_server::microhttpd_request::create_response(string_piece data
 }
 
 MHD_Response* rest_server::microhttpd_request::create_generator_response(microhttpd_request* request, const char* content_type) {
-  unique_ptr<MHD_Response, MHD_ResponseDeleter> response(MHD_create_response_from_callback(-1, request->server.generator_maximum, generator_callback, request, nullptr));
+  unique_ptr<MHD_Response, MHD_ResponseDeleter> response(MHD_create_response_from_callback(-1, 32 << 10, generator_callback, request, nullptr));
   response_common_headers(response, content_type);
   return response.release();
 }
@@ -283,7 +287,7 @@ ssize_t rest_server::microhttpd_request::generator_callback(void* cls, uint64_t 
   auto request = (microhttpd_request*) cls;
   bool end = false;
   string_piece data;
-  while (!end && (data = request->generator->current()).len - request->generator_offset < request->server.generator_minimum)
+  while (!end && (data = request->generator->current()).len - request->generator_offset < request->server.min_generated)
     end = !request->generator->generate();
 
   // End of data?
@@ -292,11 +296,10 @@ ssize_t rest_server::microhttpd_request::generator_callback(void* cls, uint64_t 
   // Copy generated data and remove them from the generator
   size_t data_len = min(data.len - request->generator_offset, max);
   memcpy(buf, data.str + request->generator_offset, data_len);
-  if (data.len - request->generator_offset - data_len < max) {
-    request->generator->consume(request->generator_offset + data_len);
+  request->generator_offset += data_len;
+  if (data.len - request->generator_offset < request->server.min_generated) {
+    request->generator->consume(request->generator_offset);
     request->generator_offset = 0;
-  } else {
-    request->generator_offset += data_len;
   }
   return data_len;
 }
@@ -365,19 +368,10 @@ bool rest_server::set_log_file(const std::string& file_name, unsigned max_log_si
   return log_file;
 }
 
-void rest_server::set_generator_limits(unsigned generator_minimum, unsigned generator_maximum) {
-  this->generator_minimum = generator_minimum;
-  this->generator_maximum = generator_maximum;
-}
-void rest_server::set_max_connections(unsigned max_connections) {
-  this->max_connections = max_connections;
-}
-void rest_server::set_max_post_size(unsigned max_post_size) {
-  this->max_post_size = max_post_size;
-}
-void rest_server::set_timeout(unsigned timeout) {
-  this->timeout = timeout;
-}
+void rest_server::set_min_generated(unsigned min_generated) { this->min_generated = min_generated; }
+void rest_server::set_max_connections(unsigned max_connections) { this->max_connections = max_connections; }
+void rest_server::set_max_post_size(unsigned max_post_size) { this->max_post_size = max_post_size; }
+void rest_server::set_timeout(unsigned timeout) { this->timeout = timeout; }
 
 bool rest_server::start(rest_service* service, unsigned port) {
   if (!service) return false;
@@ -402,13 +396,13 @@ bool rest_server::start(rest_service* service, unsigned port) {
                               port, nullptr, nullptr, &handle_request, this,
                               MHD_OPTION_LISTENING_ADDRESS_REUSE, 1,
                               MHD_OPTION_ARRAY, connection_limit,
-                              MHD_OPTION_CONNECTION_MEMORY_LIMIT, size_t((32 << 10) + generator_maximum),
+                              MHD_OPTION_CONNECTION_MEMORY_LIMIT, size_t(64 << 10),
                               MHD_OPTION_CONNECTION_TIMEOUT, timeout,
                               MHD_OPTION_NOTIFY_COMPLETED, &request_completed, this,
                               MHD_OPTION_END);
 
     if (daemon) {
-      logf("Starting service, port %u, max connections %u, timeout %u, max post size %u, generator limits %u-%u.", port, max_connections, timeout, max_post_size, generator_minimum, generator_maximum);
+      logf("Starting service, port %u, max connections %u, timeout %u, max post size %u, min generated %u.", port, max_connections, timeout, max_post_size, min_generated);
       return true;
     }
   }
