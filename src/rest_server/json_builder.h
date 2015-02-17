@@ -42,7 +42,7 @@ class json_builder {
   inline json_builder& close_all();
 
   // Return current json
-  inline string_piece current();
+  inline string_piece current() const;
 
   // JSON mime
   static const char* mime;
@@ -159,7 +159,7 @@ json_builder& json_builder::close_all() {
   return *this;
 }
 
-string_piece json_builder::current() {
+string_piece json_builder::current() const {
   return string_piece(json.data(), json.size());
 }
 

@@ -19,7 +19,7 @@ class response_generator {
   virtual ~response_generator() {}
 
   virtual bool generate() = 0;
-  virtual string_piece current() = 0;
+  virtual string_piece current() const = 0;
   virtual void consume(size_t length) = 0;
 };
 
