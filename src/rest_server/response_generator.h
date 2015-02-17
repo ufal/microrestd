@@ -9,8 +9,6 @@
 
 #pragma once
 
-#include <unordered_map>
-
 #include "string_piece.h"
 
 namespace ufal {
