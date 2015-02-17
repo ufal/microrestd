@@ -9,7 +9,6 @@
 
 #pragma once
 
-#include <cstring>
 #include <vector>
 
 #include "string_piece.h"
@@ -22,6 +21,9 @@ class json_builder {
  public:
   // Clear
   inline json_builder& clear();
+
+  // Raw appending
+  inline json_builder& append(string_piece data);
 
   // Encode
   inline json_builder& object();
@@ -42,14 +44,18 @@ class json_builder {
   // Return current json
   inline string_piece current();
 
+  // JSON mime
+  static const char* mime;
+
  private:
   // Remove current json prefix; for json_response_generator
-  inline void discard_prefix(size_t length);
+  friend class json_response_generator;
+  void discard_prefix(size_t length);
 
  private:
   inline void start_element(bool key);
-  inline void encode(string_piece str);
-  inline void encode_xml_content(string_piece str);
+  void encode(string_piece str);
+  void encode_xml_content(string_piece str);
 
   std::vector<char> json;
   std::vector<char> stack;
@@ -63,6 +69,11 @@ json_builder& json_builder::clear() {
   json.clear();
   stack.clear();
   comma_needed = false;
+  return *this;
+}
+
+json_builder& json_builder::append(string_piece data) {
+  json.insert(json.end(), data.str, data.str + data.len);
   return *this;
 }
 
@@ -152,62 +163,9 @@ string_piece json_builder::current() {
   return string_piece(json.data(), json.size());
 }
 
-void json_builder::discard_prefix(size_t length) {
-  if (!length) return;
-
-  size_t json_size = json.size();
-  if (length < json_size) {
-    memmove(json.data(), json.data() + length, json_size - length);
-    json.resize(json_size - length);
-  } else {
-    json.clear();
-  }
-}
-
 void json_builder::start_element(bool key) {
   if (!compacting && !stack.empty() && (stack.back() != '}' || key)) json.insert(json.end(), stack.size() - (comma_needed ? 1 : 0), ' ');
   if (comma_needed && (stack.empty() || stack.back() != '}' || key)) json.push_back(',');
-}
-
-void json_builder::encode(string_piece str) {
-  for (; str.len; str.str++, str.len--)
-    switch (*str.str) {
-      case '"': json.push_back('\\'); json.push_back('\"'); break;
-      case '\\': json.push_back('\\'); json.push_back('\\'); break;
-      case '\b': json.push_back('\\'); json.push_back('b'); break;
-      case '\f': json.push_back('\\'); json.push_back('f'); break;
-      case '\n': json.push_back('\\'); json.push_back('n'); break;
-      case '\r': json.push_back('\\'); json.push_back('r'); break;
-      case '\t': json.push_back('\\'); json.push_back('t'); break;
-      default:
-        if (((unsigned char)*str.str) < 32) {
-          json.push_back('u'); json.push_back('0'); json.push_back('0'); json.push_back('0' + (*str.str >> 4)); json.push_back("0123456789ABCDEF"[*str.str & 0xF]);
-        } else {
-          json.push_back(*str.str);
-        }
-    }
-}
-
-void json_builder::encode_xml_content(string_piece str) {
-  for (; str.len; str.str++, str.len--)
-    switch (*str.str) {
-      case '&': json.push_back('&'); json.push_back('a'); json.push_back('m'); json.push_back('p'); json.push_back(';'); break;
-      case '<': json.push_back('&'); json.push_back('l'); json.push_back('t'); json.push_back(';'); break;
-      case '>': json.push_back('&'); json.push_back('g'); json.push_back('t'); json.push_back(';'); break;
-      case '"': json.push_back('&'); json.push_back('q'); json.push_back('u'); json.push_back('o'); json.push_back('t'); json.push_back(';'); break;
-      case '\\': json.push_back('\\'); json.push_back('\\'); break;
-      case '\b': json.push_back('\\'); json.push_back('b'); break;
-      case '\f': json.push_back('\\'); json.push_back('f'); break;
-      case '\n': json.push_back('\\'); json.push_back('n'); break;
-      case '\r': json.push_back('\\'); json.push_back('r'); break;
-      case '\t': json.push_back('\\'); json.push_back('t'); break;
-      default:
-        if (((unsigned char)*str.str) < 32) {
-          json.push_back('u'); json.push_back('0'); json.push_back('0'); json.push_back('0' + (*str.str >> 4)); json.push_back("0123456789ABCDEF"[*str.str & 0xF]);
-        } else {
-          json.push_back(*str.str);
-        }
-    }
 }
 
 } // namespace microrestd
