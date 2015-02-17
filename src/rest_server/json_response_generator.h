@@ -9,10 +9,19 @@
 
 #pragma once
 
-#include "rest_server/json_builder.h"
-#include "rest_server/json_response_generator.h"
-#include "rest_server/response_generator.h"
-#include "rest_server/rest_request.h"
-#include "rest_server/rest_service.h"
-#include "rest_server/rest_server.h"
-#include "rest_server/string_piece.h"
+#include "json_builder.h"
+#include "response_generator.h"
+
+namespace ufal {
+namespace microrestd {
+
+class json_response_generator : public response_generator {
+ public:
+  virtual string_piece current() const override;
+  virtual void consume(size_t length) override;
+
+  json_builder json;
+};
+
+} // namespace microrestd
+} // namespace ufal

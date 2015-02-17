@@ -7,12 +7,18 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#pragma once
+#include "json_response_generator.h"
 
-#include "rest_server/json_builder.h"
-#include "rest_server/json_response_generator.h"
-#include "rest_server/response_generator.h"
-#include "rest_server/rest_request.h"
-#include "rest_server/rest_service.h"
-#include "rest_server/rest_server.h"
-#include "rest_server/string_piece.h"
+namespace ufal {
+namespace microrestd {
+
+string_piece json_response_generator::current() const {
+  return json.current();
+}
+
+void json_response_generator::consume(size_t length) {
+  json.discard_prefix(length);
+}
+
+} // namespace microrestd
+} // namespace ufal
