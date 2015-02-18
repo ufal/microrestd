@@ -50,7 +50,7 @@ class xml_builder {
 
   std::vector<char> xml;
   std::vector<std::string> stack;
-  size_t stack_length;
+  size_t stack_length = 0;
   bool in_element = false;
   bool compacting = false;
 };
@@ -66,7 +66,6 @@ xml_builder& xml_builder::clear() {
 
 xml_builder& xml_builder::element(string_piece name) {
   if (in_element) {
-    xml.push_back('/');
     xml.push_back('>');
     in_element = false;
     if (!compacting) {
@@ -79,10 +78,10 @@ xml_builder& xml_builder::element(string_piece name) {
   xml.insert(xml.end(), name.str, name.str + name.len);
   in_element = true;
 
-  if (stack_length >= stack.size())
-    stack.emplace_back(name.str, name.len);
-  else
+  if (stack_length < stack.size())
     stack[stack_length].assign(name.str, name.len);
+  else
+    stack.emplace_back(name.str, name.len);
   stack_length++;
 
   return *this;
@@ -102,7 +101,6 @@ xml_builder& xml_builder::attribute(string_piece name, string_piece value) {
 
 xml_builder& xml_builder::text(string_piece str) {
   if (in_element) {
-    xml.push_back('/');
     xml.push_back('>');
     in_element = false;
     if (!compacting) {
@@ -120,6 +118,7 @@ xml_builder& xml_builder::close() {
     if (in_element) {
       xml.push_back('/');
       xml.push_back('>');
+      in_element = false;
     } else {
       if (!compacting) xml.insert(xml.end(), stack_length, ' ');
       xml.push_back('<');
