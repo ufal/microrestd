@@ -22,9 +22,6 @@ class json_builder {
   // Clear
   inline json_builder& clear();
 
-  // Raw appending
-  inline json_builder& append(string_piece data);
-
   // Encode
   inline json_builder& object();
   inline json_builder& array();
@@ -37,6 +34,9 @@ class json_builder {
   inline json_builder& value_xml_content_append(string_piece str);
   inline json_builder& value_close();
   inline json_builder& compact(bool compact);
+
+  // Raw appending
+  inline json_builder& append_raw(string_piece data);
 
   // Close all open objects and arrays
   inline json_builder& close_all();
@@ -69,11 +69,6 @@ json_builder& json_builder::clear() {
   json.clear();
   stack.clear();
   comma_needed = false;
-  return *this;
-}
-
-json_builder& json_builder::append(string_piece data) {
-  json.insert(json.end(), data.str, data.str + data.len);
   return *this;
 }
 
@@ -151,6 +146,11 @@ json_builder& json_builder::value_close() {
 json_builder& json_builder::compact(bool compact) {
   compacting = compact;
   if (!compacting && !json.empty() && json.back() != '\n') json.push_back('\n');
+  return *this;
+}
+
+json_builder& json_builder::append_raw(string_piece data) {
+  json.insert(json.end(), data.str, data.str + data.len);
   return *this;
 }
 
