@@ -17,7 +17,7 @@ string_piece json_response_generator::current() const {
 }
 
 void json_response_generator::consume(size_t length) {
-  json.discard_prefix(length);
+  json.discard_current_prefix(length);
 }
 
 } // namespace microrestd

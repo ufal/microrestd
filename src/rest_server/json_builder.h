@@ -44,13 +44,11 @@ class json_builder {
   // Return current json
   inline string_piece current() const;
 
+  // Remove current json prefix; for response_generator
+  void discard_current_prefix(size_t length);
+
   // JSON mime
   static const char* mime;
-
- private:
-  // Remove current json prefix; for json_response_generator
-  friend class json_response_generator;
-  void discard_prefix(size_t length);
 
  private:
   inline void start_element(bool key);

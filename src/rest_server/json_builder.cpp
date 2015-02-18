@@ -16,7 +16,7 @@ namespace microrestd {
 
 const char* json_builder::mime = "application/json";
 
-void json_builder::discard_prefix(size_t length) {
+void json_builder::discard_current_prefix(size_t length) {
   if (!length) return;
 
   size_t json_size = json.size();
