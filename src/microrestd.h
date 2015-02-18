@@ -16,3 +16,4 @@
 #include "rest_server/rest_service.h"
 #include "rest_server/rest_server.h"
 #include "rest_server/string_piece.h"
+#include "rest_server/xml_builder.h"
