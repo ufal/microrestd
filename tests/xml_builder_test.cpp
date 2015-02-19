@@ -26,7 +26,7 @@ int main(void) {
   xml.indent().close();
 
   auto data = xml.current();
-  printf("%*s", int(data.len), data.str);
+  printf("%*s\n", int(data.len), data.str);
 
   return 0;
 }
