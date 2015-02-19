@@ -28,13 +28,10 @@ class xml_builder {
   inline xml_builder& attribute(string_piece name, string_piece value);
   inline xml_builder& text(string_piece str);
   inline xml_builder& close();
-  inline xml_builder& compact(bool compact);
-
-  // Raw appending
-  inline xml_builder& append_raw(string_piece data);
+  inline xml_builder& indent();
 
   // Close all open objects and arrays
-  inline xml_builder& close_all();
+  inline xml_builder& close_all(bool indent_before_close = false);
 
   // Return current xml
   inline string_piece current() const;
@@ -46,13 +43,15 @@ class xml_builder {
   static const char* mime;
 
  private:
+  enum mode_t { NORMAL, IN_ELEMENT, NEED_INDENT };
+
+  inline void normalize_mode();
   void encode(string_piece str);
 
   std::vector<char> xml;
   std::vector<std::string> stack;
   size_t stack_length = 0;
-  bool in_element = false;
-  bool compacting = false;
+  mode_t mode;
 };
 
 // Definitions
@@ -60,23 +59,26 @@ xml_builder& xml_builder::clear() {
   xml.clear();
   stack.clear();
   stack_length = 0;
-  in_element = false;
+  mode = NORMAL;
   return *this;
 }
 
 xml_builder& xml_builder::element(string_piece name) {
-  if (in_element) {
-    xml.push_back('>');
-    in_element = false;
-    if (!compacting) {
+  if (mode == NEED_INDENT) {
+    if (stack_length) {
       xml.push_back('\n');
       xml.insert(xml.end(), stack_length, ' ');
     }
+    mode = NORMAL;
+  }
+  if (mode == IN_ELEMENT) {
+    xml.push_back('>');
+    mode = NORMAL;
   }
 
   xml.push_back('<');
   xml.insert(xml.end(), name.str, name.str + name.len);
-  in_element = true;
+  mode = IN_ELEMENT;
 
   if (stack_length < stack.size())
     stack[stack_length].assign(name.str, name.len);
@@ -88,7 +90,7 @@ xml_builder& xml_builder::element(string_piece name) {
 }
 
 xml_builder& xml_builder::attribute(string_piece name, string_piece value) {
-  if (in_element) {
+  if (mode == IN_ELEMENT) {
     xml.push_back(' ');
     xml.insert(xml.end(), name.str, name.str + name.len);
     xml.push_back('=');
@@ -100,13 +102,16 @@ xml_builder& xml_builder::attribute(string_piece name, string_piece value) {
 }
 
 xml_builder& xml_builder::text(string_piece str) {
-  if (in_element) {
+  if (mode == IN_ELEMENT) {
     xml.push_back('>');
-    in_element = false;
-    if (!compacting) {
+    mode = NORMAL;
+  }
+  if (mode == NEED_INDENT) {
+    if (stack_length) {
       xml.push_back('\n');
       xml.insert(xml.end(), stack_length, ' ');
     }
+    mode = NORMAL;
   }
   encode(str);
   return *this;
@@ -115,41 +120,45 @@ xml_builder& xml_builder::text(string_piece str) {
 xml_builder& xml_builder::close() {
   if (stack_length) {
     stack_length--;
+    if (mode == NEED_INDENT) {
+    }
+    if (mode == IN_ELEMENT)
     if (in_element) {
       xml.push_back('/');
       xml.push_back('>');
       in_element = false;
     } else {
-      if (!compacting) xml.insert(xml.end(), stack_length, ' ');
       xml.push_back('<');
       xml.push_back('/');
       xml.insert(xml.end(), stack[stack_length].begin(), stack[stack_length].end());
       xml.push_back('>');
     }
-    if (!compacting) xml.push_back('\n');
   }
   return *this;
 }
 
-xml_builder& xml_builder::compact(bool compact) {
-  compacting = compact;
-  if (!compacting && !xml.empty() && xml.back() != '\n') xml.push_back('\n');
+xml_builder& xml_builder::indent() {
+  if (in_element) {
+    xml.push_back('>');
+    in_element = false;
+  }
+  need_indent = true;
   return *this;
 }
 
-xml_builder& xml_builder::append_raw(string_piece data) {
-  xml.insert(xml.end(), data.str, data.str + data.len);
-  return *this;
-}
-
-xml_builder& xml_builder::close_all() {
-  while (stack_length) close();
+xml_builder& xml_builder::close_all(bool indent_before_close) {
+  while (stack_length) {
+    if (indent_before_close) indent();
+    close();
+  }
   return *this;
 }
 
 string_piece xml_builder::current() const {
   return string_piece(xml.data(), xml.size());
 }
+
+void normalize_mode();
 
 } // namespace microrestd
 } // namespace ufal
