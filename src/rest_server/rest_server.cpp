@@ -65,6 +65,7 @@ class rest_server::microhttpd_request : public rest_request {
   virtual bool respond(const char* content_type, string_piece body, bool make_copy = true) override;
   virtual bool respond(const char* content_type, response_generator* generator) override;
   virtual bool respond_not_found() override;
+  virtual bool respond_method_not_allowed(const char* comma_separated_allowed_methods) override;
   virtual bool respond_error(string_piece error, int code = 400) override;
 
  private:
@@ -129,11 +130,11 @@ bool rest_server::microhttpd_request::initialize() {
   static string unsupported_post_data = "Unsupported format of the multipart/form-data POST request. Currently only the following is supported:\n"
       " - Content-type: application/octet-stream or text/plain or text/plain; charset=utf-8\n"
       " - Content-transfer-encoding: 7bit or 8bit or binary\n";
-  static string invalid_utf8 = "The GET or POST arguments are not valid UTF-8.\n";
+  static string invalid_utf8 = "The request arguments are not valid UTF-8.\n";
 
   response_not_allowed.reset(create_plain_permanent_response(not_allowed));
   if (!response_not_allowed) return false;
-  if (MHD_add_response_header(response_not_allowed.get(), MHD_HTTP_HEADER_ALLOW, "HEAD, GET, POST") != MHD_YES) return false;
+  if (MHD_add_response_header(response_not_allowed.get(), MHD_HTTP_HEADER_ALLOW, "HEAD, GET, POST, PUT, DELETE") != MHD_YES) return false;
 
   response_not_found.reset(create_plain_permanent_response(not_found));
   if (!response_not_found) return false;
@@ -152,7 +153,7 @@ bool rest_server::microhttpd_request::initialize() {
 
 int rest_server::microhttpd_request::handle(rest_service* service) {
   // Check that method is supported
-  if (method != MHD_HTTP_METHOD_HEAD && method != MHD_HTTP_METHOD_GET && method != MHD_HTTP_METHOD_POST)
+  if (method != MHD_HTTP_METHOD_HEAD && method != MHD_HTTP_METHOD_GET && method != MHD_HTTP_METHOD_POST && method != MHD_HTTP_METHOD_PUT && method != MHD_HTTP_METHOD_DELETE)
     return MHD_queue_response(connection, MHD_HTTP_METHOD_NOT_ALLOWED, response_not_allowed.get());
 
   // Close post_processor if exists
@@ -206,7 +207,14 @@ bool rest_server::microhttpd_request::respond(const char* content_type, response
 }
 
 bool rest_server::microhttpd_request::respond_not_found() {
-  return MHD_queue_response(connection, MHD_HTTP_NOT_FOUND, response_not_found.get());
+  return MHD_queue_response(connection, MHD_HTTP_NOT_FOUND, response_not_found.get()) == MHD_YES;
+}
+
+bool rest_server::microhttpd_request::respond_method_not_allowed(const char* comma_separated_allowed_methods) {
+  unique_ptr<MHD_Response, MHD_ResponseDeleter> response(create_response("Requested method is not allowed.\n", "text/plain", false));
+  if (!response) return false;
+  if (MHD_add_response_header(response.get(), MHD_HTTP_HEADER_ALLOW, comma_separated_allowed_methods) != MHD_YES) return response.reset(), false;
+  return MHD_queue_response(connection, MHD_HTTP_METHOD_NOT_ALLOWED, response.get()) == MHD_YES;
 }
 
 bool rest_server::microhttpd_request::respond_error(string_piece error, int code) {
