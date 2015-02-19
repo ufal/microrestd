@@ -47,7 +47,7 @@ void json_builder::encode(string_piece str) {
     }
 }
 
-void json_builder::encode_xml_content(string_piece str) {
+void json_builder::encode_xml_escape(string_piece str) {
   for (; str.len; str.str++, str.len--)
     switch (*str.str) {
       case '&': json.push_back('&'); json.push_back('a'); json.push_back('m'); json.push_back('p'); json.push_back(';'); break;
