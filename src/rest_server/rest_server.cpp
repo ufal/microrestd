@@ -379,6 +379,7 @@ bool rest_server::set_log_file(const std::string& file_name, unsigned max_log_si
 void rest_server::set_min_generated(unsigned min_generated) { this->min_generated = min_generated; }
 void rest_server::set_max_connections(unsigned max_connections) { this->max_connections = max_connections; }
 void rest_server::set_max_post_size(unsigned max_post_size) { this->max_post_size = max_post_size; }
+void rest_server::set_threads(unsigned threads) { this->threads = threads; }
 void rest_server::set_timeout(unsigned timeout) { this->timeout = timeout; }
 
 bool rest_server::start(rest_service* service, unsigned port) {
@@ -395,14 +396,19 @@ bool rest_server::start(rest_service* service, unsigned port) {
 #endif
 
   for (int use_poll = 1; use_poll >= 0; use_poll--) {
+    MHD_OptionItem threadpool_size[] = {
+      { threads ? MHD_OPTION_THREAD_POOL_SIZE : MHD_OPTION_END, int(threads), nullptr },
+      { MHD_OPTION_END, 0, nullptr }
+    };
     MHD_OptionItem connection_limit[] = {
       { max_connections ? MHD_OPTION_CONNECTION_LIMIT : MHD_OPTION_END, int(max_connections), nullptr },
       { MHD_OPTION_END, 0, nullptr }
     };
 
-    daemon = MHD_start_daemon(MHD_USE_THREAD_PER_CONNECTION | (use_poll ? MHD_USE_POLL : 0) | MHD_USE_PIPE_FOR_SHUTDOWN,
+    daemon = MHD_start_daemon((threads ? MHD_USE_SELECT_INTERNALLY : MHD_USE_THREAD_PER_CONNECTION) | (use_poll ? MHD_USE_POLL : 0) | MHD_USE_PIPE_FOR_SHUTDOWN,
                               port, nullptr, nullptr, &handle_request, this,
                               MHD_OPTION_LISTENING_ADDRESS_REUSE, 1,
+                              MHD_OPTION_ARRAY, threadpool_size,
                               MHD_OPTION_ARRAY, connection_limit,
                               MHD_OPTION_CONNECTION_MEMORY_LIMIT, size_t(64 << 10),
                               MHD_OPTION_CONNECTION_TIMEOUT, timeout,

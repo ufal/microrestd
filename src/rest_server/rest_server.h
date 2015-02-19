@@ -32,6 +32,7 @@ class rest_server {
   void set_min_generated(unsigned min_generated);
   void set_max_connections(unsigned max_connections);
   void set_max_post_size(unsigned max_post_size);
+  void set_threads(unsigned threads);
   void set_timeout(unsigned timeout);
 
   bool start(rest_service* service, unsigned port);
@@ -59,6 +60,7 @@ class rest_server {
   unsigned min_generated = (1 << 10) + (1 << 8);
   unsigned max_connections = 0;
   unsigned max_post_size = 0;
+  unsigned threads = 0;
   unsigned timeout = 0;
 };
 
