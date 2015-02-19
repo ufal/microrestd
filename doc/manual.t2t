@@ -6,4 +6,26 @@ Version 0.9.0-devel
 %!include: readme.t2t
 
 
+= MicroRestD Operations =
+
+MicroRestD provides a simple REST server. The server supports HEAD, GET,
+POST, PUT and DELETE methods and automatic parsing of query strings
+and POST ``application/x-www-form-urlencoded`` and ``multipart/form-data``
+request bodies.
+
+Linux, OS X and Windows systems are supported, although the support on Windows
+is not full-fledged. Only ``select`` is supported on Windows compared to
+``poll`` on Linux and OS X and there is no support for native Windows service.
+Also, on Linux and OS X there is support for seamless service restart (starting
+a second service, draining the first one and stopping it after all its requests
+are processed), which is not available on Windows because signals are used to
+indicate the restart. Nevertheless, all of these shortcomings could be sorted
+out if there is need for it.
+
+Classes for generating JSON and XML responses are provided. They allow the
+response to be created progressively,
+
+
 = API Reference =
+
+The MicroRestD library is contained in ``ufal::microrestd`` namespace.
