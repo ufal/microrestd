@@ -30,9 +30,6 @@ class xml_builder {
   inline xml_builder& close();
   inline xml_builder& indent();
 
-  // Close all open objects and arrays
-  inline xml_builder& close_all(bool indent_before_close = false);
-
   // Return current xml
   inline string_piece current() const;
 
@@ -120,14 +117,6 @@ xml_builder& xml_builder::close() {
 xml_builder& xml_builder::indent() {
   if (mode == IN_ELEMENT) normalize_mode();
   mode = NEED_INDENT;
-  return *this;
-}
-
-xml_builder& xml_builder::close_all(bool indent_before_close) {
-  while (stack_length) {
-    if (indent_before_close && mode != IN_ELEMENT) indent();
-    close();
-  }
   return *this;
 }
 

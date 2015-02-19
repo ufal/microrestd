@@ -22,8 +22,8 @@ int main(void) {
   xml.indent().text("text->test");
   xml.indent().close();
   xml.indent().text("text-&nazdar");
-  xml.indent().element("pokus").attribute("attr", nullptr);
-  xml.close_all(true);
+  xml.indent().element("pokus").attribute("attr", nullptr).close();
+  xml.indent().close();
 
   auto data = xml.current();
   printf("%*s", int(data.len), data.str);
