@@ -23,7 +23,7 @@ int main(void) {
   json.close();
 
   auto data = json.current();
-  printf("%*s\n", int(data.len), data.str);
+  printf("%.*s\n", int(data.len), data.str);
 
   json.clear();
   json.object();
@@ -33,7 +33,7 @@ int main(void) {
   json.indent().close();
 
   data = json.current();
-  printf("%*s\n", int(data.len), data.str);
+  printf("%.*s\n", int(data.len), data.str);
 
   return 0;
 }
