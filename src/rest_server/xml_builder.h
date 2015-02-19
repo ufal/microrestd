@@ -23,6 +23,9 @@ class xml_builder {
   // Clear
   inline xml_builder& clear();
 
+  // XML declaration
+  xml_builder& declaration(const char* encoding = nullptr, const char* standalone = nullptr);
+
   // Encode
   inline xml_builder& element(string_piece name);
   inline xml_builder& attribute(string_piece name, string_piece value);

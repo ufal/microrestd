@@ -16,13 +16,14 @@ using namespace ufal::microrestd;
 int main(void) {
   xml_builder xml;
 
-  xml.element("nazdar");
-  xml.indent().text("text-<nazdar");
-  xml.indent().element("test").attribute("test", "value");
-  xml.indent().text("text->test");
+  xml.declaration();
+  xml.indent().element("root");
+  xml.indent().text("less-than:<");
+  xml.indent().element("element").attribute("attr", "value").attribute("quot", "\"");
+  xml.indent().text("greater-than:>");
   xml.indent().close();
-  xml.indent().text("text-&nazdar");
-  xml.indent().element("pokus").attribute("attr", nullptr).close();
+  xml.indent().text("amp:&");
+  xml.indent().element("element").close();
   xml.indent().close();
 
   auto data = xml.current();
