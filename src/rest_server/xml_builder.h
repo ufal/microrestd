@@ -48,7 +48,7 @@ class xml_builder {
   std::vector<char> xml;
   std::vector<std::string> stack;
   size_t stack_length = 0;
-  mode_t mode;
+  mode_t mode = NORMAL;
 };
 
 // Definitions
