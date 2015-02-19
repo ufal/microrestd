@@ -64,17 +64,7 @@ xml_builder& xml_builder::clear() {
 }
 
 xml_builder& xml_builder::element(string_piece name) {
-  if (mode == NEED_INDENT) {
-    if (stack_length) {
-      xml.push_back('\n');
-      xml.insert(xml.end(), stack_length, ' ');
-    }
-    mode = NORMAL;
-  }
-  if (mode == IN_ELEMENT) {
-    xml.push_back('>');
-    mode = NORMAL;
-  }
+  normalize_mode();
 
   xml.push_back('<');
   xml.insert(xml.end(), name.str, name.str + name.len);
@@ -93,26 +83,18 @@ xml_builder& xml_builder::attribute(string_piece name, string_piece value) {
   if (mode == IN_ELEMENT) {
     xml.push_back(' ');
     xml.insert(xml.end(), name.str, name.str + name.len);
-    xml.push_back('=');
-    xml.push_back('"');
-    encode(value);
-    xml.push_back('"');
+    if (value.str) {
+      xml.push_back('=');
+      xml.push_back('"');
+      encode(value);
+      xml.push_back('"');
+    }
   }
   return *this;
 }
 
 xml_builder& xml_builder::text(string_piece str) {
-  if (mode == IN_ELEMENT) {
-    xml.push_back('>');
-    mode = NORMAL;
-  }
-  if (mode == NEED_INDENT) {
-    if (stack_length) {
-      xml.push_back('\n');
-      xml.insert(xml.end(), stack_length, ' ');
-    }
-    mode = NORMAL;
-  }
+  normalize_mode();
   encode(str);
   return *this;
 }
@@ -120,13 +102,11 @@ xml_builder& xml_builder::text(string_piece str) {
 xml_builder& xml_builder::close() {
   if (stack_length) {
     stack_length--;
-    if (mode == NEED_INDENT) {
-    }
-    if (mode == IN_ELEMENT)
-    if (in_element) {
+    if (mode == NEED_INDENT) normalize_mode();
+    if (mode == IN_ELEMENT) {
       xml.push_back('/');
       xml.push_back('>');
-      in_element = false;
+      mode = NORMAL;
     } else {
       xml.push_back('<');
       xml.push_back('/');
@@ -138,17 +118,14 @@ xml_builder& xml_builder::close() {
 }
 
 xml_builder& xml_builder::indent() {
-  if (in_element) {
-    xml.push_back('>');
-    in_element = false;
-  }
-  need_indent = true;
+  if (mode == IN_ELEMENT) normalize_mode();
+  mode = NEED_INDENT;
   return *this;
 }
 
 xml_builder& xml_builder::close_all(bool indent_before_close) {
   while (stack_length) {
-    if (indent_before_close) indent();
+    if (indent_before_close && mode != IN_ELEMENT) indent();
     close();
   }
   return *this;
@@ -158,7 +135,16 @@ string_piece xml_builder::current() const {
   return string_piece(xml.data(), xml.size());
 }
 
-void normalize_mode();
+void xml_builder::normalize_mode() {
+  if (mode == NEED_INDENT) {
+    xml.push_back('\n');
+    if (stack_length) xml.insert(xml.end(), stack_length, ' ');
+    mode = NORMAL;
+  } else if (mode == IN_ELEMENT) {
+    xml.push_back('>');
+    mode = NORMAL;
+  }
+}
 
 } // namespace microrestd
 } // namespace ufal

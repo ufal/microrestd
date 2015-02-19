@@ -17,12 +17,13 @@ int main(void) {
   xml_builder xml;
 
   xml.element("nazdar");
-  xml.text("text-nazdar");
-  xml.element("test");
-  xml.text("text-test");
-  xml.close();
-  xml.text("text-nazdar");
-  xml.close_all();
+  xml.indent().text("text-<nazdar");
+  xml.indent().element("test").attribute("test", "value");
+  xml.indent().text("text->test");
+  xml.indent().close();
+  xml.indent().text("text-&nazdar");
+  xml.indent().element("pokus").attribute("attr", nullptr);
+  xml.close_all(true);
 
   auto data = xml.current();
   printf("%*s", int(data.len), data.str);
