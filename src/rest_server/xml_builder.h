@@ -80,12 +80,10 @@ xml_builder& xml_builder::attribute(string_piece name, string_piece value) {
   if (mode == IN_ELEMENT) {
     xml.push_back(' ');
     xml.insert(xml.end(), name.str, name.str + name.len);
-    if (value.str) {
-      xml.push_back('=');
-      xml.push_back('"');
-      encode(value);
-      xml.push_back('"');
-    }
+    xml.push_back('=');
+    xml.push_back('"');
+    encode(value);
+    xml.push_back('"');
   }
   return *this;
 }
