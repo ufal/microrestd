@@ -8,21 +8,27 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include <cctype>
+#include <chrono>
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
 #include <ctime>
 #include <memory>
+#include <thread>
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
+#include <condition_variable>
+#include <mutex>
 #include <ws2tcpip.h>
 #include <windows.h>
+#define MHD_socket_close(fd) closesocket((fd))
 #else
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #include <signal.h>
 #include <unistd.h>
+#define MHD_socket_close(fd) close((fd))
 #endif
 
 #include "response_generator.h"
@@ -391,7 +397,7 @@ bool rest_server::start(rest_service* service, unsigned port) {
                               MHD_OPTION_END);
 
     if (daemon) {
-      logf("Starting service, port %u, max connections %u, timeout %u, max request body size %u, min generated %u.", port, max_connections, timeout, max_request_body_size, min_generated);
+      logf("REST server starting, port %u, max connections %u, timeout %u, max request body size %u, min generated %u.", port, max_connections, timeout, max_request_body_size, min_generated);
       return true;
     }
   }
@@ -399,56 +405,75 @@ bool rest_server::start(rest_service* service, unsigned port) {
   return false;
 }
 
-void rest_server::wait_until_closed() {
-#if defined(_WIN32) && !defined(__CYGWIN__)
-  logf("Server started.");
-  wait_indefinitely();
-#else
-  logf("Server started, serving until USR1 is received.");
+void rest_server::stop() {
+  if (!daemon) return;
 
-  sigset_t set;
-  if (sigemptyset(&set) != 0) wait_indefinitely();
-  if (sigaddset(&set, SIGUSR1) != 0) wait_indefinitely();
-
-  // Wait for SIGUSR1
-  int signal;
-  do {
-    if (sigwait(&set, &signal) != 0) wait_indefinitely();
-  } while (signal != SIGUSR1);
-
-  // Should stop now. Quiesce the daemon and wait for current requests to be
-  // handled.
-  logf("USR1 received, closing listening port and waiting for current requests to finish.");
-  MHD_socket socket = *(MHD_socket*)MHD_get_daemon_info(daemon, MHD_DAEMON_INFO_LISTEN_FD);
-  if (socket != MHD_INVALID_SOCKET) shutdown(socket, SHUT_RDWR);
-  MHD_quiesce_daemon(daemon);
+  // Quiesce the daemon and wait for current requests to be handled.
+  logf("REST server closing listening port and waiting for current requests to finish.");
+  MHD_socket socket = MHD_quiesce_daemon(daemon);
+  if (socket != MHD_INVALID_SOCKET) MHD_socket_close(socket);
   while (true) {
-    unsigned connections = *(unsigned*)MHD_get_daemon_info(daemon, MHD_DAEMON_INFO_CURRENT_CONNECTIONS);
+    unsigned connections = *(unsigned*) MHD_get_daemon_info(daemon, MHD_DAEMON_INFO_CURRENT_CONNECTIONS);
     logf("There are %u current connections.", connections);
     if (!connections) break;
-    sleep(1);
+    this_thread::sleep_for(chrono::milliseconds(500));
   }
-  logf("Stopping now.");
+  logf("REST server stopped.");
 
   MHD_stop_daemon(daemon);
   daemon = nullptr;
   service = nullptr;
   log_file = nullptr;
-
-  if (socket != MHD_INVALID_SOCKET) close(socket);
-#endif
 }
 
-void rest_server::wait_indefinitely() {
 #if defined(_WIN32) && !defined(__CYGWIN__)
-  logf("Waiting indefinitely.");
-  Sleep(INFINITE);
-#else
-  logf("An error occurred in waiting for USR1, waiting indefinitely.");
-  while(true)
-    pause();
-#endif
+mutex rest_server_ctrl_c_mutex;
+condition_variable rest_server_ctrl_c_cv;
+unsigned rest_server_ctrl_c_handlers;
+bool rest_server_ctrl_c_signalled;
+BOOL WINAPI RestServerCtrlCHandler(DWORD dwCtrlType) {
+  if (dwCtrlType == CTRL_C_EVENT) {
+    rest_server_ctrl_c_signalled = true;
+    rest_server_ctrl_c_cv.notify_all();
+    return TRUE;
+  }
+  return FALSE;
 }
+
+bool rest_server::wait_until_signalled() {
+  logf("Waiting until Ctrl+C is pressed.");
+  unique_lock<mutex> lock(rest_server_ctrl_c_mutex);
+  if (!rest_server_ctrl_c_handlers++)
+    if (!SetConsoleCtrlHandler(RestServerCtrlCHandler, TRUE)) {
+      rest_server_ctrl_c_handlers--;
+      return false;
+    }
+  if (!rest_server_ctrl_c_signalled)
+    rest_server_ctrl_c_cv.wait(lock, []{ return rest_server_ctrl_c_signalled; });
+  if (!--rest_server_ctrl_c_handlers) {
+    SetConsoleCtrlHandler(RestServerCtrlCHandler, FALSE);
+    rest_server_ctrl_c_signalled = false;
+  }
+  return true;
+}
+#else
+bool rest_server::wait_until_signalled() {
+  logf("Waiting until SIGINT or SIGUSR1 is received.");
+
+  sigset_t set;
+  if (sigemptyset(&set) != 0) return false;
+  if (sigaddset(&set, SIGINT) != 0) return false;
+  if (sigaddset(&set, SIGUSR1) != 0) return false;
+
+  // Wait for SIGINT or SIGUSR1
+  int signal;
+  do {
+    if (sigwait(&set, &signal) != 0) return false;
+  } while (signal != SIGINT && signal != SIGUSR1);
+
+  return true;
+}
+#endif
 
 int rest_server::handle_request(void* cls, struct MHD_Connection* connection, const char* url, const char* method, const char* /*version*/, const char* upload_data, size_t* upload_data_size, void** con_cls) {
   auto self = (rest_server*) cls;

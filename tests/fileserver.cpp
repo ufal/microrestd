@@ -79,7 +79,8 @@ int main(int argc, char* argv[]) {
     fprintf(stderr, "Cannot start REST server!\n");
     return 1;
   }
-  server.wait_until_closed();
+  server.wait_until_signalled();
+  server.stop();
 
   return 0;
 }

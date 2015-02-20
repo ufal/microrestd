@@ -34,7 +34,8 @@ class rest_server {
   void set_timeout(unsigned timeout);
 
   bool start(rest_service* service, unsigned port);
-  void wait_until_closed();
+  void stop();
+  bool wait_until_signalled();
 
  private:
   class microhttpd_request;
@@ -45,8 +46,6 @@ class rest_server {
   void logf(const char* message, ...);
   void log_append_pair(std::string& message, const char* key, const std::string& value);
   void log_request(const microhttpd_request* request);
-
-  void wait_indefinitely();
 
   libmicrohttpd::MHD_Daemon* daemon = nullptr;
   rest_service* service = nullptr;
