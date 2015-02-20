@@ -73,17 +73,30 @@ class response_generator {
 };
 ```
 
-The [``response_generator`` #response_generator] abstract class defines an interface of progressive
-response generator.
+The [``response_generator`` #response_generator] abstract class defines an
+interface of progressive response generator.
 
 === response_generator::generate ===[response_generator_generate]
 ``` virtual bool generate() = 0;
 
+Try generating more response data. Returns ``false`` if there are no more data
+to be generated and the end of the response has been reached. It is guaranteed
+[``generate`` #generate] is never called again after returning ``false``.
+
 === response_generator::current ===[response_generator_current]
 ``` virtual [string_piece #string_piece] current() const = 0;
 
+Return current response data.
+
 === response_generator::consume ===[response_generator_consume]
 ``` virtual void consume(size_t length) = 0;
+
+Drop first ``length`` chars of the response data.
+
+Note that when [``consume`` #response_generator_consume] is called, it is
+guaranteed that ``length >= [current #response_generator_current]().len / 2``
+so amortized cost of all calls to [``consume`` #response_generator_consume] is
+at most linear in the response size.
 
 
 == Class rest_request ==[rest_request]
@@ -100,26 +113,53 @@ class rest_request {
 
   std::string url;
   std::string method;
-  std::string content_type;
   std::string body;
+  std::string content_type;
   std::unordered_map<std::string, std::string> params;
 };
 ```
+
+The [``rest_request`` #rest_request] class represents REST request and provides
+means of responding to it.
+
+The following variables are provided:
+- ``url``
+- ``method``
+- ``body``, possibly empty
+- ``content_type`` of body, possibly empty
+- ``params``, the GET and POST parameters of the request
+
+
 === rest_request::respond with string_piece ===[rest_request_respond_string_piece]
 ``` virtual bool respond(const char* content_type, [string_piece #string_piece] body, bool make_copy = true) = 0;
+
+Respond HTTP OK response with specified ``content_type`` and ``body``.
+
+If ``make_copy`` is ``true``, a copy of ``body`` is made, otherwise it is not. Note that the response can be
+sent at any later time, even after the ``rest_request`` is destroyed.
 
 === rest_request::respond with response_generator ===[rest_request_respond_generator]
 ``` virtual bool respond(const char* content_type, [response_generator #response_generator]* generator) = 0;
 
+Respond HTTP OK response with specified ``content_type`` using the given [``response_generator`` #response_generator].
+
 === rest_request::respond_not_found ===[rest_request_respond_not_found]
 ``` virtual bool respond_not_found() = 0;
+
+Respond HTTP Not Found.
 
 === rest_request::respond_method_not_allowed ===[rest_request_respond_method_not_allowed]
 ``` virtual bool respond_method_not_allowed(const char* comma_separated_allowed_methods) = 0;
 
+Respond HTTP Method Not Allowed with supplied list of allowed methods.
+
 === rest_request::respond_error ===[rest_request_respond_error]
 ``` virtual bool respond_error([string_piece #string_piece] error, int code = 400) = 0;
 
+Respond with specified HTTP code, ``text/plain`` content-type and specified error body.
+
+If ``make_copy`` is ``true``, a copy of ``error`` is made, otherwise it is not. Note that the response can be
+sent at any later time, even after the ``rest_request`` is destroyed.
 
 == Class rest_service ==[rest_service]
 ```
@@ -129,15 +169,19 @@ class rest_service {
 };
 ```
 
+The [``rest_service`` #rest_service] represents an interface of a REST service.
+
 === rest_service::handle ===[rest_service_handle]
 ``` virtual bool handle([rest_request #rest_request]& req) = 0;
 
+Handle the given [``rest_request`` #rest_request]. The return code should be the one returned by
+the [``rest_request`` #rest_request]::respond* methods.
 
 == Class rest_server ==[rest_server]
 ```
 class rest_server {
  public:
-  bool [set_log_file #rest_server_set_log_file](const std::string& file_name, unsigned max_log_size);
+  void [set_log_file #rest_server_set_log_file](FILE* log_file, unsigned max_log_size = 0);
   void [set_min_generated #rest_server_set_min_generated](unsigned min_generated);
   void [set_max_connections #rest_server_set_max_connections](unsigned max_connections);
   void [set_max_post_size #rest_server_set_max_post_size](unsigned max_post_size);
@@ -149,14 +193,38 @@ class rest_server {
 };
 ```
 
+Main REST server class.
+
 === rest_server::set_log_file ===[rest_server_set_log_file]
-``` bool set_log_file(const std::string& file_name, unsigned max_log_size);
+``` void set_log_file(FILE* log_file, unsigned max_log_size);
+
+Log to the specified ``log_file``. If ``nullptr`` is passed, logging is disabled.
+Note that the [``rest_server`` #rest_server] does not close ``log_file`` on exit.
+
+If ``max_log_size`` is nonzero, it limits the size of every request parameter.
+
+By default, logging is disabled.
 
 === rest_server::set_min_generated ===[rest_server_set_min_generated]
 ``` void set_min_generated(unsigned min_generated);
 
+When a [``response_generator`` #response_generator] is used, ``min_generated``
+sets minimum buffer size which is sent (i.e. [``generate`` #response_generator_generate]
+is called until this many chars are produced).
+
+Note that maximum buffer size is limited to 32kB, so reasonable maximum for
+``min_generated`` is something like 24kB.
+
+Default value of ``min_generated`` is 1kB.
+
 === rest_server::set_max_connections ===[rest_server_set_max_connections]
 ``` void set_max_connections(unsigned max_connections);
+
+Sets number of maximum concurrent connections (with 0 denoting unlimited number
+of connections). When this limit is reached, no more connections are accepted until
+some existing connections are closed.
+
+Default value of ``max_connections`` is 0.
 
 === rest_server::set_max_post_size ===[rest_server_set_max_post_size]
 ``` void set_max_post_size(unsigned max_post_size);
