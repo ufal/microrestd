@@ -2878,6 +2878,8 @@ MHD_quiesce_daemon (struct MHD_Daemon *daemon)
     for (i = 0; i < daemon->worker_pool_size; i++)
       {
 	daemon->worker_pool[i].socket_fd = MHD_INVALID_SOCKET;
+	if (MHD_INVALID_PIPE_ != daemon->worker_pool[i].wpipe[1])
+	  MHD_pipe_write_ (daemon->worker_pool[i].wpipe[1], "q", 1);
 #if EPOLL_SUPPORT
 	if ( (0 != (daemon->options & MHD_USE_EPOLL_LINUX_ONLY)) &&
 	     (-1 != daemon->worker_pool[i].epoll_fd) &&
@@ -2893,6 +2895,8 @@ MHD_quiesce_daemon (struct MHD_Daemon *daemon)
 #endif
       }
   daemon->socket_fd = MHD_INVALID_SOCKET;
+  if (MHD_INVALID_PIPE_ != daemon->wpipe[1])
+    MHD_pipe_write_ (daemon->wpipe[1], "q", 1);
 #if EPOLL_SUPPORT
   if ( (0 != (daemon->options & MHD_USE_EPOLL_LINUX_ONLY)) &&
        (-1 != daemon->epoll_fd) &&

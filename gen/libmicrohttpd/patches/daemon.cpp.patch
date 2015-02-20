@@ -1,5 +1,5 @@
---- daemon.cpp.orig	2015-02-16 12:44:31.294134784 +0100
-+++ daemon.cpp	2015-02-16 22:04:00.901655701 +0100
+--- daemon.cpp.orig	2015-02-20 17:57:06.419149859 +0100
++++ daemon.cpp	2015-02-20 17:59:55.495146086 +0100
 @@ -70,6 +70,10 @@
  #include <windows.h>
  #endif
@@ -305,7 +305,25 @@
                    char *val)
  {
    return MHD_http_unescape (val);
-@@ -2979,7 +3014,7 @@
+@@ -2843,6 +2878,8 @@
+     for (i = 0; i < daemon->worker_pool_size; i++)
+       {
+ 	daemon->worker_pool[i].socket_fd = MHD_INVALID_SOCKET;
++	if (MHD_INVALID_PIPE_ != daemon->worker_pool[i].wpipe[1])
++	  MHD_pipe_write_ (daemon->worker_pool[i].wpipe[1], "q", 1);
+ #if EPOLL_SUPPORT
+ 	if ( (0 != (daemon->options & MHD_USE_EPOLL_LINUX_ONLY)) &&
+ 	     (-1 != daemon->worker_pool[i].epoll_fd) &&
+@@ -2858,6 +2895,8 @@
+ #endif
+       }
+   daemon->socket_fd = MHD_INVALID_SOCKET;
++  if (MHD_INVALID_PIPE_ != daemon->wpipe[1])
++    MHD_pipe_write_ (daemon->wpipe[1], "q", 1);
+ #if EPOLL_SUPPORT
+   if ( (0 != (daemon->options & MHD_USE_EPOLL_LINUX_ONLY)) &&
+        (-1 != daemon->epoll_fd) &&
+@@ -2979,7 +3018,7 @@
            break;
          case MHD_OPTION_THREAD_POOL_SIZE:
            daemon->worker_pool_size = va_arg (ap, unsigned int);
@@ -314,7 +332,7 @@
  	    {
  #if HAVE_MESSAGES
  	      MHD_DLOG (daemon,
-@@ -3404,7 +3439,7 @@
+@@ -3404,7 +3443,7 @@
  #endif
    if (NULL == dh)
      return NULL;
@@ -323,7 +341,7 @@
      return NULL;
    memset (daemon, 0, sizeof (struct MHD_Daemon));
  #if EPOLL_SUPPORT
-@@ -3422,11 +3457,6 @@
+@@ -3422,11 +3461,6 @@
    daemon->socket_fd = MHD_INVALID_SOCKET;
    daemon->listening_address_reuse = 0;
    daemon->options = (enum MHD_OPTION) flags;
@@ -335,7 +353,7 @@
    daemon->port = port;
    daemon->apc = apc;
    daemon->apc_cls = apc_cls;
-@@ -3518,7 +3548,7 @@
+@@ -3518,7 +3552,7 @@
  	  free (daemon);
  	  return NULL;
  	}
@@ -344,7 +362,7 @@
        if (NULL == daemon->nnc)
  	{
  #if HAVE_MESSAGES
-@@ -3610,7 +3640,11 @@
+@@ -3610,7 +3644,11 @@
            if (0 > setsockopt (socket_fd,
                                SOL_SOCKET,
                                SO_REUSEADDR,
@@ -356,7 +374,7 @@
            {
  #if HAVE_MESSAGES
              MHD_DLOG (daemon,
-@@ -3631,7 +3665,7 @@
+@@ -3631,7 +3669,7 @@
            if (0 > setsockopt (socket_fd,
                                SOL_SOCKET,
                                SO_REUSEADDR,
@@ -365,7 +383,7 @@
              {
  #if HAVE_MESSAGES
                MHD_DLOG (daemon,
-@@ -3684,7 +3718,7 @@
+@@ -3684,7 +3722,7 @@
            if (0 > setsockopt (socket_fd,
                                SOL_SOCKET,
                                SO_EXCLUSIVEADDRUSE,
@@ -374,7 +392,7 @@
              {
  #if HAVE_MESSAGES
                MHD_DLOG (daemon,
-@@ -3811,7 +3845,7 @@
+@@ -3811,7 +3849,7 @@
  	    }
  	}
  #endif
@@ -383,7 +401,7 @@
  	{
  #if HAVE_MESSAGES
            MHD_DLOG (daemon,
-@@ -3964,7 +3998,7 @@
+@@ -3964,7 +4002,7 @@
  #endif /* WINDOWS && !CYGWIN */
  
        /* Allocate memory for pooled objects */
@@ -392,7 +410,7 @@
                                      * daemon->worker_pool_size);
        if (NULL == daemon->worker_pool)
          goto thread_failed;
-@@ -4630,5 +4664,9 @@
+@@ -4630,5 +4668,9 @@
  
  _SET_INIT_AND_DEINIT_FUNCS(MHD_init, MHD_fini);
  
