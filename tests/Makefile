@@ -2,7 +2,7 @@ include Makefile.builtem
 
 include ../src/Makefile.include
 
-TARGETS = compile_test json_builder_test libmicrohttpd_fileserver xml_builder_test
+TARGETS = compile_test json_builder_test fileserver libmicrohttpd_fileserver xml_builder_test
 
 C_FLAGS += $(call include_dir,../src)
 LD_FLAGS += $(call use_library,$(if $(filter win-%,$(PLATFORM)),$(MICRORESTD_LIBRARIES_WIN),$(MICRORESTD_LIBRARIES_POSIX)))

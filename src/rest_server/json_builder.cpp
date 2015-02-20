@@ -7,8 +7,6 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include <cstring>
-
 #include "json_builder.h"
 
 namespace ufal {
@@ -19,13 +17,10 @@ const char* json_builder::mime = "application/json";
 void json_builder::discard_current_prefix(size_t length) {
   if (!length) return;
 
-  size_t json_size = json.size();
-  if (length < json_size) {
-    memmove(json.data(), json.data() + length, json_size - length);
-    json.resize(json_size - length);
-  } else {
+  if (length < json.size())
+    json.erase(json.begin(), json.begin() + length);
+  else
     json.clear();
-  }
 }
 
 void json_builder::encode(string_piece str) {

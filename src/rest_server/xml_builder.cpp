@@ -7,8 +7,6 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include <cstring>
-
 #include "xml_builder.h"
 
 namespace ufal {
@@ -40,13 +38,11 @@ xml_builder& xml_builder::declaration(const char* encoding, const char* standalo
 void xml_builder::discard_current_prefix(size_t length) {
   if (!length) return;
 
-  size_t xml_size = xml.size();
-  if (length < xml_size) {
-    memmove(xml.data(), xml.data() + length, xml_size - length);
-    xml.resize(xml_size - length);
-  } else {
+  if (length < xml.size())
+    xml.erase(xml.begin(), xml.begin() + length);
+  else
     xml.clear();
-  }
+  if (!length) return;
 }
 
 void xml_builder::encode(string_piece str) {
