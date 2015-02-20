@@ -165,7 +165,7 @@ int rest_server::microhttpd_request::handle(rest_service* service) {
     return MHD_queue_response(connection, MHD_HTTP_UNSUPPORTED_MEDIA_TYPE, response_unsupported_post_data.get());
 
   // Was the request too large?
-  if (!remaining_post_limit)
+  if (server.max_post_size && !remaining_post_limit)
     return MHD_queue_response(connection, MHD_HTTP_REQUEST_ENTITY_TOO_LARGE, response_too_large.get());
 
   // Are all arguments legal utf-8?
@@ -254,11 +254,12 @@ void rest_server::microhttpd_request::response_common_headers(unique_ptr<MHD_Res
 
 int rest_server::microhttpd_request::get_iterator(void* cls, MHD_ValueKind kind, const char* key, const char* value) {
   auto self = (microhttpd_request*) cls;
-  if (kind == MHD_GET_ARGUMENT_KIND && self->remaining_post_limit) {
+  if (kind == MHD_GET_ARGUMENT_KIND && !self->unsupported_post_data && (!self->server.max_post_size || self->remaining_post_limit)) {
     auto value_len = value ? strlen(value) : 0;
-    if (self->remaining_post_limit > value_len) {
+    if (!self->server.max_post_size || self->remaining_post_limit > value_len) {
       if (self->params.emplace(key, value ? value : string()).second)
-        self->remaining_post_limit -= value_len;
+        if (self->server.max_post_size)
+          self->remaining_post_limit -= value_len;
     } else {
       self->remaining_post_limit = 0;
     }
@@ -268,23 +269,16 @@ int rest_server::microhttpd_request::get_iterator(void* cls, MHD_ValueKind kind,
 
 int rest_server::microhttpd_request::post_iterator(void* cls, MHD_ValueKind kind, const char* key, const char* /*filename*/, const char* content_type, const char* transfer_encoding, const char* data, uint64_t off, size_t size) {
   auto self = (microhttpd_request*) cls;
-  if (kind == MHD_POSTDATA_KIND && self->remaining_post_limit) {
+  if (kind == MHD_POSTDATA_KIND && !self->unsupported_post_data && (!self->server.max_post_size || self->remaining_post_limit)) {
     // Check that content_type and transfer_encoding are supported
     if ((content_type && !supported_content_type(content_type)) ||
         (transfer_encoding && !supported_transfer_encoding(transfer_encoding))) {
       self->unsupported_post_data = true;
-      self->remaining_post_limit = 0;
-    }
-
-    if (self->remaining_post_limit > size) {
+    } else if (!self->server.max_post_size || self->remaining_post_limit > size) {
       string& value = self->params[key];
       if (!off) value.clear();
-      if (value.size() == off) {
-        if (size) value.append(data, size);
-        self->remaining_post_limit -= size;
-      } else {
-        fprintf(stderr, "Cannot append to key %s at offset %u, have only %u\n", key, unsigned(off), unsigned(value.size()));
-      }
+      if (size) value.append(data, size);
+      if (self->server.max_post_size) self->remaining_post_limit -= size;
     } else {
       self->remaining_post_limit = 0;
     }
