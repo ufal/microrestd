@@ -92,7 +92,7 @@ class rest_server::microhttpd_request : public rest_request {
 
   static bool valid_utf8(const string& text);
 
-  static bool benevolent_compare(const char* string, const char* pattern);
+  static bool http_value_compare(const char* string, const char* pattern);
 
   static unique_ptr<MHD_Response, MHD_ResponseDeleter> response_not_allowed, response_not_found, response_too_large, response_unsupported_multipart_encoding, response_invalid_utf8;
 };
@@ -111,8 +111,8 @@ rest_server::microhttpd_request::microhttpd_request(const rest_server& server, M
 
   // Create post processor if needed
   need_post_processor = this->method == MHD_HTTP_METHOD_POST &&
-      (benevolent_compare(content_type, MHD_HTTP_POST_ENCODING_FORM_URLENCODED) ||
-       benevolent_compare(content_type, MHD_HTTP_POST_ENCODING_MULTIPART_FORMDATA));
+      (http_value_compare(content_type, MHD_HTTP_POST_ENCODING_FORM_URLENCODED) ||
+       http_value_compare(content_type, MHD_HTTP_POST_ENCODING_MULTIPART_FORMDATA));
   if (need_post_processor) {
     post_processor.reset(MHD_create_post_processor(connection, 32 << 10, &post_iterator, this));
     if (!post_processor) fprintf(stderr, "Cannot allocate new post processor!\n");
@@ -267,9 +267,9 @@ int rest_server::microhttpd_request::post_iterator(void* cls, MHD_ValueKind kind
   auto self = (microhttpd_request*) cls;
   if (kind == MHD_POSTDATA_KIND && !self->unsupported_multipart_encoding && (!self->server.max_post_size || self->remaining_post_limit)) {
     // Check that transfer_encoding is supported
-    if (transfer_encoding && !(benevolent_compare(transfer_encoding, "binary") ||
-                               benevolent_compare(transfer_encoding, "7bit") ||
-                               benevolent_compare(transfer_encoding, "8bit"))) {
+    if (transfer_encoding && !(http_value_compare(transfer_encoding, "binary") ||
+                               http_value_compare(transfer_encoding, "7bit") ||
+                               http_value_compare(transfer_encoding, "8bit"))) {
       self->unsupported_multipart_encoding = true;
     } else if (!self->server.max_post_size || self->remaining_post_limit > size) {
       string& value = self->params[key];
@@ -325,7 +325,7 @@ bool rest_server::microhttpd_request::valid_utf8(const string& text) {
   return true;
 }
 
-bool rest_server::microhttpd_request::benevolent_compare(const char* string, const char* pattern) {
+bool rest_server::microhttpd_request::http_value_compare(const char* string, const char* pattern) {
   // While there are pattern characters.
   while (*pattern) {
     // Skip spaces.
@@ -336,8 +336,11 @@ bool rest_server::microhttpd_request::benevolent_compare(const char* string, con
     if (tolower(*string++) != tolower(*pattern++)) return false;
   }
 
-  // Succeed even if there are remaining data in string
-  return true;
+  // Skip final spaces.
+  while (*string && isspace(*string)) string++;
+
+  // Succeed if there are no characters in string left or if there is a semicolon.
+  return !*string || *string == ';';
 }
 
 
