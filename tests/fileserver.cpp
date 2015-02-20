@@ -74,7 +74,9 @@ int main(int argc, char* argv[]) {
   rest_server server;
   server.set_max_connections(connection_limit);
   server.set_threads(threads);
-  if (!server.start(new file_service(), port)) {
+
+  file_service service;
+  if (!server.start(&service, port)) {
     fprintf(stderr, "Cannot start REST server!\n");
     return 1;
   }
