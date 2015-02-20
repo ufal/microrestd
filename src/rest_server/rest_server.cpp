@@ -433,8 +433,12 @@ unsigned rest_server_ctrl_c_handlers;
 bool rest_server_ctrl_c_signalled;
 BOOL WINAPI RestServerCtrlCHandler(DWORD dwCtrlType) {
   if (dwCtrlType == CTRL_C_EVENT) {
-    rest_server_ctrl_c_signalled = true;
-    rest_server_ctrl_c_cv.notify_all();
+    if (!rest_server_ctrl_c_signalled) {
+      rest_server_ctrl_c_mutex.lock();
+      rest_server_ctrl_c_signalled = true;
+      rest_server_ctrl_c_mutex.unlock();
+      rest_server_ctrl_c_cv.notify_all();
+    }
     return TRUE;
   }
   return FALSE;
