@@ -9,12 +9,22 @@
 
 #pragma once
 
-#include "rest_server/json_builder.h"
-#include "rest_server/json_response_generator.h"
-#include "rest_server/response_generator.h"
-#include "rest_server/rest_request.h"
-#include "rest_server/rest_service.h"
-#include "rest_server/rest_server.h"
-#include "rest_server/string_piece.h"
-#include "rest_server/version.h"
-#include "rest_server/xml_builder.h"
+#include <string>
+
+namespace ufal {
+namespace microrestd {
+
+struct version {
+  unsigned major;
+  unsigned minor;
+  unsigned patch;
+  std::string prerelease;
+
+  // Returns current version.
+  static version current() {
+    return {0, 9, 0, "devel"};
+  }
+};
+
+} // namespace microrestd
+} // namespace ufal
