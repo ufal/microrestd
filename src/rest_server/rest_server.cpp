@@ -57,7 +57,7 @@ class rest_server::microhttpd_request : public rest_request {
   microhttpd_request(const rest_server& server, MHD_Connection* connection, const char* url, const char* content_type, const char* method);
 
   int handle(rest_service* service);
-  bool process_post_data(const char* post_data, size_t post_data_len);
+  bool process_request_body(const char* request_body, size_t request_body_len);
 
   const sockaddr* address() const;
   const char* forwarded_for() const;
@@ -75,7 +75,7 @@ class rest_server::microhttpd_request : public rest_request {
   unique_ptr<MHD_PostProcessor, MHD_PostProcessorDeleter> post_processor;
   bool need_post_processor;
   bool unsupported_multipart_encoding;
-  unsigned remaining_post_limit;
+  unsigned remaining_request_body_size;
 
   unique_ptr<response_generator> generator;
   bool generator_end;
@@ -103,7 +103,7 @@ unique_ptr<MHD_Response, MHD_ResponseDeleter> rest_server::microhttpd_request::r
                                               rest_server::microhttpd_request::response_invalid_utf8;
 
 rest_server::microhttpd_request::microhttpd_request(const rest_server& server, MHD_Connection* connection, const char* url, const char* content_type, const char* method)
-  : server(server), connection(connection), unsupported_multipart_encoding(false), remaining_post_limit(server.max_post_size + 1) {
+  : server(server), connection(connection), unsupported_multipart_encoding(false), remaining_request_body_size(server.max_request_body_size + 1) {
   // Initialize rest_request fields
   this->url = url;
   this->method = method;
@@ -156,12 +156,12 @@ int rest_server::microhttpd_request::handle(rest_service* service) {
   // Close post_processor if exists
   if (post_processor) post_processor.reset();
 
-  // Was the POST format supported
+  // Was the multipart/form-data transfer-encoding supported
   if (unsupported_multipart_encoding)
     return MHD_queue_response(connection, MHD_HTTP_UNSUPPORTED_MEDIA_TYPE, response_unsupported_multipart_encoding.get());
 
   // Was the request too large?
-  if (server.max_post_size && !remaining_post_limit)
+  if (server.max_request_body_size && !remaining_request_body_size)
     return MHD_queue_response(connection, MHD_HTTP_REQUEST_ENTITY_TOO_LARGE, response_too_large.get());
 
   // Are all arguments legal utf-8?
@@ -173,18 +173,19 @@ int rest_server::microhttpd_request::handle(rest_service* service) {
   return service->handle(*this) ? MHD_YES : MHD_NO;
 }
 
-bool rest_server::microhttpd_request::process_post_data(const char* post_data, size_t post_data_len) {
-  if (need_post_processor) {
-    return post_processor && MHD_post_process(post_processor.get(), post_data, post_data_len) == MHD_YES;
-  } else {
-    if (!server.max_post_size || remaining_post_limit > post_data_len) {
-      body.append(post_data, post_data_len);
-      if (server.max_post_size) remaining_post_limit -= post_data_len;
+bool rest_server::microhttpd_request::process_request_body(const char* request_body, size_t request_body_len) {
+  if (!server.max_request_body_size || remaining_request_body_size > request_body_len) {
+    if (need_post_processor) {
+      if (!post_processor || MHD_post_process(post_processor.get(), request_body, request_body_len) != MHD_YES)
+        return false;
     } else {
-      remaining_post_limit = 0;
+      body.append(request_body, request_body_len);
     }
-    return true;
+    if (server.max_request_body_size) remaining_request_body_size -= request_body_len;
+  } else {
+    remaining_request_body_size = 0;
   }
+  return true;
 }
 
 const sockaddr* rest_server::microhttpd_request::address() const {
@@ -257,37 +258,24 @@ void rest_server::microhttpd_request::response_common_headers(unique_ptr<MHD_Res
 
 int rest_server::microhttpd_request::get_iterator(void* cls, MHD_ValueKind kind, const char* key, const char* value) {
   auto self = (microhttpd_request*) cls;
-  if (kind == MHD_GET_ARGUMENT_KIND && key && (!self->server.max_post_size || self->remaining_post_limit)) {
-    auto needed_len = strlen(key) + (value ? strlen(value) : 0);
-    if (!self->server.max_post_size || self->remaining_post_limit > needed_len) {
-      self->params.emplace(key, value ? value : string());
-      if (self->server.max_post_size) self->remaining_post_limit -= needed_len;
-    } else {
-      self->remaining_post_limit = 0;
-    }
-  }
+  if (kind == MHD_GET_ARGUMENT_KIND && key)
+    self->params.emplace(key, value ? value : string());
+
   return MHD_YES;
 }
 
 int rest_server::microhttpd_request::post_iterator(void* cls, MHD_ValueKind kind, const char* key, const char* /*filename*/, const char* /*content_type*/, const char* transfer_encoding, const char* data, uint64_t off, size_t size) {
   auto self = (microhttpd_request*) cls;
-  if (kind == MHD_POSTDATA_KIND && key && !self->unsupported_multipart_encoding && (!self->server.max_post_size || self->remaining_post_limit)) {
+  if (kind == MHD_POSTDATA_KIND && key && !self->unsupported_multipart_encoding) {
     // Check that transfer_encoding is supported
     if (transfer_encoding && !(http_value_compare(transfer_encoding, "binary") ||
                                http_value_compare(transfer_encoding, "7bit") ||
                                http_value_compare(transfer_encoding, "8bit"))) {
       self->unsupported_multipart_encoding = true;
-      return MHD_YES;
-    }
-    // Check that we fit in the limit
-    auto needed_len = (!off ? strlen(key) : 0) + size;
-    if (!self->server.max_post_size || self->remaining_post_limit > needed_len) {
+    } else {
       string& value = self->params[key];
       if (!off) value.clear();
       if (size) value.append(data, size);
-      if (self->server.max_post_size) self->remaining_post_limit -= needed_len;
-    } else {
-      self->remaining_post_limit = 0;
     }
   }
 
@@ -365,7 +353,7 @@ void rest_server::set_log_file(FILE* log_file, unsigned max_log_size) {
 }
 void rest_server::set_min_generated(unsigned min_generated) { this->min_generated = min_generated; }
 void rest_server::set_max_connections(unsigned max_connections) { this->max_connections = max_connections; }
-void rest_server::set_max_post_size(unsigned max_post_size) { this->max_post_size = max_post_size; }
+void rest_server::set_max_request_body_size(unsigned max_request_body_size) { this->max_request_body_size = max_request_body_size; }
 void rest_server::set_threads(unsigned threads) { this->threads = threads; }
 void rest_server::set_timeout(unsigned timeout) { this->timeout = timeout; }
 
@@ -403,7 +391,7 @@ bool rest_server::start(rest_service* service, unsigned port) {
                               MHD_OPTION_END);
 
     if (daemon) {
-      logf("Starting service, port %u, max connections %u, timeout %u, max post size %u, min generated %u.", port, max_connections, timeout, max_post_size, min_generated);
+      logf("Starting service, port %u, max connections %u, timeout %u, max request body size %u, min generated %u.", port, max_connections, timeout, max_request_body_size, min_generated);
       return true;
     }
   }
@@ -478,9 +466,9 @@ int rest_server::handle_request(void* cls, struct MHD_Connection* connection, co
     return MHD_YES;
   }
 
-  // Are we processing POST data?
+  // Are we processing request body?
   if (*upload_data_size) {
-    if (!request->process_post_data(upload_data, *upload_data_size))
+    if (!request->process_request_body(upload_data, *upload_data_size))
       return MHD_NO;
 
     *upload_data_size = 0;

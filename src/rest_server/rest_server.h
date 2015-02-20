@@ -29,7 +29,7 @@ class rest_server {
   void set_log_file(FILE* log_file, unsigned max_log_size = 0);
   void set_min_generated(unsigned min_generated);
   void set_max_connections(unsigned max_connections);
-  void set_max_post_size(unsigned max_post_size);
+  void set_max_request_body_size(unsigned max_request_body_size);
   void set_threads(unsigned threads);
   void set_timeout(unsigned timeout);
 
@@ -57,7 +57,7 @@ class rest_server {
 
   unsigned min_generated = 1 << 10;
   unsigned max_connections = 0;
-  unsigned max_post_size = 0;
+  unsigned max_request_body_size = 0;
   unsigned threads = 0;
   unsigned timeout = 0;
 };
