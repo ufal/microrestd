@@ -49,9 +49,7 @@ class file_service : public rest_service {
 
  public:
   virtual bool handle(rest_request& req) override {
-    fprintf(stderr, "Serving url %s via method %s\n", req.url.c_str(), req.method.c_str());
-
-    if (req.method != "HEAD" && req.method != "GET") return req.respond_method_not_allowed("HEAD, GET");
+    if (req.method != "HEAD" && req.method != "GET" && req.method != "POST") return req.respond_method_not_allowed("HEAD, GET, POST");
 
     if (!req.url.empty()) {
       FILE* f = fopen(req.url.c_str() + 1, "rb");
@@ -72,6 +70,7 @@ int main(int argc, char* argv[]) {
   int connection_limit = argc >= 4 ? stoi(argv[3]) : 2;
 
   rest_server server;
+  server.set_log_file(stderr);
   server.set_max_connections(connection_limit);
   server.set_threads(threads);
 
