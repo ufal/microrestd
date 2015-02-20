@@ -26,8 +26,6 @@ struct MHD_Connection;
 
 class rest_server {
  public:
-  rest_server();
-
   bool set_log_file(const std::string& file_name, unsigned max_log_size);
   void set_min_generated(unsigned min_generated);
   void set_max_connections(unsigned max_connections);
