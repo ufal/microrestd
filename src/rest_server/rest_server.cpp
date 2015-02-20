@@ -297,7 +297,8 @@ int rest_server::microhttpd_request::post_iterator(void* cls, MHD_ValueKind kind
 ssize_t rest_server::microhttpd_request::generator_callback(void* cls, uint64_t /*pos*/, char* buf, size_t max) {
   auto request = (microhttpd_request*) cls;
   string_piece data = request->generator->current();
-  while (data.len - request->generator_offset < request->server.min_generated && !request->generator_end) {
+  unsigned minimum = request->server.min_generated < max ? request->server.min_generated : max;
+  while (data.len - request->generator_offset < minimum && !request->generator_end) {
     request->generator_end = !request->generator->generate();
     data = request->generator->current();
   }
@@ -309,7 +310,7 @@ ssize_t rest_server::microhttpd_request::generator_callback(void* cls, uint64_t 
   size_t data_len = min(data.len - request->generator_offset, max);
   memcpy(buf, data.str + request->generator_offset, data_len);
   request->generator_offset += data_len;
-  if (data.len - request->generator_offset < request->server.min_generated) {
+  if (data.len - request->generator_offset < minimum) {
     request->generator->consume(request->generator_offset);
     request->generator_offset = 0;
   }
