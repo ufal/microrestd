@@ -443,14 +443,14 @@ BOOL WINAPI RestServerCtrlCHandler(DWORD dwCtrlType) {
 bool rest_server::wait_until_signalled() {
   logf("Waiting until Ctrl+C is pressed.");
   unique_lock<mutex> lock(rest_server_ctrl_c_mutex);
-  if (!rest_server_ctrl_c_handlers++)
-    if (!SetConsoleCtrlHandler(RestServerCtrlCHandler, TRUE)) {
-      rest_server_ctrl_c_handlers--;
+  if (!rest_server_ctrl_c_handlers)
+    if (!SetConsoleCtrlHandler(RestServerCtrlCHandler, TRUE))
       return false;
-    }
+  rest_server_ctrl_c_handlers++;
   if (!rest_server_ctrl_c_signalled)
     rest_server_ctrl_c_cv.wait(lock, []{ return rest_server_ctrl_c_signalled; });
-  if (!--rest_server_ctrl_c_handlers) {
+  rest_server_ctrl_c_handlers--;
+  if (!rest_server_ctrl_c_handlers) {
     SetConsoleCtrlHandler(RestServerCtrlCHandler, FALSE);
     rest_server_ctrl_c_signalled = false;
   }
