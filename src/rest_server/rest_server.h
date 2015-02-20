@@ -26,7 +26,7 @@ struct MHD_Connection;
 
 class rest_server {
  public:
-  void set_log_file(FILE* log_file, unsigned max_log_size);
+  void set_log_file(FILE* log_file, unsigned max_log_size = 0);
   void set_min_generated(unsigned min_generated);
   void set_max_connections(unsigned max_connections);
   void set_max_post_size(unsigned max_post_size);
