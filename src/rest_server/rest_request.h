@@ -26,7 +26,7 @@ class rest_request {
   virtual bool respond(const char* content_type, response_generator* generator) = 0;
   virtual bool respond_not_found() = 0;
   virtual bool respond_method_not_allowed(const char* comma_separated_allowed_methods) = 0;
-  virtual bool respond_error(string_piece error, int code = 400) = 0;
+  virtual bool respond_error(string_piece error, int code = 400, bool make_copy = true) = 0;
 
   std::string url;
   std::string method;

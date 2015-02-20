@@ -66,7 +66,7 @@ class rest_server::microhttpd_request : public rest_request {
   virtual bool respond(const char* content_type, response_generator* generator) override;
   virtual bool respond_not_found() override;
   virtual bool respond_method_not_allowed(const char* comma_separated_allowed_methods) override;
-  virtual bool respond_error(string_piece error, int code = 400) override;
+  virtual bool respond_error(string_piece error, int code = 400, bool make_copy = true) override;
 
  private:
   const rest_server& server;
@@ -219,8 +219,8 @@ bool rest_server::microhttpd_request::respond_method_not_allowed(const char* com
   return MHD_queue_response(connection, MHD_HTTP_METHOD_NOT_ALLOWED, response.get()) == MHD_YES;
 }
 
-bool rest_server::microhttpd_request::respond_error(string_piece error, int code) {
-  unique_ptr<MHD_Response, MHD_ResponseDeleter> response(create_response(error, "text/plain", true));
+bool rest_server::microhttpd_request::respond_error(string_piece error, int code, bool make_copy) {
+  unique_ptr<MHD_Response, MHD_ResponseDeleter> response(create_response(error, "text/plain", make_copy));
   if (!response) return false;
   return MHD_queue_response(connection, code, response.get()) == MHD_YES;
 }
