@@ -369,7 +369,6 @@ bool rest_server::microhttpd_request::supported_transfer_encoding(const char* tr
 void rest_server::set_log_file(FILE* log_file, unsigned max_log_size) {
   lock_guard<decltype(log_file_mutex)> log_file_lock(log_file_mutex);
 
-  if (this->log_file) fclose(log_file);
   this->log_file = log_file;
   if (this->log_file) setvbuf(log_file, NULL, _IOLBF, 0);
   this->max_log_size = max_log_size;
@@ -453,12 +452,10 @@ void rest_server::wait_until_closed() {
   }
   logf("Stopping now.");
 
-  if (log_file) fclose(log_file);
-  log_file = nullptr;
-
   MHD_stop_daemon(daemon);
   daemon = nullptr;
   service = nullptr;
+  log_file = nullptr;
 
   if (socket != MHD_INVALID_SOCKET) close(socket);
 #endif
