@@ -587,7 +587,7 @@ void rest_server::log_request(const microhttpd_request* request) {
     log_append_pair(data, param.first.c_str(), param.second);
   }
 
-  logf("Request\t%s\t%s\t%s\t%s", address, forwarded_for, request->url.c_str(), data.c_str());
+  logf("Request\t%s\t%s\t%s\t%s", address, forwarded_for ? forwarded_for : "", request->url.c_str(), data.c_str());
 }
 
 } // namespace microrestd
