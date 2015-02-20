@@ -537,8 +537,11 @@ void rest_server::log_append_pair(string& message, const char* key, const string
   size_t to_clean = message.size();
 
   message.append(key);
-  message.append(to_string(value.size()));
-  message.push_back(':');
+  {
+    char length[39/*128-bit number*/ + 3/*():*/ + 1/*\0*/];
+    sprintf(length, "(%u):", unsigned(value.size()));
+    message.append(length);
+  }
 
   if (!max_log_size || value.size() < max_log_size) {
     message.append(value);
