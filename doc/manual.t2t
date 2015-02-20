@@ -13,14 +13,8 @@ POST, PUT and DELETE methods and automatic parsing of query strings
 and POST ``application/x-www-form-urlencoded`` and ``multipart/form-data``
 request bodies.
 
-Linux, OS X and Windows systems are supported, although the support on Windows
-is not full-fledged. Only ``select`` is supported on Windows compared to
-``poll`` on Linux and OS X and there is no support for native Windows service.
-Also, on Linux and OS X there is support for seamless service restart (starting
-a second service, draining the first one and stopping it after all its requests
-are processed), which is not available on Windows because signals are used to
-indicate the restart. Nevertheless, all of these shortcomings could be sorted
-out if there is need for it.
+Linux, OS X and Windows systems are supported (although only ``select`` is
+supported on Windows, while ``poll`` is used on Linux and OS X).
 
 Each request is processed by a new thread by default, but it is possible to use
 a thread pool. Classes for generating JSON and XML responses are provided.
