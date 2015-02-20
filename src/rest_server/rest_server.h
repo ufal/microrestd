@@ -55,7 +55,7 @@ class rest_server {
   std::mutex log_file_mutex;
   unsigned max_log_size = 0;
 
-  unsigned min_generated = (1 << 10) + (1 << 8);
+  unsigned min_generated = 1 << 10;
   unsigned max_connections = 0;
   unsigned max_post_size = 0;
   unsigned threads = 0;
