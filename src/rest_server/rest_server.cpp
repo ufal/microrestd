@@ -250,12 +250,11 @@ void rest_server::microhttpd_request::response_common_headers(unique_ptr<MHD_Res
 
 int rest_server::microhttpd_request::get_iterator(void* cls, MHD_ValueKind kind, const char* key, const char* value) {
   auto self = (microhttpd_request*) cls;
-  if (kind == MHD_GET_ARGUMENT_KIND && (!self->server.max_post_size || self->remaining_post_limit)) {
-    auto value_len = value ? strlen(value) : 0;
-    if (!self->server.max_post_size || self->remaining_post_limit > value_len) {
-      if (self->params.emplace(key, value ? value : string()).second)
-        if (self->server.max_post_size)
-          self->remaining_post_limit -= value_len;
+  if (kind == MHD_GET_ARGUMENT_KIND && key && (!self->server.max_post_size || self->remaining_post_limit)) {
+    auto needed_len = strlen(key) + (value ? strlen(value) : 0);
+    if (!self->server.max_post_size || self->remaining_post_limit > needed_len) {
+      self->params.emplace(key, value ? value : string());
+      if (self->server.max_post_size) self->remaining_post_limit -= needed_len;
     } else {
       self->remaining_post_limit = 0;
     }
@@ -265,17 +264,21 @@ int rest_server::microhttpd_request::get_iterator(void* cls, MHD_ValueKind kind,
 
 int rest_server::microhttpd_request::post_iterator(void* cls, MHD_ValueKind kind, const char* key, const char* /*filename*/, const char* /*content_type*/, const char* transfer_encoding, const char* data, uint64_t off, size_t size) {
   auto self = (microhttpd_request*) cls;
-  if (kind == MHD_POSTDATA_KIND && !self->unsupported_multipart_encoding && (!self->server.max_post_size || self->remaining_post_limit)) {
+  if (kind == MHD_POSTDATA_KIND && key && !self->unsupported_multipart_encoding && (!self->server.max_post_size || self->remaining_post_limit)) {
     // Check that transfer_encoding is supported
     if (transfer_encoding && !(http_value_compare(transfer_encoding, "binary") ||
                                http_value_compare(transfer_encoding, "7bit") ||
                                http_value_compare(transfer_encoding, "8bit"))) {
       self->unsupported_multipart_encoding = true;
-    } else if (!self->server.max_post_size || self->remaining_post_limit > size) {
+      return MHD_YES;
+    }
+    // Check that we fit in the limit
+    auto needed_len = (!off ? strlen(key) : 0) + size;
+    if (!self->server.max_post_size || self->remaining_post_limit > needed_len) {
       string& value = self->params[key];
       if (!off) value.clear();
       if (size) value.append(data, size);
-      if (self->server.max_post_size) self->remaining_post_limit -= size;
+      if (self->server.max_post_size) self->remaining_post_limit -= needed_len;
     } else {
       self->remaining_post_limit = 0;
     }
