@@ -189,7 +189,8 @@ class rest_server {
   void [set_timeout #rest_server_set_timeout](unsigned timeout);
 
   bool [start #rest_server_start]([rest_service #rest_service]* service, unsigned port);
-  void [wait_until_closed #rest_server_wait_until_closed]();
+  void [stop #rest_server_stop]();
+  bool [wait_until_signalled #rest_server_wait_until_signalled]();
 };
 ```
 
@@ -242,8 +243,22 @@ Default value of ``max_request_body_size`` is 0 (i.e. unlimited).
 === rest_server::start ===[rest_server_start]
 ``` bool start([rest_service #rest_service]* service, unsigned port);
 
-=== rest_server::wait_until_closed ===[rest_server_wait_until_closed]
-``` void wait_until_closed();
+Try starting the specified [``rest_service`` #rest_service] on specified ``port``.
+If the service was successfully started, ``true`` is returned, ``false`` otherwise.
+The service is started in a background thread(s), so the calling thread can
+continue operating.
+
+That the socket is opened with ``SO_REUSEPORT`` on POSIX systems (and with
+``SO_REUSEADDR`` on Windows which is roughly equivalent), so multiple services
+can be bound to the same port.
+
+Note the server does not take ownership of the ``service``.
+
+=== rest_server::stop ===[rest_server_stop]
+``` void stop();
+
+=== rest_server::wait_until_signalled ===[rest_server_wait_until_signalled]
+``` bool wait_until_signalled();
 
 
 == Class json_builder ==[json_builder]
