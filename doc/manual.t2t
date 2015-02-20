@@ -202,7 +202,7 @@ Main REST server class.
 Log to the specified ``log_file``. If ``nullptr`` is passed, logging is disabled.
 Note that the [``rest_server`` #rest_server] does not close ``log_file`` on exit.
 
-If ``max_log_size`` is nonzero, it limits the size of every request parameter.
+If ``max_log_size`` is nonzero, it limits the size of every logged request parameter.
 
 By default, logging is disabled.
 
@@ -210,7 +210,7 @@ By default, logging is disabled.
 ``` void set_min_generated(unsigned min_generated);
 
 When a [``response_generator`` #response_generator] is used, ``min_generated``
-sets minimum buffer size which is sent (i.e. [``generate`` #response_generator_generate]
+specifies minimum buffer size which is sent (i.e. [``generate`` #response_generator_generate]
 is called until this many chars are produced).
 
 Note that maximum buffer size is limited to 32kB, so reasonable maximum for
@@ -221,9 +221,9 @@ Default value of ``min_generated`` is 1kB.
 === rest_server::set_max_connections ===[rest_server_set_max_connections]
 ``` void set_max_connections(unsigned max_connections);
 
-Sets number of maximum concurrent connections (with 0 denoting unlimited number
+Limit number of maximum concurrent connections (with 0 denoting unlimited number
 of connections). When this limit is reached, no more connections are accepted until
-some existing connections are closed.
+some existing requests are handled.
 
 Default value of ``max_connections`` is 0 (i.e. unlimited).
 
@@ -237,8 +237,20 @@ Default value of ``max_request_body_size`` is 0 (i.e. unlimited).
 === rest_server::set_threads ===[rest_server_set_threads]
 ``` void set_threads(unsigned threads);
 
+Set number of concurrently running REST server threads. If the value 0 is used,
+there is one listening thread and each request is handled by a new thread.
+If a nonzero value //t// is used, there are //t// threads each listening and
+processing its connections (the ``max_connections`` limit is divided equally
+among them in this case).
+
+Default value of ``threads`` is 0 (i.e. each request gets a new thread).
+
 === rest_server::set_timeout ===[rest_server_set_timeout]
 ``` void set_timeout(unsigned timeout);
+
+Set inactivity timeout in seconds (with 0 denoting no time limit).
+
+Default value of ``timeout`` is 0 (i.e. no timeout).
 
 === rest_server::start ===[rest_server_start]
 ``` bool start([rest_service #rest_service]* service, unsigned port);
@@ -257,9 +269,18 @@ Note the server does not take ownership of the ``service``.
 === rest_server::stop ===[rest_server_stop]
 ``` void stop();
 
+Stop running REST server. No more connections are accepted, but current connections
+are handled before returning.
+
 === rest_server::wait_until_signalled ===[rest_server_wait_until_signalled]
 ``` bool wait_until_signalled();
 
+Wait until shutdown/restart is signalled. Returns ``false`` on error and ``true``
+if shutdown/restart was signalled.
+
+On POSIX systems, receiving either ``SIGUSR1`` signal or ``SIGINT`` (Ctrl+C)
+signal is used to indicate shutdown/restart.  On Windows, console control
+handler receiving Ctrl+C is used.
 
 == Class json_builder ==[json_builder]
 ```
