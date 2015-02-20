@@ -22,10 +22,321 @@ are processed), which is not available on Windows because signals are used to
 indicate the restart. Nevertheless, all of these shortcomings could be sorted
 out if there is need for it.
 
-Classes for generating JSON and XML responses are provided. They allow the
-response to be created progressively,
+Each request is processed by a new thread by default, but it is possible to use
+a thread pool. Classes for generating JSON and XML responses are provided.
+Responses can be generated progressively, so multiple responses can be
+processed simultaneously by one thread.
+
+Internally, [libmicrohttpd http://www.gnu.org/software/libmicrohttpd/] is used
+as a HTTP server. Also [pugixml http://pugixml.org/] is provided for XML
+parsing and manupulation.
 
 
-= API Reference =
+= MicroRestD API Reference =
 
-The MicroRestD library is contained in ``ufal::microrestd`` namespace.
+The MicroRestD library is contained in ``ufal::microrestd`` namespace,
+including both [libmicrohttpd http://www.gnu.org/software/libmicrohttpd/]
+and [pugixml http://pugixml.org/] libraries.
+
+The MicroRestD API is available through the ``microrestd.h`` header.
+To compile MicroRestD, include the ``Makefile.include`` makefile, compile
+the sources listed in ``MICRORESTD_OBJECTS`` variable and link the
+libraries listed in either ``MICRORESTD_LIBRARIES_POSIX`` or
+``MICRORESTD_LIBRARIES_WIN`` depending on the operating system.
+
+== Structure string_piece ==[string_piece]
+```
+struct string_piece {
+  const char* str;
+  size_t len;
+
+  string_piece();
+  string_piece(const char* str);
+  string_piece(const char* str, size_t len);
+  string_piece(const std::string& str);
+}
+```
+
+The [``string_piece`` #string_piece] is used for efficient string passing. The string
+referenced in [``string_piece`` #string_piece] is not owned by it, so users have to make sure
+the referenced string exists as long as the [``string_piece`` #string_piece].
+
+== Class response_generator ==[response_generator]
+```
+class response_generator {
+ public:
+  virtual ~response_generator() {}
+
+  virtual bool [generate #response_generator_generate]() = 0;
+  virtual [string_piece #string_piece] [current #response_generator_current]() const = 0;
+  virtual void [consume #response_generator_consume](size_t length) = 0;
+};
+```
+
+The [``response_generator`` #response_generator] abstract class defines an interface of progressive
+response generator.
+
+=== response_generator::generate ===[response_generator_generate]
+``` virtual bool generate() = 0;
+
+=== response_generator::current ===[response_generator_current]
+``` virtual [string_piece #string_piece] current() const = 0;
+
+=== response_generator::consume ===[response_generator_consume]
+``` virtual void consume(size_t length) = 0;
+
+
+== Class rest_request ==[rest_request]
+```
+class rest_request {
+ public:
+  virtual ~rest_request() {}
+
+  virtual bool [respond #rest_request_respond_string_piece](const char* content_type, [string_piece #string_piece] body, bool make_copy = true) = 0;
+  virtual bool [respond #rest_request_respond_generator](const char* content_type, [response_generator #response_generator]* generator) = 0;
+  virtual bool [respond_not_found #rest_request_respond_not_found]() = 0;
+  virtual bool [respond_method_not_allowed #rest_request_respond_method_not_allowed](const char* comma_separated_allowed_methods) = 0;
+  virtual bool [respond_error #rest_request_respond_error]([string_piece #string_piece] error, int code = 400) = 0;
+
+  std::string url;
+  std::string method;
+  std::string content_type;
+  std::string body;
+  std::unordered_map<std::string, std::string> params;
+};
+```
+=== rest_request::respond with string_piece ===[rest_request_respond_string_piece]
+``` virtual bool respond(const char* content_type, [string_piece #string_piece] body, bool make_copy = true) = 0;
+
+=== rest_request::respond with response_generator ===[rest_request_respond_generator]
+``` virtual bool respond(const char* content_type, [response_generator #response_generator]* generator) = 0;
+
+=== rest_request::respond_not_found ===[rest_request_respond_not_found]
+``` virtual bool respond_not_found() = 0;
+
+=== rest_request::respond_method_not_allowed ===[rest_request_respond_method_not_allowed]
+``` virtual bool respond_method_not_allowed(const char* comma_separated_allowed_methods) = 0;
+
+=== rest_request::respond_error ===[rest_request_respond_error]
+``` virtual bool respond_error([string_piece #string_piece] error, int code = 400) = 0;
+
+
+== Class rest_service ==[rest_service]
+```
+class rest_service {
+ public:
+  virtual bool [handle #rest_service_handle]([rest_request #rest_request]& req) = 0;
+};
+```
+
+=== rest_service::handle ===[rest_service_handle]
+``` virtual bool handle([rest_request #rest_request]& req) = 0;
+
+
+== Class rest_server ==[rest_server]
+```
+class rest_server {
+ public:
+  bool [set_log_file #rest_server_set_log_file](const std::string& file_name, unsigned max_log_size);
+  void [set_min_generated #rest_server_set_min_generated](unsigned min_generated);
+  void [set_max_connections #rest_server_set_max_connections](unsigned max_connections);
+  void [set_max_post_size #rest_server_set_max_post_size](unsigned max_post_size);
+  void [set_threads #rest_server_set_threads](unsigned threads);
+  void [set_timeout #rest_server_set_timeout](unsigned timeout);
+
+  bool [start #rest_server_start]([rest_service #rest_service]* service, unsigned port);
+  void [wait_until_closed #rest_server_wait_until_closed]();
+};
+```
+
+=== rest_server::set_log_file ===[rest_server_set_log_file]
+``` bool set_log_file(const std::string& file_name, unsigned max_log_size);
+
+=== rest_server::set_min_generated ===[rest_server_set_min_generated]
+``` void set_min_generated(unsigned min_generated);
+
+=== rest_server::set_max_connections ===[rest_server_set_max_connections]
+``` void set_max_connections(unsigned max_connections);
+
+=== rest_server::set_max_post_size ===[rest_server_set_max_post_size]
+``` void set_max_post_size(unsigned max_post_size);
+
+=== rest_server::set_threads ===[rest_server_set_threads]
+``` void set_threads(unsigned threads);
+
+=== rest_server::set_timeout ===[rest_server_set_timeout]
+``` void set_timeout(unsigned timeout);
+
+=== rest_server::start ===[rest_server_start]
+``` bool start([rest_service #rest_service]* service, unsigned port);
+
+=== rest_server::wait_until_closed ===[rest_server_wait_until_closed]
+``` void wait_until_closed();
+
+
+== Class json_builder ==[json_builder]
+```
+class json_builder {
+ public:
+  // Clear
+  inline [json_builder #json_builder]& [clear #json_builder_clear]();
+
+  // Encode
+  inline [json_builder #json_builder]& [object #json_builder_object]();
+  inline [json_builder #json_builder]& [array #json_builder_array]();
+  inline [json_builder #json_builder]& [key #json_builder_key]([string_piece #string_piece] str);
+  inline [json_builder #json_builder]& [value #json_builder_value]([string_piece #string_piece] str, bool append = false);
+  inline [json_builder #json_builder]& [value_xml_escape #json_builder_value_xml_escape]([string_piece #string_piece] str, bool append = false);
+  inline [json_builder #json_builder]& [close #json_builder_close]();
+  inline [json_builder #json_builder]& [indent #json_builder_indent]();
+
+  // Return current json
+  inline [string_piece #string_piece] [current #json_builder_current]() const;
+
+  // Remove current json prefix; for response_generator
+  void [discard_current_prefix #json_builder_discard_current_prefix](size_t length);
+
+  // JSON mime
+  static const char* mime;
+};
+```
+=== json_builder::clear ===[json_builder_clear]
+``` inline [json_builder #json_builder]& clear();
+
+=== json_builder::object ===[json_builder_object]
+``` inline [json_builder #json_builder]& object();
+
+=== json_builder::array ===[json_builder_array]
+``` inline [json_builder #json_builder]& array();
+
+=== json_builder::key ===[json_builder_key]
+``` inline [json_builder #json_builder]& key([string_piece #string_piece] str);
+
+=== json_builder::value ===[json_builder_value]
+``` inline [json_builder #json_builder]& value([string_piece #string_piece] str, bool append = false);
+
+=== json_builder::value_xml_escape ===[json_builder_value_xml_escape]
+``` inline [json_builder #json_builder]& value_xml_escape([string_piece #string_piece] str, bool append = false);
+
+=== json_builder::close ===[json_builder_close]
+``` inline [json_builder #json_builder]& close();
+
+=== json_builder::indent ===[json_builder_indent]
+``` inline [json_builder #json_builder]& indent();
+
+=== json_builder::current ===[json_builder_current]
+``` inline [string_piece #string_piece] current() const;
+
+=== json_builder::discard_current_prefix ===[json_builder_discard_current_prefix]
+``` void discard_current_prefix(size_t length);
+
+
+== Class json_response_generator ==[json_response_generator]
+```
+class json_response_generator : public [response_generator #response_generator] {
+ public:
+  virtual [string_piece #string_piece] current() const override;
+  virtual void consume(size_t length) override;
+
+  [json_builder #json_builder] json;
+};
+```
+
+== Class xml_builder ==[xml_builder]
+```
+// Declarations
+class xml_builder {
+ public:
+  // Clear
+  inline xml_builder& [clear #xml_builder_clear]();
+
+  // XML declaration
+  [xml_builder #xml_builder]& [declaration #xml_builder_declaration](const char* encoding = nullptr, const char* standalone = nullptr);
+
+  // Encode
+  inline [xml_builder #xml_builder]& [element #xml_builder_element]([string_piece #string_piece] name);
+  inline [xml_builder #xml_builder]& [attribute #xml_builder_attribute]([string_piece #string_piece] name, [string_piece #string_piece] value);
+  inline [xml_builder #xml_builder]& [text #xml_builder_text]([string_piece #string_piece] str);
+  inline [xml_builder #xml_builder]& [close #xml_builder_close]();
+  inline [xml_builder #xml_builder]& [indent #xml_builder_indent]();
+
+  // Return current xml
+  inline [string_piece #string_piece] [current #xml_builder_current]() const;
+
+  // Remove current xml prefix; for response_generator
+  void [discard_current_prefix #xml_builder_discard_current_prefix](size_t length);
+
+  // XML mime
+  static const char* mime;
+};
+```
+=== xml_builder::clear ===[xml_builder_clear]
+``` inline xml_builder& clear();
+
+=== xml_builder::declaration ===[xml_builder_declaration]
+``` [xml_builder #xml_builder]& declaration(const char* encoding = nullptr, const char* standalone = nullptr);
+
+=== xml_builder::element ===[xml_builder_element]
+``` inline [xml_builder #xml_builder]& element([string_piece #string_piece] name);
+
+=== xml_builder::attribute ===[xml_builder_attribute]
+``` inline [xml_builder #xml_builder]& attribute([string_piece #string_piece] name, [string_piece #string_piece] value);
+
+=== xml_builder::text ===[xml_builder_text]
+``` inline [xml_builder #xml_builder]& text([string_piece #string_piece] str);
+
+=== xml_builder::close ===[xml_builder_close]
+``` inline [xml_builder #xml_builder]& close();
+
+=== xml_builder::indent ===[xml_builder_indent]
+``` inline [xml_builder #xml_builder]& indent();
+
+=== xml_builder::current ===[xml_builder_current]
+``` inline [string_piece #string_piece] current() const;
+
+=== xml_builder::discard_current_prefix ===[xml_builder_discard_current_prefix]
+``` void discard_current_prefix(size_t length);
+
+
+== Class xml_response_generator ==[xml_response_generator]
+```
+class xml_response_generator : public [response_generator #response_generator] {
+ public:
+  virtual [string_piece #string_piece] current() const override;
+  virtual void consume(size_t length) override;
+
+  [xml_builder #xml_builder] xml;
+};
+```
+
+== Structure version ==[version]
+```
+struct version {
+  unsigned major;
+  unsigned minor;
+  unsigned patch;
+  std::string prerelease;
+
+  // Returns current version.
+  static [version #version] [current #version_current]();
+};
+```
+
+The [``version`` #version] class represents MicroRestD version
+according to [Semantic Versioning http://semver.org/].
+
+=== version::current ===[version_current]
+``` static [version #version] current();
+
+Returns current MicroRestD version.
+
+= Pugixml =
+
+The [pugixml http://pugixml.org/] library 1.5 is available through the
+``pugixml.h`` header. The source files ``MICRORESTD_PUGIXML_OBJECTS`` must be
+compiled in order to use the library.
+
+Note that there are some minor modifications to the original [pugixml http://pugixml.org/] library:
+- The library is available in ``ufal::microrestd::pugixml`` namespace instead of the original ``pugixml``.
+- STL and XPATH modules of the original library are not available.
+- The element and attribute matching ignores any XML namespaces used.
