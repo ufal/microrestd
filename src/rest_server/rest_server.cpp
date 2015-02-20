@@ -78,6 +78,7 @@ class rest_server::microhttpd_request : public rest_request {
   unsigned remaining_post_limit;
 
   unique_ptr<response_generator> generator;
+  bool generator_end;
   unsigned generator_offset;
 
   static MHD_Response* create_response(string_piece data, const char* content_type, bool make_copy);
@@ -200,6 +201,7 @@ bool rest_server::microhttpd_request::respond(const char* content_type, string_p
 
 bool rest_server::microhttpd_request::respond(const char* content_type, response_generator* generator) {
   this->generator.reset(generator);
+  this->generator_end = false;
   this->generator_offset = 0;
   unique_ptr<MHD_Response, MHD_ResponseDeleter> response(create_generator_response(this, content_type));
   if (!response) return false;
@@ -293,13 +295,14 @@ int rest_server::microhttpd_request::post_iterator(void* cls, MHD_ValueKind kind
 
 ssize_t rest_server::microhttpd_request::generator_callback(void* cls, uint64_t /*pos*/, char* buf, size_t max) {
   auto request = (microhttpd_request*) cls;
-  bool end = false;
-  string_piece data;
-  while (!end && (data = request->generator->current()).len - request->generator_offset < request->server.min_generated)
-    end = !request->generator->generate();
+  string_piece data = request->generator->current();
+  while (data.len - request->generator_offset < request->server.min_generated && !request->generator_end) {
+    request->generator_end = !request->generator->generate();
+    data = request->generator->current();
+  }
 
   // End of data?
-  if (end && !(data.len - request->generator_offset)) return MHD_CONTENT_READER_END_OF_STREAM;
+  if (data.len <= request->generator_offset) return MHD_CONTENT_READER_END_OF_STREAM;
 
   // Copy generated data and remove them from the generator
   size_t data_len = min(data.len - request->generator_offset, max);
