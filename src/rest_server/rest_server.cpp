@@ -366,19 +366,14 @@ bool rest_server::microhttpd_request::supported_transfer_encoding(const char* tr
 
 
 // Class rest_server
-bool rest_server::set_log_file(const std::string& file_name, unsigned max_log_size) {
+void rest_server::set_log_file(FILE* log_file, unsigned max_log_size) {
   lock_guard<decltype(log_file_mutex)> log_file_lock(log_file_mutex);
 
-  if (log_file) fclose(log_file);
-  log_file = fopen(file_name.c_str(), "a");
-  if (log_file) {
-    setvbuf(log_file, NULL, _IOLBF, 0);
-    this->max_log_size = max_log_size;
-  }
-
-  return log_file;
+  if (this->log_file) fclose(log_file);
+  this->log_file = log_file;
+  if (this->log_file) setvbuf(log_file, NULL, _IOLBF, 0);
+  this->max_log_size = max_log_size;
 }
-
 void rest_server::set_min_generated(unsigned min_generated) { this->min_generated = min_generated; }
 void rest_server::set_max_connections(unsigned max_connections) { this->max_connections = max_connections; }
 void rest_server::set_max_post_size(unsigned max_post_size) { this->max_post_size = max_post_size; }
