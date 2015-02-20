@@ -30,8 +30,8 @@ class rest_request {
 
   std::string url;
   std::string method;
-  std::string content_type;
   std::string body;
+  std::string content_type;
   std::unordered_map<std::string, std::string> params;
 };
 
