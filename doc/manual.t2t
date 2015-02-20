@@ -184,7 +184,7 @@ class rest_server {
   void [set_log_file #rest_server_set_log_file](FILE* log_file, unsigned max_log_size = 0);
   void [set_min_generated #rest_server_set_min_generated](unsigned min_generated);
   void [set_max_connections #rest_server_set_max_connections](unsigned max_connections);
-  void [set_max_post_size #rest_server_set_max_post_size](unsigned max_post_size);
+  void [set_max_request_body_size #rest_server_set_max_request_body_size](unsigned max_request_body_size);
   void [set_threads #rest_server_set_threads](unsigned threads);
   void [set_timeout #rest_server_set_timeout](unsigned timeout);
 
@@ -224,10 +224,14 @@ Sets number of maximum concurrent connections (with 0 denoting unlimited number
 of connections). When this limit is reached, no more connections are accepted until
 some existing connections are closed.
 
-Default value of ``max_connections`` is 0.
+Default value of ``max_connections`` is 0 (i.e. unlimited).
 
-=== rest_server::set_max_post_size ===[rest_server_set_max_post_size]
-``` void set_max_post_size(unsigned max_post_size);
+=== rest_server::set_max_request_body_size ===[rest_server_set_max_request_body_size]
+``` void set_max_request_body_size(unsigned max_request_body_size);
+
+Limit the maximum request body size (with 0 denoting no size limit).
+
+Default value of ``max_request_body_size`` is 0 (i.e. unlimited).
 
 === rest_server::set_threads ===[rest_server_set_threads]
 ``` void set_threads(unsigned threads);
