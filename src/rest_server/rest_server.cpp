@@ -369,13 +369,6 @@ bool rest_server::start(rest_service* service, unsigned port) {
 
   if (!microhttpd_request::initialize()) return false;
 
-#if !defined(_WIN32) || defined(__CYGWIN__)
-  sigset_t set;
-  if (sigemptyset(&set) != 0) return false;
-  if (sigaddset(&set, SIGUSR1) != 0) return false;
-  if (sigprocmask(SIG_BLOCK, &set, nullptr) != 0) return false;
-#endif
-
   for (int use_poll = 1; use_poll >= 0; use_poll--) {
     MHD_OptionItem threadpool_size[] = {
       { threads ? MHD_OPTION_THREAD_POOL_SIZE : MHD_OPTION_END, int(threads), nullptr },
@@ -463,12 +456,13 @@ bool rest_server::wait_until_signalled() {
 }
 #else
 bool rest_server::wait_until_signalled() {
-  logf("Waiting until SIGINT or SIGUSR1 is received.");
+  logf("Waiting until SIGUSR1 or SIGINT is received.");
 
   sigset_t set;
   if (sigemptyset(&set) != 0) return false;
-  if (sigaddset(&set, SIGINT) != 0) return false;
   if (sigaddset(&set, SIGUSR1) != 0) return false;
+  if (sigaddset(&set, SIGINT) != 0) return false;
+  if (sigprocmask(SIG_BLOCK, &set, nullptr) != 0) return false;
 
   // Wait for SIGINT or SIGUSR1
   int signal;
