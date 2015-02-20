@@ -174,10 +174,17 @@ int rest_server::microhttpd_request::handle(rest_service* service) {
 }
 
 bool rest_server::microhttpd_request::process_post_data(const char* post_data, size_t post_data_len) {
-  if (need_post_processor)
+  if (need_post_processor) {
     return post_processor && MHD_post_process(post_processor.get(), post_data, post_data_len) == MHD_YES;
-  else
-    return body.append(post_data, post_data_len), true;
+  } else {
+    if (!server.max_post_size || remaining_post_limit > post_data_len) {
+      body.append(post_data, post_data_len);
+      if (server.max_post_size) remaining_post_limit -= post_data_len;
+    } else {
+      remaining_post_limit = 0;
+    }
+    return true;
+  }
 }
 
 const sockaddr* rest_server::microhttpd_request::address() const {
