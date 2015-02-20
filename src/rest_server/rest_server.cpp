@@ -74,7 +74,7 @@ class rest_server::microhttpd_request : public rest_request {
 
   unique_ptr<MHD_PostProcessor, MHD_PostProcessorDeleter> post_processor;
   bool need_post_processor;
-  bool unsupported_post_data;
+  bool unsupported_multipart_encoding;
   unsigned remaining_post_limit;
 
   unique_ptr<response_generator> generator;
@@ -93,19 +93,17 @@ class rest_server::microhttpd_request : public rest_request {
   static bool valid_utf8(const string& text);
 
   static bool benevolent_compare(const char* string, const char* pattern);
-  static bool supported_content_type(const char* content_type);
-  static bool supported_transfer_encoding(const char* transfer_encoding);
 
-  static unique_ptr<MHD_Response, MHD_ResponseDeleter> response_not_allowed, response_not_found, response_too_large, response_unsupported_post_data, response_invalid_utf8;
+  static unique_ptr<MHD_Response, MHD_ResponseDeleter> response_not_allowed, response_not_found, response_too_large, response_unsupported_multipart_encoding, response_invalid_utf8;
 };
 unique_ptr<MHD_Response, MHD_ResponseDeleter> rest_server::microhttpd_request::response_not_allowed,
                                               rest_server::microhttpd_request::response_not_found,
                                               rest_server::microhttpd_request::response_too_large,
-                                              rest_server::microhttpd_request::response_unsupported_post_data,
+                                              rest_server::microhttpd_request::response_unsupported_multipart_encoding,
                                               rest_server::microhttpd_request::response_invalid_utf8;
 
 rest_server::microhttpd_request::microhttpd_request(const rest_server& server, MHD_Connection* connection, const char* url, const char* content_type, const char* method)
-  : server(server), connection(connection), unsupported_post_data(false), remaining_post_limit(server.max_post_size + 1) {
+  : server(server), connection(connection), unsupported_multipart_encoding(false), remaining_post_limit(server.max_post_size + 1) {
   // Initialize rest_request fields
   this->url = url;
   this->method = method;
@@ -128,9 +126,7 @@ bool rest_server::microhttpd_request::initialize() {
   static string not_allowed = "Requested method is not allowed.\n";
   static string not_found = "Requested URL was not found.\n";
   static string too_large = "Request was too large.\n";
-  static string unsupported_post_data = "Unsupported format of the multipart/form-data POST request. Currently only the following is supported:\n"
-      " - Content-type: application/octet-stream or text/plain or text/plain; charset=utf-8\n"
-      " - Content-transfer-encoding: 7bit or 8bit or binary\n";
+  static string unsupported_multipart_encoding = "Unsupported transfer-encoding of multipart/form-data POST request part. Currently only 7bit, 8bit or binary is supported.\n";
   static string invalid_utf8 = "The request arguments are not valid UTF-8.\n";
 
   response_not_allowed.reset(create_plain_permanent_response(not_allowed));
@@ -143,8 +139,8 @@ bool rest_server::microhttpd_request::initialize() {
   response_too_large.reset(create_plain_permanent_response(too_large));
   if (!response_too_large) return false;
 
-  response_unsupported_post_data.reset(create_plain_permanent_response(unsupported_post_data));
-  if (!response_unsupported_post_data) return false;
+  response_unsupported_multipart_encoding.reset(create_plain_permanent_response(unsupported_multipart_encoding));
+  if (!response_unsupported_multipart_encoding) return false;
 
   response_invalid_utf8.reset(create_plain_permanent_response(invalid_utf8));
   if (!response_invalid_utf8) return false;
@@ -161,8 +157,8 @@ int rest_server::microhttpd_request::handle(rest_service* service) {
   if (post_processor) post_processor.reset();
 
   // Was the POST format supported
-  if (unsupported_post_data)
-    return MHD_queue_response(connection, MHD_HTTP_UNSUPPORTED_MEDIA_TYPE, response_unsupported_post_data.get());
+  if (unsupported_multipart_encoding)
+    return MHD_queue_response(connection, MHD_HTTP_UNSUPPORTED_MEDIA_TYPE, response_unsupported_multipart_encoding.get());
 
   // Was the request too large?
   if (server.max_post_size && !remaining_post_limit)
@@ -254,7 +250,7 @@ void rest_server::microhttpd_request::response_common_headers(unique_ptr<MHD_Res
 
 int rest_server::microhttpd_request::get_iterator(void* cls, MHD_ValueKind kind, const char* key, const char* value) {
   auto self = (microhttpd_request*) cls;
-  if (kind == MHD_GET_ARGUMENT_KIND && !self->unsupported_post_data && (!self->server.max_post_size || self->remaining_post_limit)) {
+  if (kind == MHD_GET_ARGUMENT_KIND && (!self->server.max_post_size || self->remaining_post_limit)) {
     auto value_len = value ? strlen(value) : 0;
     if (!self->server.max_post_size || self->remaining_post_limit > value_len) {
       if (self->params.emplace(key, value ? value : string()).second)
@@ -267,13 +263,14 @@ int rest_server::microhttpd_request::get_iterator(void* cls, MHD_ValueKind kind,
   return MHD_YES;
 }
 
-int rest_server::microhttpd_request::post_iterator(void* cls, MHD_ValueKind kind, const char* key, const char* /*filename*/, const char* content_type, const char* transfer_encoding, const char* data, uint64_t off, size_t size) {
+int rest_server::microhttpd_request::post_iterator(void* cls, MHD_ValueKind kind, const char* key, const char* /*filename*/, const char* /*content_type*/, const char* transfer_encoding, const char* data, uint64_t off, size_t size) {
   auto self = (microhttpd_request*) cls;
-  if (kind == MHD_POSTDATA_KIND && !self->unsupported_post_data && (!self->server.max_post_size || self->remaining_post_limit)) {
-    // Check that content_type and transfer_encoding are supported
-    if ((content_type && !supported_content_type(content_type)) ||
-        (transfer_encoding && !supported_transfer_encoding(transfer_encoding))) {
-      self->unsupported_post_data = true;
+  if (kind == MHD_POSTDATA_KIND && !self->unsupported_multipart_encoding && (!self->server.max_post_size || self->remaining_post_limit)) {
+    // Check that transfer_encoding is supported
+    if (transfer_encoding && !(benevolent_compare(transfer_encoding, "binary") ||
+                               benevolent_compare(transfer_encoding, "7bit") ||
+                               benevolent_compare(transfer_encoding, "8bit"))) {
+      self->unsupported_multipart_encoding = true;
     } else if (!self->server.max_post_size || self->remaining_post_limit > size) {
       string& value = self->params[key];
       if (!off) value.clear();
@@ -338,23 +335,8 @@ bool rest_server::microhttpd_request::benevolent_compare(const char* string, con
     // Match the next character ignoring case.
     if (tolower(*string++) != tolower(*pattern++)) return false;
   }
-  // Skip final spaces.
-  while (*string && isspace(*string)) string++;
 
-  // Succeed only if there are no characters in string left.
-  return !*string;
-}
-
-bool rest_server::microhttpd_request::supported_content_type(const char* content_type) {
-  return benevolent_compare(content_type, "application/octet-stream") ||
-         benevolent_compare(content_type, "text/plain") ||
-         benevolent_compare(content_type, "text/plain;charset=utf-8");
-}
-
-bool rest_server::microhttpd_request::supported_transfer_encoding(const char* transfer_encoding) {
-  return benevolent_compare(transfer_encoding, "binary") ||
-         benevolent_compare(transfer_encoding, "7bit") ||
-         benevolent_compare(transfer_encoding, "8bit");
+  // Succeed even if there are remaining data in string
   return true;
 }
 
