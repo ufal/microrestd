@@ -17,7 +17,123 @@
   <ol>
   <li><a href="#toc1">Introduction</a>
   </li>
-  <li><a href="#toc2">API Reference</a>
+  <li><a href="#toc2">MicroRestD Operations</a>
+  </li>
+  <li><a href="#toc3">MicroRestD API Reference</a>
+    <ul>
+    <li><a href="#string_piece">3.1. Structure string_piece</a>
+    </li>
+    <li><a href="#response_generator">3.2. Class response_generator</a>
+      <ul>
+      <li><a href="#response_generator_generate">3.2.1. response_generator::generate</a>
+      </li>
+      <li><a href="#response_generator_current">3.2.2. response_generator::current</a>
+      </li>
+      <li><a href="#response_generator_consume">3.2.3. response_generator::consume</a>
+      </li>
+      </ul>
+    </li>
+    <li><a href="#rest_request">3.3. Class rest_request</a>
+      <ul>
+      <li><a href="#rest_request_respond_string_piece">3.3.1. rest_request::respond with string_piece</a>
+      </li>
+      <li><a href="#rest_request_respond_generator">3.3.2. rest_request::respond with response_generator</a>
+      </li>
+      <li><a href="#rest_request_respond_not_found">3.3.3. rest_request::respond_not_found</a>
+      </li>
+      <li><a href="#rest_request_respond_method_not_allowed">3.3.4. rest_request::respond_method_not_allowed</a>
+      </li>
+      <li><a href="#rest_request_respond_error">3.3.5. rest_request::respond_error</a>
+      </li>
+      </ul>
+    </li>
+    <li><a href="#rest_service">3.4. Class rest_service</a>
+      <ul>
+      <li><a href="#rest_service_handle">3.4.1. rest_service::handle</a>
+      </li>
+      </ul>
+    </li>
+    <li><a href="#rest_server">3.5. Class rest_server</a>
+      <ul>
+      <li><a href="#rest_server_set_log_file">3.5.1. rest_server::set_log_file</a>
+      </li>
+      <li><a href="#rest_server_set_min_generated">3.5.2. rest_server::set_min_generated</a>
+      </li>
+      <li><a href="#rest_server_set_max_connections">3.5.3. rest_server::set_max_connections</a>
+      </li>
+      <li><a href="#rest_server_set_max_request_body_size">3.5.4. rest_server::set_max_request_body_size</a>
+      </li>
+      <li><a href="#rest_server_set_threads">3.5.5. rest_server::set_threads</a>
+      </li>
+      <li><a href="#rest_server_set_timeout">3.5.6. rest_server::set_timeout</a>
+      </li>
+      <li><a href="#rest_server_start">3.5.7. rest_server::start</a>
+      </li>
+      <li><a href="#rest_server_stop">3.5.8. rest_server::stop</a>
+      </li>
+      <li><a href="#rest_server_wait_until_signalled">3.5.9. rest_server::wait_until_signalled</a>
+      </li>
+      </ul>
+    </li>
+    <li><a href="#json_builder">3.6. Class json_builder</a>
+      <ul>
+      <li><a href="#json_builder_clear">3.6.1. json_builder::clear</a>
+      </li>
+      <li><a href="#json_builder_object">3.6.2. json_builder::object</a>
+      </li>
+      <li><a href="#json_builder_array">3.6.3. json_builder::array</a>
+      </li>
+      <li><a href="#json_builder_key">3.6.4. json_builder::key</a>
+      </li>
+      <li><a href="#json_builder_value">3.6.5. json_builder::value</a>
+      </li>
+      <li><a href="#json_builder_value_xml_escape">3.6.6. json_builder::value_xml_escape</a>
+      </li>
+      <li><a href="#json_builder_close">3.6.7. json_builder::close</a>
+      </li>
+      <li><a href="#json_builder_indent">3.6.8. json_builder::indent</a>
+      </li>
+      <li><a href="#json_builder_current">3.6.9. json_builder::current</a>
+      </li>
+      <li><a href="#json_builder_discard_current_prefix">3.6.10. json_builder::discard_current_prefix</a>
+      </li>
+      </ul>
+    </li>
+    <li><a href="#json_response_generator">3.7. Class json_response_generator</a>
+    </li>
+    <li><a href="#xml_builder">3.8. Class xml_builder</a>
+      <ul>
+      <li><a href="#xml_builder_clear">3.8.1. xml_builder::clear</a>
+      </li>
+      <li><a href="#xml_builder_declaration">3.8.2. xml_builder::declaration</a>
+      </li>
+      <li><a href="#xml_builder_element">3.8.3. xml_builder::element</a>
+      </li>
+      <li><a href="#xml_builder_attribute">3.8.4. xml_builder::attribute</a>
+      </li>
+      <li><a href="#xml_builder_text">3.8.5. xml_builder::text</a>
+      </li>
+      <li><a href="#xml_builder_close">3.8.6. xml_builder::close</a>
+      </li>
+      <li><a href="#xml_builder_indent">3.8.7. xml_builder::indent</a>
+      </li>
+      <li><a href="#xml_builder_current">3.8.8. xml_builder::current</a>
+      </li>
+      <li><a href="#xml_builder_discard_current_prefix">3.8.9. xml_builder::discard_current_prefix</a>
+      </li>
+      </ul>
+    </li>
+    <li><a href="#xml_response_generator">3.9. Class xml_response_generator</a>
+    </li>
+    <li><a href="#version">3.10. Structure version</a>
+      <ul>
+      <li><a href="#version_current">3.10.1. version::current</a>
+      </li>
+      </ul>
+    </li>
+    </ul>
+  </li>
+  <li><a href="#toc52">Pugixml</a>
   </li>
   </ol>
 
@@ -51,7 +167,847 @@ MicroRestD repository <a href="http://github.com/ufal/microrestd">http://github.
 </p>
 
 <a id="toc2" name="toc2"></a>
-<h1>2. API Reference</h1>
+<h1>2. MicroRestD Operations</h1>
+
+<p>
+MicroRestD provides a simple REST server. The server supports HEAD, GET,
+POST, PUT and DELETE methods and automatic parsing of query strings
+and POST <code>application/x-www-form-urlencoded</code> and <code>multipart/form-data</code>
+request bodies.
+</p>
+<p>
+Linux, OS X and Windows systems are supported (although only <code>select</code> is
+supported on Windows, while <code>poll</code> is used on Linux and OS X).
+</p>
+<p>
+Each request is processed by a new thread by default, but it is possible to use
+a thread pool. Classes for generating JSON and XML responses are provided.
+Responses can be generated progressively, so multiple responses can be
+processed simultaneously by one thread.
+</p>
+<p>
+Internally, <a href="http://www.gnu.org/software/libmicrohttpd/">libmicrohttpd</a> is used
+as a HTTP server. Also <a href="http://pugixml.org/">pugixml</a> is provided for XML
+parsing and manupulation.
+</p>
+
+<a id="toc3" name="toc3"></a>
+<h1>3. MicroRestD API Reference</h1>
+
+<p>
+The MicroRestD library is contained in <code>ufal::microrestd</code> namespace,
+including both <a href="http://www.gnu.org/software/libmicrohttpd/">libmicrohttpd</a>
+and <a href="http://pugixml.org/">pugixml</a> libraries.
+</p>
+<p>
+The MicroRestD API is available through the <code>microrestd.h</code> header.
+To compile MicroRestD, include the <code>Makefile.include</code> makefile, compile
+the sources listed in <code>MICRORESTD_OBJECTS</code> variable and link the
+libraries listed in either <code>MICRORESTD_LIBRARIES_POSIX</code> or
+<code>MICRORESTD_LIBRARIES_WIN</code> depending on the operating system.
+</p>
+
+<a id="string_piece" name="string_piece"></a>
+<h2>3.1. Structure string_piece</h2>
+
+<pre>
+struct string_piece {
+  const char* str;
+  size_t len;
+
+  string_piece();
+  string_piece(const char* str);
+  string_piece(const char* str, size_t len);
+  string_piece(const std::string&amp; str);
+}
+</pre>
+
+<p>
+The <a href="#string_piece"><code>string_piece</code></a> is used for efficient string passing. The string
+referenced in <a href="#string_piece"><code>string_piece</code></a> is not owned by it, so users have to make sure
+the referenced string exists as long as the <a href="#string_piece"><code>string_piece</code></a>.
+</p>
+
+<a id="response_generator" name="response_generator"></a>
+<h2>3.2. Class response_generator</h2>
+
+<pre>
+class response_generator {
+ public:
+  virtual ~response_generator() {}
+
+  virtual bool <A HREF="#response_generator_generate">generate</A>() = 0;
+  virtual <A HREF="#string_piece">string_piece</A> <A HREF="#response_generator_current">current</A>() const = 0;
+  virtual void <A HREF="#response_generator_consume">consume</A>(size_t length) = 0;
+};
+</pre>
+
+<p>
+The <a href="#response_generator"><code>response_generator</code></a> abstract class defines an
+interface of progressive response generator.
+</p>
+
+<a id="response_generator_generate" name="response_generator_generate"></a>
+<h3>3.2.1. response_generator::generate</h3>
+
+<pre>
+virtual bool generate() = 0;
+</pre>
+
+<p>
+Try generating more response data. Returns <code>false</code> if there are no more data
+to be generated and the end of the response has been reached. It is guaranteed
+<a href="#generate"><code>generate</code></a> is never called again after returning <code>false</code>.
+</p>
+
+<a id="response_generator_current" name="response_generator_current"></a>
+<h3>3.2.2. response_generator::current</h3>
+
+<pre>
+virtual <A HREF="#string_piece">string_piece</A> current() const = 0;
+</pre>
+
+<p>
+Return current response data.
+</p>
+
+<a id="response_generator_consume" name="response_generator_consume"></a>
+<h3>3.2.3. response_generator::consume</h3>
+
+<pre>
+virtual void consume(size_t length) = 0;
+</pre>
+
+<p>
+Drop first <code>length</code> chars of the response data.
+</p>
+<p>
+Note that when <a href="#response_generator_consume"><code>consume</code></a> is called, it is
+guaranteed that <code>length &gt;= <A HREF="#response_generator_current">current</A>().len / 2</code>
+so amortized cost of all calls to <a href="#response_generator_consume"><code>consume</code></a> is
+at most linear in the response size.
+</p>
+
+<a id="rest_request" name="rest_request"></a>
+<h2>3.3. Class rest_request</h2>
+
+<pre>
+class rest_request {
+ public:
+  virtual ~rest_request() {}
+
+  virtual bool <A HREF="#rest_request_respond_string_piece">respond</A>(const char* content_type, <A HREF="#string_piece">string_piece</A> body, bool make_copy = true) = 0;
+  virtual bool <A HREF="#rest_request_respond_generator">respond</A>(const char* content_type, <A HREF="#response_generator">response_generator</A>* generator) = 0;
+  virtual bool <A HREF="#rest_request_respond_not_found">respond_not_found</A>() = 0;
+  virtual bool <A HREF="#rest_request_respond_method_not_allowed">respond_method_not_allowed</A>(const char* comma_separated_allowed_methods) = 0;
+  virtual bool <A HREF="#rest_request_respond_error">respond_error</A>(<A HREF="#string_piece">string_piece</A> error, int code = 400) = 0;
+
+  std::string url;
+  std::string method;
+  std::string body;
+  std::string content_type;
+  std::unordered_map&lt;std::string, std::string&gt; params;
+};
+</pre>
+
+<p>
+The <a href="#rest_request"><code>rest_request</code></a> class represents REST request and provides
+means of responding to it.
+</p>
+<p style="margin-bottom:0">
+The following variables are provided:
+</p>
+<ul style="margin-top:0">
+<li><code>url</code>
+</li>
+<li><code>method</code>
+</li>
+<li><code>body</code>, possibly empty
+</li>
+<li><code>content_type</code> of body, possibly empty
+</li>
+<li><code>params</code>, the GET and POST parameters of the request
+</li>
+</ul>
+
+<a id="rest_request_respond_string_piece" name="rest_request_respond_string_piece"></a>
+<h3>3.3.1. rest_request::respond with string_piece</h3>
+
+<pre>
+virtual bool respond(const char* content_type, <A HREF="#string_piece">string_piece</A> body, bool make_copy = true) = 0;
+</pre>
+
+<p>
+Respond HTTP OK response with specified <code>content_type</code> and <code>body</code>.
+</p>
+<p>
+If <code>make_copy</code> is <code>true</code>, a copy of <code>body</code> is made, otherwise it is not. Note that the response can be
+sent at any later time, even after the <code>rest_request</code> is destroyed.
+</p>
+
+<a id="rest_request_respond_generator" name="rest_request_respond_generator"></a>
+<h3>3.3.2. rest_request::respond with response_generator</h3>
+
+<pre>
+virtual bool respond(const char* content_type, <A HREF="#response_generator">response_generator</A>* generator) = 0;
+</pre>
+
+<p>
+Respond HTTP OK response with specified <code>content_type</code> using the given <a href="#response_generator"><code>response_generator</code></a>.
+</p>
+
+<a id="rest_request_respond_not_found" name="rest_request_respond_not_found"></a>
+<h3>3.3.3. rest_request::respond_not_found</h3>
+
+<pre>
+virtual bool respond_not_found() = 0;
+</pre>
+
+<p>
+Respond HTTP Not Found.
+</p>
+
+<a id="rest_request_respond_method_not_allowed" name="rest_request_respond_method_not_allowed"></a>
+<h3>3.3.4. rest_request::respond_method_not_allowed</h3>
+
+<pre>
+virtual bool respond_method_not_allowed(const char* comma_separated_allowed_methods) = 0;
+</pre>
+
+<p>
+Respond HTTP Method Not Allowed with supplied list of allowed methods.
+</p>
+
+<a id="rest_request_respond_error" name="rest_request_respond_error"></a>
+<h3>3.3.5. rest_request::respond_error</h3>
+
+<pre>
+virtual bool respond_error(<A HREF="#string_piece">string_piece</A> error, int code = 400) = 0;
+</pre>
+
+<p>
+Respond with specified HTTP code, <code>text/plain</code> content-type and specified error body.
+</p>
+<p>
+If <code>make_copy</code> is <code>true</code>, a copy of <code>error</code> is made, otherwise it is not. Note that the response can be
+sent at any later time, even after the <code>rest_request</code> is destroyed.
+</p>
+
+<a id="rest_service" name="rest_service"></a>
+<h2>3.4. Class rest_service</h2>
+
+<pre>
+class rest_service {
+ public:
+  virtual bool <A HREF="#rest_service_handle">handle</A>(<A HREF="#rest_request">rest_request</A>&amp; req) = 0;
+};
+</pre>
+
+<p>
+The <a href="#rest_service"><code>rest_service</code></a> represents an interface of a REST service.
+</p>
+
+<a id="rest_service_handle" name="rest_service_handle"></a>
+<h3>3.4.1. rest_service::handle</h3>
+
+<pre>
+virtual bool handle(<A HREF="#rest_request">rest_request</A>&amp; req) = 0;
+</pre>
+
+<p>
+Handle the given <a href="#rest_request"><code>rest_request</code></a>. The return code should be the one returned by
+the <a href="#rest_request"><code>rest_request</code></a>::respond* methods.
+</p>
+
+<a id="rest_server" name="rest_server"></a>
+<h2>3.5. Class rest_server</h2>
+
+<pre>
+class rest_server {
+ public:
+  void <A HREF="#rest_server_set_log_file">set_log_file</A>(FILE* log_file, unsigned max_log_size = 0);
+  void <A HREF="#rest_server_set_min_generated">set_min_generated</A>(unsigned min_generated);
+  void <A HREF="#rest_server_set_max_connections">set_max_connections</A>(unsigned max_connections);
+  void <A HREF="#rest_server_set_max_request_body_size">set_max_request_body_size</A>(unsigned max_request_body_size);
+  void <A HREF="#rest_server_set_threads">set_threads</A>(unsigned threads);
+  void <A HREF="#rest_server_set_timeout">set_timeout</A>(unsigned timeout);
+
+  bool <A HREF="#rest_server_start">start</A>(<A HREF="#rest_service">rest_service</A>* service, unsigned port);
+  void <A HREF="#rest_server_stop">stop</A>();
+  bool <A HREF="#rest_server_wait_until_signalled">wait_until_signalled</A>();
+};
+</pre>
+
+<p>
+Main REST server class.
+</p>
+
+<a id="rest_server_set_log_file" name="rest_server_set_log_file"></a>
+<h3>3.5.1. rest_server::set_log_file</h3>
+
+<pre>
+void set_log_file(FILE* log_file, unsigned max_log_size);
+</pre>
+
+<p>
+Log to the specified <code>log_file</code>. If <code>nullptr</code> is passed, logging is disabled.
+Note that the <a href="#rest_server"><code>rest_server</code></a> does not close <code>log_file</code> on exit.
+</p>
+<p>
+If <code>max_log_size</code> is nonzero, it limits the size of every logged request parameter.
+</p>
+<p>
+By default, logging is disabled.
+</p>
+
+<a id="rest_server_set_min_generated" name="rest_server_set_min_generated"></a>
+<h3>3.5.2. rest_server::set_min_generated</h3>
+
+<pre>
+void set_min_generated(unsigned min_generated);
+</pre>
+
+<p>
+When a <a href="#response_generator"><code>response_generator</code></a> is used, <code>min_generated</code>
+specifies minimum buffer size which is sent (i.e. <a href="#response_generator_generate"><code>generate</code></a>
+is called until this many chars are produced).
+</p>
+<p>
+Note that maximum buffer size is limited to 32kB, so reasonable maximum for
+<code>min_generated</code> is something like 24kB.
+</p>
+<p>
+Default value of <code>min_generated</code> is 1kB.
+</p>
+
+<a id="rest_server_set_max_connections" name="rest_server_set_max_connections"></a>
+<h3>3.5.3. rest_server::set_max_connections</h3>
+
+<pre>
+void set_max_connections(unsigned max_connections);
+</pre>
+
+<p>
+Limit number of maximum concurrent connections (with 0 denoting unlimited number
+of connections). When this limit is reached, no more connections are accepted until
+some existing requests are handled.
+</p>
+<p>
+Default value of <code>max_connections</code> is 0 (i.e. unlimited).
+</p>
+
+<a id="rest_server_set_max_request_body_size" name="rest_server_set_max_request_body_size"></a>
+<h3>3.5.4. rest_server::set_max_request_body_size</h3>
+
+<pre>
+void set_max_request_body_size(unsigned max_request_body_size);
+</pre>
+
+<p>
+Limit the maximum request body size (with 0 denoting no size limit).
+</p>
+<p>
+Default value of <code>max_request_body_size</code> is 0 (i.e. unlimited).
+</p>
+
+<a id="rest_server_set_threads" name="rest_server_set_threads"></a>
+<h3>3.5.5. rest_server::set_threads</h3>
+
+<pre>
+void set_threads(unsigned threads);
+</pre>
+
+<p>
+Set number of concurrently running REST server threads. If the value 0 is used,
+there is one listening thread and each request is handled by a new thread.
+If a nonzero value <i>t</i> is used, there are <i>t</i> threads each listening and
+processing its connections (the <code>max_connections</code> limit is divided equally
+among them in this case).
+</p>
+<p>
+Default value of <code>threads</code> is 0 (i.e. each request gets a new thread).
+</p>
+
+<a id="rest_server_set_timeout" name="rest_server_set_timeout"></a>
+<h3>3.5.6. rest_server::set_timeout</h3>
+
+<pre>
+void set_timeout(unsigned timeout);
+</pre>
+
+<p>
+Set inactivity timeout in seconds (with 0 denoting no time limit).
+</p>
+<p>
+Default value of <code>timeout</code> is 0 (i.e. no timeout).
+</p>
+
+<a id="rest_server_start" name="rest_server_start"></a>
+<h3>3.5.7. rest_server::start</h3>
+
+<pre>
+bool start(<A HREF="#rest_service">rest_service</A>* service, unsigned port);
+</pre>
+
+<p>
+Try starting the specified <a href="#rest_service"><code>rest_service</code></a> on specified <code>port</code>.
+If the service was successfully started, <code>true</code> is returned, <code>false</code> otherwise.
+The service is started in a background thread(s), so the calling thread can
+continue operating.
+</p>
+<p>
+That the socket is opened with <code>SO_REUSEPORT</code> on POSIX systems (and with
+<code>SO_REUSEADDR</code> on Windows which is roughly equivalent), so multiple services
+can be bound to the same port.
+</p>
+<p>
+Note the server does not take ownership of the <code>service</code>.
+</p>
+
+<a id="rest_server_stop" name="rest_server_stop"></a>
+<h3>3.5.8. rest_server::stop</h3>
+
+<pre>
+void stop();
+</pre>
+
+<p>
+Stop running REST server. No more connections are accepted, but current connections
+are handled before returning.
+</p>
+
+<a id="rest_server_wait_until_signalled" name="rest_server_wait_until_signalled"></a>
+<h3>3.5.9. rest_server::wait_until_signalled</h3>
+
+<pre>
+bool wait_until_signalled();
+</pre>
+
+<p>
+Wait until shutdown/restart is signalled. Returns <code>false</code> on error and <code>true</code>
+if shutdown/restart was signalled.
+</p>
+<p>
+On POSIX systems, receiving either <code>SIGUSR1</code> signal or <code>SIGINT</code> (Ctrl+C)
+signal is used to indicate shutdown/restart.  On Windows, console control
+handler receiving Ctrl+C is used.
+</p>
+
+<a id="json_builder" name="json_builder"></a>
+<h2>3.6. Class json_builder</h2>
+
+<pre>
+class json_builder {
+ public:
+  // Clear
+  inline <A HREF="#json_builder">json_builder</A>&amp; <A HREF="#json_builder_clear">clear</A>();
+
+  // Encode
+  inline <A HREF="#json_builder">json_builder</A>&amp; <A HREF="#json_builder_object">object</A>();
+  inline <A HREF="#json_builder">json_builder</A>&amp; <A HREF="#json_builder_array">array</A>();
+  inline <A HREF="#json_builder">json_builder</A>&amp; <A HREF="#json_builder_key">key</A>(<A HREF="#string_piece">string_piece</A> str);
+  inline <A HREF="#json_builder">json_builder</A>&amp; <A HREF="#json_builder_value">value</A>(<A HREF="#string_piece">string_piece</A> str, bool append = false);
+  inline <A HREF="#json_builder">json_builder</A>&amp; <A HREF="#json_builder_value_xml_escape">value_xml_escape</A>(<A HREF="#string_piece">string_piece</A> str, bool append = false);
+  inline <A HREF="#json_builder">json_builder</A>&amp; <A HREF="#json_builder_close">close</A>();
+  inline <A HREF="#json_builder">json_builder</A>&amp; <A HREF="#json_builder_indent">indent</A>();
+
+  // Return current json
+  inline <A HREF="#string_piece">string_piece</A> <A HREF="#json_builder_current">current</A>() const;
+
+  // Remove current json prefix; for response_generator
+  void <A HREF="#json_builder_discard_current_prefix">discard_current_prefix</A>(size_t length);
+
+  // JSON mime
+  static const char* mime;
+};
+</pre>
+
+<p>
+The <a href="#json_builder"><code>json_builder</code></a> class is a simple JSON generator. The output
+is buffered, so either whole JSON can be produced, or any already generated JSON prefix
+can be discarded (which is used in <a href="#response_generator"><code>response_generator</code></a> and
+<a href="#json_response_generator"><code>json_response_generator</code></a>).
+</p>
+<p>
+Most methods return the current object, so they can be chained like
+<code>json.object().key("id").value("42").close()</code>.
+</p>
+<p>
+By default, no additional spaces or newlines are present in the generated JSON, but can
+be added using the <a href="#json_builder_indent"><code>indent</code></a> method.
+</p>
+
+<a id="json_builder_clear" name="json_builder_clear"></a>
+<h3>3.6.1. json_builder::clear</h3>
+
+<pre>
+inline <A HREF="#json_builder">json_builder</A>&amp; clear();
+</pre>
+
+<p>
+Clear the already generated JSON.
+</p>
+
+<a id="json_builder_object" name="json_builder_object"></a>
+<h3>3.6.2. json_builder::object</h3>
+
+<pre>
+inline <A HREF="#json_builder">json_builder</A>&amp; object();
+</pre>
+
+<p>
+Start a JSON object.
+</p>
+
+<a id="json_builder_array" name="json_builder_array"></a>
+<h3>3.6.3. json_builder::array</h3>
+
+<pre>
+inline <A HREF="#json_builder">json_builder</A>&amp; array();
+</pre>
+
+<p>
+Start a JSON array.
+</p>
+
+<a id="json_builder_key" name="json_builder_key"></a>
+<h3>3.6.4. json_builder::key</h3>
+
+<pre>
+inline <A HREF="#json_builder">json_builder</A>&amp; key(<A HREF="#string_piece">string_piece</A> str);
+</pre>
+
+<p>
+Add an object key to the generated JSON.
+</p>
+
+<a id="json_builder_value" name="json_builder_value"></a>
+<h3>3.6.5. json_builder::value</h3>
+
+<pre>
+inline <A HREF="#json_builder">json_builder</A>&amp; value(<A HREF="#string_piece">string_piece</A> str, bool append = false);
+</pre>
+
+<p>
+Add a value (either an array element or value of a key in an object) to the generated JSON.
+If <code>append</code> is <code>true</code> and the last generated element of the JSON was a value, append to that value
+instead of adding a new value.
+</p>
+
+<a id="json_builder_value_xml_escape" name="json_builder_value_xml_escape"></a>
+<h3>3.6.6. json_builder::value_xml_escape</h3>
+
+<pre>
+inline <A HREF="#json_builder">json_builder</A>&amp; value_xml_escape(<A HREF="#string_piece">string_piece</A> str, bool append = false);
+</pre>
+
+<p>
+Perform XML escaping on the given value and add it to the generated JSON. This method is useful if a XML is being
+embedded in the JSON and it needs to be escaped.
+</p>
+<p>
+If <code>append</code> is <code>true</code> and the last generated element of the JSON was a value, append to that value
+instead of adding a new value.
+</p>
+
+<a id="json_builder_close" name="json_builder_close"></a>
+<h3>3.6.7. json_builder::close</h3>
+
+<pre>
+inline <A HREF="#json_builder">json_builder</A>&amp; close();
+</pre>
+
+<p>
+Close the newest opened object or array.
+</p>
+
+<a id="json_builder_indent" name="json_builder_indent"></a>
+<h3>3.6.8. json_builder::indent</h3>
+
+<pre>
+inline <A HREF="#json_builder">json_builder</A>&amp; indent();
+</pre>
+
+<p>
+Add indent to the generated JSON. It generally appends a newline and then
+a space for each opened object/array, but if it is called after an object key
+it only adds a space and when it is used before a
+<a href="#json_builder_close"><code>close</code></a> it adds one less space.
+</p>
+
+<a id="json_builder_current" name="json_builder_current"></a>
+<h3>3.6.9. json_builder::current</h3>
+
+<pre>
+inline <A HREF="#string_piece">string_piece</A> current() const;
+</pre>
+
+<p>
+Returns the current generated JSON (without the prefixes discarded via
+<a href="#json_builder_discard_current_prefix"><code>discard_current_prefix</code></a>).
+</p>
+
+<a id="json_builder_discard_current_prefix" name="json_builder_discard_current_prefix"></a>
+<h3>3.6.10. json_builder::discard_current_prefix</h3>
+
+<pre>
+void discard_current_prefix(size_t length);
+</pre>
+
+<p>
+Discard generated JSON prefix of specified length.
+</p>
+
+<a id="json_response_generator" name="json_response_generator"></a>
+<h2>3.7. Class json_response_generator</h2>
+
+<pre>
+class json_response_generator : public <A HREF="#response_generator">response_generator</A> {
+ public:
+  virtual <A HREF="#string_piece">string_piece</A> current() const override;
+  virtual void consume(size_t length) override;
+
+  <A HREF="#json_builder">json_builder</A> json;
+};
+</pre>
+
+<p>
+The <a href="#json_response_generator"><code>json_response_generator</code></a> class provides a
+<a href="#response_generator"><code>response_generator</code></a> implementation producing a JSON
+response using a <a href="#json_builder"><code>json_builder</code></a>.
+</p>
+<p>
+The only method required to be implemented is the
+<a href="#response_generator"><code>response_generator</code></a><code>::</code><a href="#response_generator_generate"><code>generate</code></a>,
+which should append to the <code>json</code> field.
+</p>
+
+<a id="xml_builder" name="xml_builder"></a>
+<h2>3.8. Class xml_builder</h2>
+
+<pre>
+// Declarations
+class xml_builder {
+ public:
+  // Clear
+  inline xml_builder&amp; <A HREF="#xml_builder_clear">clear</A>();
+
+  // XML declaration
+  <A HREF="#xml_builder">xml_builder</A>&amp; <A HREF="#xml_builder_declaration">declaration</A>();
+
+  // Encode
+  inline <A HREF="#xml_builder">xml_builder</A>&amp; <A HREF="#xml_builder_element">element</A>(<A HREF="#string_piece">string_piece</A> name);
+  inline <A HREF="#xml_builder">xml_builder</A>&amp; <A HREF="#xml_builder_attribute">attribute</A>(<A HREF="#string_piece">string_piece</A> name, <A HREF="#string_piece">string_piece</A> value);
+  inline <A HREF="#xml_builder">xml_builder</A>&amp; <A HREF="#xml_builder_text">text</A>(<A HREF="#string_piece">string_piece</A> str);
+  inline <A HREF="#xml_builder">xml_builder</A>&amp; <A HREF="#xml_builder_close">close</A>();
+  inline <A HREF="#xml_builder">xml_builder</A>&amp; <A HREF="#xml_builder_indent">indent</A>();
+
+  // Return current xml
+  inline <A HREF="#string_piece">string_piece</A> <A HREF="#xml_builder_current">current</A>() const;
+
+  // Remove current xml prefix; for response_generator
+  void <A HREF="#xml_builder_discard_current_prefix">discard_current_prefix</A>(size_t length);
+
+  // XML mime
+  static const char* mime;
+};
+</pre>
+
+<p>
+The <a href="#xml_builder"><code>xml_builder</code></a> class is a simple XML generator. The output
+is buffered, so either whole XML can be produced, or any already generated XML prefix
+can be discarded (which is used in <a href="#response_generator"><code>response_generator</code></a> and
+<a href="#xml_response_generator"><code>xml_response_generator</code></a>).
+</p>
+<p>
+Most methods return the current object, so they can be chained like
+<code>xml.element("div").attribute("class","alert").text("Alert").close()</code>.
+</p>
+<p>
+By default, no additional spaces or newlines are present in the generated XML, but can
+be added using the <a href="#xml_builder_indent"><code>indent</code></a> method.
+</p>
+
+<a id="xml_builder_clear" name="xml_builder_clear"></a>
+<h3>3.8.1. xml_builder::clear</h3>
+
+<pre>
+inline xml_builder&amp; clear();
+</pre>
+
+<p>
+Clear the already generated XML.
+</p>
+
+<a id="xml_builder_declaration" name="xml_builder_declaration"></a>
+<h3>3.8.2. xml_builder::declaration</h3>
+
+<pre>
+<A HREF="#xml_builder">xml_builder</A>&amp; declaration();
+</pre>
+
+<p style="margin-bottom:0">
+Append the following a simple XML 1.0 declaration to the document:
+</p>
+<pre style="margin-top:0">
+&lt;?xml version="1.0"?&gt;
+</pre>
+
+<a id="xml_builder_element" name="xml_builder_element"></a>
+<h3>3.8.3. xml_builder::element</h3>
+
+<pre>
+inline <A HREF="#xml_builder">xml_builder</A>&amp; element(<A HREF="#string_piece">string_piece</A> name);
+</pre>
+
+<p>
+Append the specified element to the generated XML.
+</p>
+
+<a id="xml_builder_attribute" name="xml_builder_attribute"></a>
+<h3>3.8.4. xml_builder::attribute</h3>
+
+<pre>
+inline <A HREF="#xml_builder">xml_builder</A>&amp; attribute(<A HREF="#string_piece">string_piece</A> name, <A HREF="#string_piece">string_piece</A> value);
+</pre>
+
+<p>
+Append the given attribute to the last generated element, assuming it has not
+been closed and no text was added to it. Otherwise, the call is ignored.
+</p>
+
+<a id="xml_builder_text" name="xml_builder_text"></a>
+<h3>3.8.5. xml_builder::text</h3>
+
+<pre>
+inline <A HREF="#xml_builder">xml_builder</A>&amp; text(<A HREF="#string_piece">string_piece</A> str);
+</pre>
+
+<p>
+Add text (pcdata) to the last generated opened element.
+</p>
+
+<a id="xml_builder_close" name="xml_builder_close"></a>
+<h3>3.8.6. xml_builder::close</h3>
+
+<pre>
+inline <A HREF="#xml_builder">xml_builder</A>&amp; close();
+</pre>
+
+<p>
+Close the last generated opened element.
+</p>
+
+<a id="xml_builder_indent" name="xml_builder_indent"></a>
+<h3>3.8.7. xml_builder::indent</h3>
+
+<pre>
+inline <A HREF="#xml_builder">xml_builder</A>&amp; indent();
+</pre>
+
+<p>
+Add indent to the generated XML. It generally appends a newline and then
+a space for each opened element, but if it is used before a
+<a href="#json_builder_close"><code>close</code></a> it adds one less space.
+</p>
+
+<a id="xml_builder_current" name="xml_builder_current"></a>
+<h3>3.8.8. xml_builder::current</h3>
+
+<pre>
+inline <A HREF="#string_piece">string_piece</A> current() const;
+</pre>
+
+<p>
+Returns the current generated XML (without the prefixes discarded via
+<a href="#xml_builder_discard_current_prefix"><code>discard_current_prefix</code></a>).
+</p>
+
+<a id="xml_builder_discard_current_prefix" name="xml_builder_discard_current_prefix"></a>
+<h3>3.8.9. xml_builder::discard_current_prefix</h3>
+
+<pre>
+void discard_current_prefix(size_t length);
+</pre>
+
+<p>
+Discard generated XML prefix of specified length.
+</p>
+
+<a id="xml_response_generator" name="xml_response_generator"></a>
+<h2>3.9. Class xml_response_generator</h2>
+
+<pre>
+class xml_response_generator : public <A HREF="#response_generator">response_generator</A> {
+ public:
+  virtual <A HREF="#string_piece">string_piece</A> current() const override;
+  virtual void consume(size_t length) override;
+
+  <A HREF="#xml_builder">xml_builder</A> xml;
+};
+</pre>
+
+<p>
+The <a href="#xml_response_generator"><code>xml_response_generator</code></a> class provides a
+<a href="#response_generator"><code>response_generator</code></a> implementation producing a XML
+response using a <a href="#xml_builder"><code>xml_builder</code></a>.
+</p>
+<p>
+The only method required to be implemented is the
+<a href="#response_generator"><code>response_generator</code></a><code>::</code><a href="#response_generator_generate"><code>generate</code></a>,
+which should append to the <code>xml</code> field.
+</p>
+
+<a id="version" name="version"></a>
+<h2>3.10. Structure version</h2>
+
+<pre>
+struct version {
+  unsigned major;
+  unsigned minor;
+  unsigned patch;
+  std::string prerelease;
+
+  // Returns current version.
+  static <A HREF="#version">version</A> <A HREF="#version_current">current</A>();
+};
+</pre>
+
+<p>
+The <a href="#version"><code>version</code></a> class represents MicroRestD version
+according to <a href="http://semver.org/">Semantic Versioning</a>.
+</p>
+
+<a id="version_current" name="version_current"></a>
+<h3>3.10.1. version::current</h3>
+
+<pre>
+static <A HREF="#version">version</A> current();
+</pre>
+
+<p>
+Returns current MicroRestD version.
+</p>
+
+<a id="toc52" name="toc52"></a>
+<h1>4. Pugixml</h1>
+
+<p>
+The <a href="http://pugixml.org/">pugixml</a> library 1.5 is available through the
+<code>pugixml.h</code> header. The source files <code>MICRORESTD_PUGIXML_OBJECTS</code> must be
+compiled in order to use the library.
+</p>
+<p style="margin-bottom:0">
+Note that there are some minor modifications to the original <a href="http://pugixml.org/">pugixml</a> library:
+</p>
+<ul style="margin-top:0">
+<li>The library is available in <code>ufal::microrestd::pugixml</code> namespace instead of the original <code>pugixml</code>.
+</li>
+<li>STL and XPATH modules of the original library are not available.
+</li>
+<li>The element and attribute matching ignores any XML namespaces used.
+</li>
+</ul>
 
 </div>
 <!-- html code generated by txt2tags 2.6 (http://txt2tags.org) -->

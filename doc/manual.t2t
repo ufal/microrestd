@@ -38,6 +38,7 @@ the sources listed in ``MICRORESTD_OBJECTS`` variable and link the
 libraries listed in either ``MICRORESTD_LIBRARIES_POSIX`` or
 ``MICRORESTD_LIBRARIES_WIN`` depending on the operating system.
 
+
 == Structure string_piece ==[string_piece]
 ```
 struct string_piece {
@@ -54,6 +55,7 @@ struct string_piece {
 The [``string_piece`` #string_piece] is used for efficient string passing. The string
 referenced in [``string_piece`` #string_piece] is not owned by it, so users have to make sure
 the referenced string exists as long as the [``string_piece`` #string_piece].
+
 
 == Class response_generator ==[response_generator]
 ```
@@ -155,6 +157,7 @@ Respond with specified HTTP code, ``text/plain`` content-type and specified erro
 If ``make_copy`` is ``true``, a copy of ``error`` is made, otherwise it is not. Note that the response can be
 sent at any later time, even after the ``rest_request`` is destroyed.
 
+
 == Class rest_service ==[rest_service]
 ```
 class rest_service {
@@ -170,6 +173,7 @@ The [``rest_service`` #rest_service] represents an interface of a REST service.
 
 Handle the given [``rest_request`` #rest_request]. The return code should be the one returned by
 the [``rest_request`` #rest_request]::respond* methods.
+
 
 == Class rest_server ==[rest_server]
 ```
@@ -276,7 +280,9 @@ On POSIX systems, receiving either ``SIGUSR1`` signal or ``SIGINT`` (Ctrl+C)
 signal is used to indicate shutdown/restart.  On Windows, console control
 handler receiving Ctrl+C is used.
 
+
 == Class json_builder ==[json_builder]
+
 ```
 class json_builder {
  public:
@@ -302,35 +308,77 @@ class json_builder {
   static const char* mime;
 };
 ```
+
+The [``json_builder`` #json_builder] class is a simple JSON generator. The output
+is buffered, so either whole JSON can be produced, or any already generated JSON prefix
+can be discarded (which is used in [``response_generator`` #response_generator] and
+[``json_response_generator`` #json_response_generator]).
+
+Most methods return the current object, so they can be chained like
+``json.object().key("id").value("42").close()``.
+
+By default, no additional spaces or newlines are present in the generated JSON, but can
+be added using the [``indent`` #json_builder_indent] method.
+
 === json_builder::clear ===[json_builder_clear]
 ``` inline [json_builder #json_builder]& clear();
+
+Clear the already generated JSON.
 
 === json_builder::object ===[json_builder_object]
 ``` inline [json_builder #json_builder]& object();
 
+Start a JSON object.
+
 === json_builder::array ===[json_builder_array]
 ``` inline [json_builder #json_builder]& array();
+
+Start a JSON array.
 
 === json_builder::key ===[json_builder_key]
 ``` inline [json_builder #json_builder]& key([string_piece #string_piece] str);
 
+Add an object key to the generated JSON.
+
 === json_builder::value ===[json_builder_value]
 ``` inline [json_builder #json_builder]& value([string_piece #string_piece] str, bool append = false);
+
+Add a value (either an array element or value of a key in an object) to the generated JSON.
+If ``append`` is ``true`` and the last generated element of the JSON was a value, append to that value
+instead of adding a new value.
 
 === json_builder::value_xml_escape ===[json_builder_value_xml_escape]
 ``` inline [json_builder #json_builder]& value_xml_escape([string_piece #string_piece] str, bool append = false);
 
+Perform XML escaping on the given value and add it to the generated JSON. This method is useful if a XML is being
+embedded in the JSON and it needs to be escaped.
+
+If ``append`` is ``true`` and the last generated element of the JSON was a value, append to that value
+instead of adding a new value.
+
 === json_builder::close ===[json_builder_close]
 ``` inline [json_builder #json_builder]& close();
+
+Close the newest opened object or array.
 
 === json_builder::indent ===[json_builder_indent]
 ``` inline [json_builder #json_builder]& indent();
 
+Add indent to the generated JSON. It generally appends a newline and then
+a space for each opened object/array, but if it is called after an object key
+it only adds a space and when it is used before a
+[``close`` #json_builder_close] it adds one less space.
+
 === json_builder::current ===[json_builder_current]
 ``` inline [string_piece #string_piece] current() const;
 
+Returns the current generated JSON (without the prefixes discarded via
+[``discard_current_prefix`` #json_builder_discard_current_prefix]).
+
 === json_builder::discard_current_prefix ===[json_builder_discard_current_prefix]
 ``` void discard_current_prefix(size_t length);
+
+Discard generated JSON prefix of specified length.
 
 
 == Class json_response_generator ==[json_response_generator]
@@ -344,6 +392,15 @@ class json_response_generator : public [response_generator #response_generator] 
 };
 ```
 
+The [``json_response_generator`` #json_response_generator] class provides a
+[``response_generator`` #response_generator] implementation producing a JSON
+response using a [``json_builder`` #json_builder].
+
+The only method required to be implemented is the
+[``response_generator`` #response_generator]``::``[``generate`` #response_generator_generate],
+which should append to the ``json`` field.
+
+
 == Class xml_builder ==[xml_builder]
 ```
 // Declarations
@@ -353,7 +410,7 @@ class xml_builder {
   inline xml_builder& [clear #xml_builder_clear]();
 
   // XML declaration
-  [xml_builder #xml_builder]& [declaration #xml_builder_declaration](const char* encoding = nullptr, const char* standalone = nullptr);
+  [xml_builder #xml_builder]& [declaration #xml_builder_declaration]();
 
   // Encode
   inline [xml_builder #xml_builder]& [element #xml_builder_element]([string_piece #string_piece] name);
@@ -372,32 +429,67 @@ class xml_builder {
   static const char* mime;
 };
 ```
+
+The [``xml_builder`` #xml_builder] class is a simple XML generator. The output
+is buffered, so either whole XML can be produced, or any already generated XML prefix
+can be discarded (which is used in [``response_generator`` #response_generator] and
+[``xml_response_generator`` #xml_response_generator]).
+
+Most methods return the current object, so they can be chained like
+``xml.element("div").attribute("class","alert").text("Alert").close()``.
+
+By default, no additional spaces or newlines are present in the generated XML, but can
+be added using the [``indent`` #xml_builder_indent] method.
+
 === xml_builder::clear ===[xml_builder_clear]
 ``` inline xml_builder& clear();
 
+Clear the already generated XML.
+
 === xml_builder::declaration ===[xml_builder_declaration]
-``` [xml_builder #xml_builder]& declaration(const char* encoding = nullptr, const char* standalone = nullptr);
+``` [xml_builder #xml_builder]& declaration();
+
+Append the following a simple XML 1.0 declaration to the document:
+``` <?xml version="1.0"?>
 
 === xml_builder::element ===[xml_builder_element]
 ``` inline [xml_builder #xml_builder]& element([string_piece #string_piece] name);
 
+Append the specified element to the generated XML.
+
 === xml_builder::attribute ===[xml_builder_attribute]
 ``` inline [xml_builder #xml_builder]& attribute([string_piece #string_piece] name, [string_piece #string_piece] value);
+
+Append the given attribute to the last generated element, assuming it has not
+been closed and no text was added to it. Otherwise, the call is ignored.
 
 === xml_builder::text ===[xml_builder_text]
 ``` inline [xml_builder #xml_builder]& text([string_piece #string_piece] str);
 
+Add text (pcdata) to the last generated opened element.
+
 === xml_builder::close ===[xml_builder_close]
 ``` inline [xml_builder #xml_builder]& close();
+
+Close the last generated opened element.
 
 === xml_builder::indent ===[xml_builder_indent]
 ``` inline [xml_builder #xml_builder]& indent();
 
+Add indent to the generated XML. It generally appends a newline and then
+a space for each opened element, but if it is used before a
+[``close`` #json_builder_close] it adds one less space.
+
 === xml_builder::current ===[xml_builder_current]
 ``` inline [string_piece #string_piece] current() const;
 
+Returns the current generated XML (without the prefixes discarded via
+[``discard_current_prefix`` #xml_builder_discard_current_prefix]).
+
 === xml_builder::discard_current_prefix ===[xml_builder_discard_current_prefix]
 ``` void discard_current_prefix(size_t length);
+
+Discard generated XML prefix of specified length.
 
 
 == Class xml_response_generator ==[xml_response_generator]
@@ -410,6 +502,15 @@ class xml_response_generator : public [response_generator #response_generator] {
   [xml_builder #xml_builder] xml;
 };
 ```
+
+The [``xml_response_generator`` #xml_response_generator] class provides a
+[``response_generator`` #response_generator] implementation producing a XML
+response using a [``xml_builder`` #xml_builder].
+
+The only method required to be implemented is the
+[``response_generator`` #response_generator]``::``[``generate`` #response_generator_generate],
+which should append to the ``xml`` field.
+
 
 == Structure version ==[version]
 ```
