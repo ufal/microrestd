@@ -14,24 +14,10 @@ namespace microrestd {
 
 const char* xml_builder::mime = "application/xml";
 
-xml_builder& xml_builder::declaration(const char* encoding, const char* standalone) {
-  static const string_piece declaration = "<?xml version=\"1.0\"";
-  static const string_piece declaration_encoding = " encoding=\"";
-  static const string_piece declaration_standalone = " standalone=\"";
+xml_builder& xml_builder::declaration() {
+  static const string_piece declaration = "<?xml version=\"1.0\"?>";
 
   xml.insert(xml.end(), declaration.str, declaration.str + declaration.len);
-  if (encoding) {
-    xml.insert(xml.end(), declaration_encoding.str, declaration_encoding.str + declaration_encoding.len);
-    xml.insert(xml.end(), encoding, encoding + strlen(encoding));
-    xml.push_back('"');
-  }
-  if (standalone) {
-    xml.insert(xml.end(), declaration_standalone.str, declaration_standalone.str + declaration_standalone.len);
-    xml.insert(xml.end(), standalone, standalone + strlen(standalone));
-    xml.push_back('"');
-  }
-  xml.push_back('?');
-  xml.push_back('>');
   return *this;
 }
 
