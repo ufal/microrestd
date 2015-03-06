@@ -7,22 +7,15 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#pragma once
-
-#include <string>
+#include "version.h"
 
 namespace ufal {
 namespace microrestd {
 
-struct version {
-  unsigned major;
-  unsigned minor;
-  unsigned patch;
-  std::string prerelease;
-
-  // Returns current version.
-  static version current();
-};
+// Returns current version.
+version version::current() {
+  return {0, 9, 0, "devel"};
+}
 
 } // namespace microrestd
 } // namespace ufal
