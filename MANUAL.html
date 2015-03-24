@@ -95,7 +95,9 @@
       </li>
       <li><a href="#json_builder_current">3.6.9. json_builder::current</a>
       </li>
-      <li><a href="#json_builder_discard_current_prefix">3.6.10. json_builder::discard_current_prefix</a>
+      <li><a href="#json_builder_operator_string_piece">3.6.10. json_builder::operator string_piece</a>
+      </li>
+      <li><a href="#json_builder_discard_current_prefix">3.6.11. json_builder::discard_current_prefix</a>
       </li>
       </ul>
     </li>
@@ -119,7 +121,9 @@
       </li>
       <li><a href="#xml_builder_current">3.8.8. xml_builder::current</a>
       </li>
-      <li><a href="#xml_builder_discard_current_prefix">3.8.9. xml_builder::discard_current_prefix</a>
+      <li><a href="#xml_builder_operator_string_piece">3.8.9. xml_builder::operator string_piece</a>
+      </li>
+      <li><a href="#xml_builder_discard_current_prefix">3.8.10. xml_builder::discard_current_prefix</a>
       </li>
       </ul>
     </li>
@@ -133,7 +137,7 @@
     </li>
     </ul>
   </li>
-  <li><a href="#toc52">Pugixml</a>
+  <li><a href="#toc54">Pugixml</a>
   </li>
   </ol>
 
@@ -613,6 +617,7 @@ class json_builder {
 
   // Return current json
   inline <A HREF="#string_piece">string_piece</A> <A HREF="#json_builder_current">current</A>() const;
+  inline <A HREF="#json_builder_operator_string_piece">operator string_piece</A>() const;
 
   // Remove current json prefix; for response_generator
   void <A HREF="#json_builder_discard_current_prefix">discard_current_prefix</A>(size_t length);
@@ -747,8 +752,20 @@ Returns the current generated JSON (without the prefixes discarded via
 <a href="#json_builder_discard_current_prefix"><code>discard_current_prefix</code></a>).
 </p>
 
+<a id="json_builder_operator_string_piece" name="json_builder_operator_string_piece"></a>
+<h3>3.6.10. json_builder::operator string_piece</h3>
+
+<pre>
+inline operator string_piece() const;
+</pre>
+
+<p>
+Returns the current generated JSON (without the prefixes discarded via
+<a href="#json_builder_discard_current_prefix"><code>discard_current_prefix</code></a>).
+</p>
+
 <a id="json_builder_discard_current_prefix" name="json_builder_discard_current_prefix"></a>
-<h3>3.6.10. json_builder::discard_current_prefix</h3>
+<h3>3.6.11. json_builder::discard_current_prefix</h3>
 
 <pre>
 void discard_current_prefix(size_t length);
@@ -804,6 +821,7 @@ class xml_builder {
 
   // Return current xml
   inline <A HREF="#string_piece">string_piece</A> <A HREF="#xml_builder_current">current</A>() const;
+  inline <A HREF="#xml_builder_operator_string_piece">operator string_piece</A>() const;
 
   // Remove current xml prefix; for response_generator
   void <A HREF="#xml_builder_discard_current_prefix">discard_current_prefix</A>(size_t length);
@@ -923,8 +941,20 @@ Returns the current generated XML (without the prefixes discarded via
 <a href="#xml_builder_discard_current_prefix"><code>discard_current_prefix</code></a>).
 </p>
 
+<a id="xml_builder_operator_string_piece" name="xml_builder_operator_string_piece"></a>
+<h3>3.8.9. xml_builder::operator string_piece</h3>
+
+<pre>
+inline operator string_piece() const;
+</pre>
+
+<p>
+Returns the current generated XML (without the prefixes discarded via
+<a href="#xml_builder_discard_current_prefix"><code>discard_current_prefix</code></a>).
+</p>
+
 <a id="xml_builder_discard_current_prefix" name="xml_builder_discard_current_prefix"></a>
-<h3>3.8.9. xml_builder::discard_current_prefix</h3>
+<h3>3.8.10. xml_builder::discard_current_prefix</h3>
 
 <pre>
 void discard_current_prefix(size_t length);
@@ -989,7 +1019,7 @@ static <A HREF="#version">version</A> current();
 Returns current MicroRestD version.
 </p>
 
-<a id="toc52" name="toc52"></a>
+<a id="toc54" name="toc54"></a>
 <h1>4. Pugixml</h1>
 
 <p>

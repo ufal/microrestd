@@ -371,6 +371,7 @@ Class json_builder
 
     // Return current json
     inline string_piece current() const;
+    inline operator string_piece() const;
 
     // Remove current json prefix; for response_generator
     void discard_current_prefix(size_t length);
@@ -472,6 +473,15 @@ Returns the current generated JSON (without the prefixes discarded via
 discard_current_prefix).
 
 
+json_builder::operator string_piece
+-----------------------------------
+
+  inline operator string_piece() const;
+
+Returns the current generated JSON (without the prefixes discarded via
+discard_current_prefix).
+
+
 json_builder::discard_current_prefix
 ------------------------------------
 
@@ -519,6 +529,7 @@ Class xml_builder
 
     // Return current xml
     inline string_piece current() const;
+    inline operator string_piece() const;
 
     // Remove current xml prefix; for response_generator
     void discard_current_prefix(size_t length);
@@ -602,6 +613,15 @@ xml_builder::current
 --------------------
 
   inline string_piece current() const;
+
+Returns the current generated XML (without the prefixes discarded via
+discard_current_prefix).
+
+
+xml_builder::operator string_piece
+----------------------------------
+
+  inline operator string_piece() const;
 
 Returns the current generated XML (without the prefixes discarded via
 discard_current_prefix).

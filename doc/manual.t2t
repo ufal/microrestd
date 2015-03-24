@@ -300,6 +300,7 @@ class json_builder {
 
   // Return current json
   inline [string_piece #string_piece] [current #json_builder_current]() const;
+  inline [operator string_piece #json_builder_operator_string_piece]() const;
 
   // Remove current json prefix; for response_generator
   void [discard_current_prefix #json_builder_discard_current_prefix](size_t length);
@@ -375,6 +376,12 @@ it only adds a space and when it is used before a
 Returns the current generated JSON (without the prefixes discarded via
 [``discard_current_prefix`` #json_builder_discard_current_prefix]).
 
+=== json_builder::operator string_piece ===[json_builder_operator_string_piece]
+``` inline operator string_piece() const;
+
+Returns the current generated JSON (without the prefixes discarded via
+[``discard_current_prefix`` #json_builder_discard_current_prefix]).
+
 === json_builder::discard_current_prefix ===[json_builder_discard_current_prefix]
 ``` void discard_current_prefix(size_t length);
 
@@ -421,6 +428,7 @@ class xml_builder {
 
   // Return current xml
   inline [string_piece #string_piece] [current #xml_builder_current]() const;
+  inline [operator string_piece #xml_builder_operator_string_piece]() const;
 
   // Remove current xml prefix; for response_generator
   void [discard_current_prefix #xml_builder_discard_current_prefix](size_t length);
@@ -485,6 +493,13 @@ a space for each opened element, but if it is used before a
 
 Returns the current generated XML (without the prefixes discarded via
 [``discard_current_prefix`` #xml_builder_discard_current_prefix]).
+
+=== xml_builder::operator string_piece ===[xml_builder_operator_string_piece]
+``` inline operator string_piece() const;
+
+Returns the current generated XML (without the prefixes discarded via
+[``discard_current_prefix`` #xml_builder_discard_current_prefix]).
+
 
 === xml_builder::discard_current_prefix ===[xml_builder_discard_current_prefix]
 ``` void discard_current_prefix(size_t length);
