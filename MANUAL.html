@@ -89,9 +89,9 @@
       </li>
       <li><a href="#json_builder_value_xml_escape">3.6.6. json_builder::value_xml_escape</a>
       </li>
-      <li><a href="#json_builder_close">3.6.7. json_builder::close</a>
+      <li><a href="#json_builder_indent">3.6.7. json_builder::indent</a>
       </li>
-      <li><a href="#json_builder_indent">3.6.8. json_builder::indent</a>
+      <li><a href="#json_builder_close">3.6.8. json_builder::close</a>
       </li>
       <li><a href="#json_builder_current">3.6.9. json_builder::current</a>
       </li>
@@ -612,8 +612,8 @@ class json_builder {
   inline <A HREF="#json_builder">json_builder</A>&amp; <A HREF="#json_builder_key">key</A>(<A HREF="#string_piece">string_piece</A> str);
   inline <A HREF="#json_builder">json_builder</A>&amp; <A HREF="#json_builder_value">value</A>(<A HREF="#string_piece">string_piece</A> str, bool append = false);
   inline <A HREF="#json_builder">json_builder</A>&amp; <A HREF="#json_builder_value_xml_escape">value_xml_escape</A>(<A HREF="#string_piece">string_piece</A> str, bool append = false);
-  inline <A HREF="#json_builder">json_builder</A>&amp; <A HREF="#json_builder_close">close</A>();
   inline <A HREF="#json_builder">json_builder</A>&amp; <A HREF="#json_builder_indent">indent</A>();
+  inline <A HREF="#json_builder">json_builder</A>&amp; <A HREF="#json_builder_close">close</A>();
 
   // Return current json
   inline <A HREF="#string_piece">string_piece</A> <A HREF="#json_builder_current">current</A>() const;
@@ -715,19 +715,8 @@ If <code>append</code> is <code>true</code> and the last generated element of th
 instead of adding a new value.
 </p>
 
-<a id="json_builder_close" name="json_builder_close"></a>
-<h3>3.6.7. json_builder::close</h3>
-
-<pre>
-inline <A HREF="#json_builder">json_builder</A>&amp; close();
-</pre>
-
-<p>
-Close the newest opened object or array.
-</p>
-
 <a id="json_builder_indent" name="json_builder_indent"></a>
-<h3>3.6.8. json_builder::indent</h3>
+<h3>3.6.7. json_builder::indent</h3>
 
 <pre>
 inline <A HREF="#json_builder">json_builder</A>&amp; indent();
@@ -738,6 +727,17 @@ Add indent to the generated JSON. It generally appends a newline and then
 a space for each opened object/array, but if it is called after an object key
 it only adds a space and when it is used before a
 <a href="#json_builder_close"><code>close</code></a> it adds one less space.
+</p>
+
+<a id="json_builder_close" name="json_builder_close"></a>
+<h3>3.6.8. json_builder::close</h3>
+
+<pre>
+inline <A HREF="#json_builder">json_builder</A>&amp; close();
+</pre>
+
+<p>
+Close the newest opened object or array.
 </p>
 
 <a id="json_builder_current" name="json_builder_current"></a>

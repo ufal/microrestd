@@ -366,8 +366,8 @@ Class json_builder
     inline json_builder& key(string_piece str);
     inline json_builder& value(string_piece str, bool append = false);
     inline json_builder& value_xml_escape(string_piece str, bool append = false);
-    inline json_builder& close();
     inline json_builder& indent();
+    inline json_builder& close();
 
     // Return current json
     inline string_piece current() const;
@@ -446,14 +446,6 @@ If append is true and the last generated element of the JSON was a value, append
 to that value instead of adding a new value.
 
 
-json_builder::close
--------------------
-
-  inline json_builder& close();
-
-Close the newest opened object or array.
-
-
 json_builder::indent
 --------------------
 
@@ -462,6 +454,14 @@ json_builder::indent
 Add indent to the generated JSON. It generally appends a newline and then a
 space for each opened object/array, but if it is called after an object key it
 only adds a space and when it is used before a close it adds one less space.
+
+
+json_builder::close
+-------------------
+
+  inline json_builder& close();
+
+Close the newest opened object or array.
 
 
 json_builder::current
