@@ -24,10 +24,10 @@ int main(void) {
   xml.indent().close();
   xml.indent().text("amp:&");
   xml.indent().element("element").close();
-  xml.indent().close();
+  xml.finish(true);
 
   auto data = xml.current();
-  printf("%.*s\n", int(data.len), data.str);
+  printf("%.*s", int(data.len), data.str);
 
   return 0;
 }

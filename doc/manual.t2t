@@ -436,6 +436,7 @@ class xml_builder {
   inline [xml_builder #xml_builder]& [text #xml_builder_text]([string_piece #string_piece] str);
   inline [xml_builder #xml_builder]& [indent #xml_builder_indent]();
   inline [xml_builder #xml_builder]& [close #xml_builder_close]();
+  inline [xml_builder #xml_builder]& [finish #xml_builder_finish](bool indent = false);
 
   // Return current xml
   inline [string_piece #string_piece] [current #xml_builder_current]() const;
@@ -498,6 +499,15 @@ a space for each opened element, but if it is used before a
 ``` inline [xml_builder #xml_builder]& close();
 
 Close the last generated opened element.
+
+=== xml_builder::finish ===[xml_builder_finish]
+``` inline [xml_builder #xml_builder]& finish(bool indent = false);
+
+Close all opened elements (calling [``indent`` #xml_builder_indent] before
+every one if requested) and then append a newline after the finished XML.
+
+Note that [``finish`` #xml_builder_finish] call is not mandatory, it is needed
+only when newline after the generated XML is required.
 
 === xml_builder::current ===[xml_builder_current]
 ``` inline [string_piece #string_piece] current() const;

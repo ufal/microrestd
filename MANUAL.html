@@ -121,11 +121,13 @@
       </li>
       <li><a href="#xml_builder_close">3.8.7. xml_builder::close</a>
       </li>
-      <li><a href="#xml_builder_current">3.8.8. xml_builder::current</a>
+      <li><a href="#xml_builder_finish">3.8.8. xml_builder::finish</a>
       </li>
-      <li><a href="#xml_builder_operator_string_piece">3.8.9. xml_builder::operator string_piece</a>
+      <li><a href="#xml_builder_current">3.8.9. xml_builder::current</a>
       </li>
-      <li><a href="#xml_builder_discard_current_prefix">3.8.10. xml_builder::discard_current_prefix</a>
+      <li><a href="#xml_builder_operator_string_piece">3.8.10. xml_builder::operator string_piece</a>
+      </li>
+      <li><a href="#xml_builder_discard_current_prefix">3.8.11. xml_builder::discard_current_prefix</a>
       </li>
       </ul>
     </li>
@@ -139,7 +141,7 @@
     </li>
     </ul>
   </li>
-  <li><a href="#toc55">Pugixml</a>
+  <li><a href="#toc56">Pugixml</a>
   </li>
   </ol>
 
@@ -838,6 +840,7 @@ class xml_builder {
   inline <A HREF="#xml_builder">xml_builder</A>&amp; <A HREF="#xml_builder_text">text</A>(<A HREF="#string_piece">string_piece</A> str);
   inline <A HREF="#xml_builder">xml_builder</A>&amp; <A HREF="#xml_builder_indent">indent</A>();
   inline <A HREF="#xml_builder">xml_builder</A>&amp; <A HREF="#xml_builder_close">close</A>();
+  inline <A HREF="#xml_builder">xml_builder</A>&amp; <A HREF="#xml_builder_finish">finish</A>(bool indent = false);
 
   // Return current xml
   inline <A HREF="#string_piece">string_piece</A> <A HREF="#xml_builder_current">current</A>() const;
@@ -949,8 +952,24 @@ inline <A HREF="#xml_builder">xml_builder</A>&amp; close();
 Close the last generated opened element.
 </p>
 
+<a id="xml_builder_finish" name="xml_builder_finish"></a>
+<h3>3.8.8. xml_builder::finish</h3>
+
+<pre>
+inline <A HREF="#xml_builder">xml_builder</A>&amp; finish(bool indent = false);
+</pre>
+
+<p>
+Close all opened elements (calling <a href="#xml_builder_indent"><code>indent</code></a> before
+every one if requested) and then append a newline after the finished XML.
+</p>
+<p>
+Note that <a href="#xml_builder_finish"><code>finish</code></a> call is not mandatory, it is needed
+only when newline after the generated XML is required.
+</p>
+
 <a id="xml_builder_current" name="xml_builder_current"></a>
-<h3>3.8.8. xml_builder::current</h3>
+<h3>3.8.9. xml_builder::current</h3>
 
 <pre>
 inline <A HREF="#string_piece">string_piece</A> current() const;
@@ -962,7 +981,7 @@ Returns the current generated XML (without the prefixes discarded via
 </p>
 
 <a id="xml_builder_operator_string_piece" name="xml_builder_operator_string_piece"></a>
-<h3>3.8.9. xml_builder::operator string_piece</h3>
+<h3>3.8.10. xml_builder::operator string_piece</h3>
 
 <pre>
 inline operator string_piece() const;
@@ -974,7 +993,7 @@ Returns the current generated XML (without the prefixes discarded via
 </p>
 
 <a id="xml_builder_discard_current_prefix" name="xml_builder_discard_current_prefix"></a>
-<h3>3.8.10. xml_builder::discard_current_prefix</h3>
+<h3>3.8.11. xml_builder::discard_current_prefix</h3>
 
 <pre>
 void discard_current_prefix(size_t length);
@@ -1040,7 +1059,7 @@ static <A HREF="#version">version</A> current();
 Returns current MicroRestD version.
 </p>
 
-<a id="toc55" name="toc55"></a>
+<a id="toc56" name="toc56"></a>
 <h1>4. Pugixml</h1>
 
 <p>

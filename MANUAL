@@ -540,6 +540,7 @@ Class xml_builder
     inline xml_builder& text(string_piece str);
     inline xml_builder& indent();
     inline xml_builder& close();
+    inline xml_builder& finish(bool indent = false);
 
     // Return current xml
     inline string_piece current() const;
@@ -621,6 +622,18 @@ xml_builder::close
   inline xml_builder& close();
 
 Close the last generated opened element.
+
+
+xml_builder::finish
+-------------------
+
+  inline xml_builder& finish(bool indent = false);
+
+Close all opened elements (calling indent before every one if requested) and
+then append a newline after the finished XML.
+
+Note that finish call is not mandatory, it is needed only when newline after the
+generated XML is required.
 
 
 xml_builder::current

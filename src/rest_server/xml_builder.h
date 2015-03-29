@@ -32,6 +32,7 @@ class xml_builder {
   inline xml_builder& text(string_piece str);
   inline xml_builder& indent();
   inline xml_builder& close();
+  inline xml_builder& finish(bool indent = false);
 
   // Return current xml
   inline string_piece current() const;
@@ -119,6 +120,15 @@ xml_builder& xml_builder::close() {
       xml.push_back('>');
     }
   }
+  return *this;
+}
+
+xml_builder& xml_builder::finish(bool indent) {
+  while (stack_length) {
+    if (indent) this->indent();
+    close();
+  }
+  if (!xml.empty() && xml.back() != '\n') xml.push_back('\n');
   return *this;
 }
 
