@@ -30,6 +30,7 @@ class json_builder {
   inline json_builder& value_xml_escape(string_piece str, bool append = false);
   inline json_builder& indent();
   inline json_builder& close();
+  inline json_builder& finish(bool indent = false);
 
   // Return current json
   inline string_piece current() const;
@@ -123,6 +124,15 @@ json_builder& json_builder::close() {
     json.push_back(closing_char);
     mode = AFTER_VALUE;
   }
+  return *this;
+}
+
+json_builder& json_builder::finish(bool indent) {
+  while (!stack.empty()) {
+    if (indent) this->indent();
+    close();
+  }
+  if (!json.empty() && json.back() != '\n') json.push_back('\n');
   return *this;
 }
 

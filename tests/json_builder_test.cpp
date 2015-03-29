@@ -20,20 +20,20 @@ int main(void) {
   json.key("ahoj").value("nazdar").value(" appended", true);
   json.key("array").array().value("h1").value("h2").value("\"quot\"").close();
   json.key("object").object().key("a").value("A").key("b").value("B").close();
-  json.close();
+  json.finish();
 
   auto data = json.current();
-  printf("%.*s\n", int(data.len), data.str);
+  printf("%.*s", int(data.len), data.str);
 
   json.clear();
   json.object();
   json.indent().key("ahoj").indent().value("nazdar").value(" appended", true);
   json.indent().key("array").indent().array().indent().value("h1").indent().value("h2").indent().value("\"quot\"").indent().close();
   json.indent().key("object").indent().object().indent().key("a").value("A").indent().key("b").value("B").indent().close();
-  json.indent().close();
+  json.finish(true);
 
   data = json.current();
-  printf("%.*s\n", int(data.len), data.str);
+  printf("%.*s", int(data.len), data.str);
 
   return 0;
 }

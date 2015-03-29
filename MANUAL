@@ -368,6 +368,7 @@ Class json_builder
     inline json_builder& value_xml_escape(string_piece str, bool append = false);
     inline json_builder& indent();
     inline json_builder& close();
+    inline json_builder& finish(bool indent = false);
 
     // Return current json
     inline string_piece current() const;
@@ -462,6 +463,18 @@ json_builder::close
   inline json_builder& close();
 
 Close the newest opened object or array.
+
+
+json_builder::finish
+--------------------
+
+  inline json_builder& finish(bool indent = false);
+
+Close all opened arrays and objects (calling indent before every one if
+requested) and then append a newline after the finished JSON.
+
+Note that finish call is not mandatory, it is needed only when newline after the
+generated JSON is required.
 
 
 json_builder::current

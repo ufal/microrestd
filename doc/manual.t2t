@@ -297,6 +297,7 @@ class json_builder {
   inline [json_builder #json_builder]& [value_xml_escape #json_builder_value_xml_escape]([string_piece #string_piece] str, bool append = false);
   inline [json_builder #json_builder]& [indent #json_builder_indent]();
   inline [json_builder #json_builder]& [close #json_builder_close]();
+  inline [json_builder #json_builder]& [finish #json_builder_finish](bool indent = false);
 
   // Return current json
   inline [string_piece #string_piece] [current #json_builder_current]() const;
@@ -369,6 +370,15 @@ it only adds a space and when it is used before a
 ``` inline [json_builder #json_builder]& close();
 
 Close the newest opened object or array.
+
+=== json_builder::finish ===[json_builder_finish]
+``` inline [json_builder #json_builder]& finish(bool indent = false);
+
+Close all opened arrays and objects (calling [``indent`` #json_builder_indent] before
+every one if requested) and then append a newline after the finished JSON.
+
+Note that [``finish`` #json_builder_finish] call is not mandatory, it is needed
+only when newline after the generated JSON is required.
 
 === json_builder::current ===[json_builder_current]
 ``` inline [string_piece #string_piece] current() const;
