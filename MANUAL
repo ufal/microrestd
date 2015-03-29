@@ -538,8 +538,8 @@ Class xml_builder
     inline xml_builder& element(string_piece name);
     inline xml_builder& attribute(string_piece name, string_piece value);
     inline xml_builder& text(string_piece str);
-    inline xml_builder& close();
     inline xml_builder& indent();
+    inline xml_builder& close();
 
     // Return current xml
     inline string_piece current() const;
@@ -605,14 +605,6 @@ xml_builder::text
 Add text (pcdata) to the last generated opened element.
 
 
-xml_builder::close
-------------------
-
-  inline xml_builder& close();
-
-Close the last generated opened element.
-
-
 xml_builder::indent
 -------------------
 
@@ -621,6 +613,14 @@ xml_builder::indent
 Add indent to the generated XML. It generally appends a newline and then a space
 for each opened element, but if it is used before a close it adds one less
 space.
+
+
+xml_builder::close
+------------------
+
+  inline xml_builder& close();
+
+Close the last generated opened element.
 
 
 xml_builder::current

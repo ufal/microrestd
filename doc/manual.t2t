@@ -434,8 +434,8 @@ class xml_builder {
   inline [xml_builder #xml_builder]& [element #xml_builder_element]([string_piece #string_piece] name);
   inline [xml_builder #xml_builder]& [attribute #xml_builder_attribute]([string_piece #string_piece] name, [string_piece #string_piece] value);
   inline [xml_builder #xml_builder]& [text #xml_builder_text]([string_piece #string_piece] str);
-  inline [xml_builder #xml_builder]& [close #xml_builder_close]();
   inline [xml_builder #xml_builder]& [indent #xml_builder_indent]();
+  inline [xml_builder #xml_builder]& [close #xml_builder_close]();
 
   // Return current xml
   inline [string_piece #string_piece] [current #xml_builder_current]() const;
@@ -487,17 +487,17 @@ been closed and no text was added to it. Otherwise, the call is ignored.
 
 Add text (pcdata) to the last generated opened element.
 
-=== xml_builder::close ===[xml_builder_close]
-``` inline [xml_builder #xml_builder]& close();
-
-Close the last generated opened element.
-
 === xml_builder::indent ===[xml_builder_indent]
 ``` inline [xml_builder #xml_builder]& indent();
 
 Add indent to the generated XML. It generally appends a newline and then
 a space for each opened element, but if it is used before a
 [``close`` #json_builder_close] it adds one less space.
+
+=== xml_builder::close ===[xml_builder_close]
+``` inline [xml_builder #xml_builder]& close();
+
+Close the last generated opened element.
 
 === xml_builder::current ===[xml_builder_current]
 ``` inline [string_piece #string_piece] current() const;

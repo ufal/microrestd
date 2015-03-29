@@ -117,9 +117,9 @@
       </li>
       <li><a href="#xml_builder_text">3.8.5. xml_builder::text</a>
       </li>
-      <li><a href="#xml_builder_close">3.8.6. xml_builder::close</a>
+      <li><a href="#xml_builder_indent">3.8.6. xml_builder::indent</a>
       </li>
-      <li><a href="#xml_builder_indent">3.8.7. xml_builder::indent</a>
+      <li><a href="#xml_builder_close">3.8.7. xml_builder::close</a>
       </li>
       <li><a href="#xml_builder_current">3.8.8. xml_builder::current</a>
       </li>
@@ -836,8 +836,8 @@ class xml_builder {
   inline <A HREF="#xml_builder">xml_builder</A>&amp; <A HREF="#xml_builder_element">element</A>(<A HREF="#string_piece">string_piece</A> name);
   inline <A HREF="#xml_builder">xml_builder</A>&amp; <A HREF="#xml_builder_attribute">attribute</A>(<A HREF="#string_piece">string_piece</A> name, <A HREF="#string_piece">string_piece</A> value);
   inline <A HREF="#xml_builder">xml_builder</A>&amp; <A HREF="#xml_builder_text">text</A>(<A HREF="#string_piece">string_piece</A> str);
-  inline <A HREF="#xml_builder">xml_builder</A>&amp; <A HREF="#xml_builder_close">close</A>();
   inline <A HREF="#xml_builder">xml_builder</A>&amp; <A HREF="#xml_builder_indent">indent</A>();
+  inline <A HREF="#xml_builder">xml_builder</A>&amp; <A HREF="#xml_builder_close">close</A>();
 
   // Return current xml
   inline <A HREF="#string_piece">string_piece</A> <A HREF="#xml_builder_current">current</A>() const;
@@ -925,19 +925,8 @@ inline <A HREF="#xml_builder">xml_builder</A>&amp; text(<A HREF="#string_piece">
 Add text (pcdata) to the last generated opened element.
 </p>
 
-<a id="xml_builder_close" name="xml_builder_close"></a>
-<h3>3.8.6. xml_builder::close</h3>
-
-<pre>
-inline <A HREF="#xml_builder">xml_builder</A>&amp; close();
-</pre>
-
-<p>
-Close the last generated opened element.
-</p>
-
 <a id="xml_builder_indent" name="xml_builder_indent"></a>
-<h3>3.8.7. xml_builder::indent</h3>
+<h3>3.8.6. xml_builder::indent</h3>
 
 <pre>
 inline <A HREF="#xml_builder">xml_builder</A>&amp; indent();
@@ -947,6 +936,17 @@ inline <A HREF="#xml_builder">xml_builder</A>&amp; indent();
 Add indent to the generated XML. It generally appends a newline and then
 a space for each opened element, but if it is used before a
 <a href="#json_builder_close"><code>close</code></a> it adds one less space.
+</p>
+
+<a id="xml_builder_close" name="xml_builder_close"></a>
+<h3>3.8.7. xml_builder::close</h3>
+
+<pre>
+inline <A HREF="#xml_builder">xml_builder</A>&amp; close();
+</pre>
+
+<p>
+Close the last generated opened element.
 </p>
 
 <a id="xml_builder_current" name="xml_builder_current"></a>
