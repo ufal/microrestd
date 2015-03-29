@@ -785,6 +785,7 @@ class json_response_generator : public <A HREF="#response_generator">response_ge
   virtual void consume(size_t length) override;
 
   <A HREF="#json_builder">json_builder</A> json;
+  static const char* mime;
 };
 </pre>
 
@@ -974,6 +975,7 @@ class xml_response_generator : public <A HREF="#response_generator">response_gen
   virtual void consume(size_t length) override;
 
   <A HREF="#xml_builder">xml_builder</A> xml;
+  static const char* mime;
 };
 </pre>
 

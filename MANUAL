@@ -499,6 +499,7 @@ Class json_response_generator
     virtual void consume(size_t length) override;
 
     json_builder json;
+    static const char* mime;
   };
 
 The json_response_generator class provides a response_generator implementation
@@ -644,6 +645,7 @@ Class xml_response_generator
     virtual void consume(size_t length) override;
 
     xml_builder xml;
+    static const char* mime;
   };
 
 The xml_response_generator class provides a response_generator implementation
