@@ -25,11 +25,13 @@
  * @author Christian Grothoff
  */
 
-#include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <iostream>
 
 #include "libmicrohttpd/microhttpd.h"
+
+using namespace std;
 
 namespace ufal {
 namespace microrestd {
@@ -118,10 +120,7 @@ main (int argc, char *const *argv)
   struct MHD_Daemon *d;
 
   if (argc != 2)
-    {
-      printf ("%s PORT\n", argv[0]);
-      return 1;
-    }
+    return cerr << "Usage: " << argv[0] << " port" << endl, 1;
   // Try using POLL first, then SELECT.
   for (int poll = 1; poll >= 0; poll--) {
     d = MHD_start_daemon (MHD_USE_THREAD_PER_CONNECTION | (poll ? MHD_USE_POLL : 0) | MHD_USE_PIPE_FOR_SHUTDOWN,
@@ -135,7 +134,7 @@ main (int argc, char *const *argv)
   }
   if (!d) return 1;
 
-  fprintf(stderr, "Running...\n");
+  cerr << "Running..." << endl;
   (void) getc (stdin);
   MHD_stop_daemon (d);
   return 0;

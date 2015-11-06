@@ -7,10 +7,11 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include <cstdio>
+#include <iostream>
 
 #include "microrestd.h"
 
+using namespace std;
 using namespace ufal::microrestd;
 
 int main(void) {
@@ -22,8 +23,7 @@ int main(void) {
   json.key("object").object().key("a").value("A").key("b").value("B").close();
   json.finish();
 
-  auto data = json.current();
-  printf("%.*s", int(data.len), data.str);
+  cout << json.current();
 
   json.clear();
   json.object();
@@ -32,8 +32,7 @@ int main(void) {
   json.indent().key("object").indent().object().indent().key("a").value("A").indent().key("b").value("B").indent().close();
   json.finish(true);
 
-  data = json.current();
-  printf("%.*s", int(data.len), data.str);
+  cout << json.current();
 
   return 0;
 }

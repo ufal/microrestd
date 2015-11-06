@@ -179,7 +179,7 @@ the [``rest_request`` #rest_request]::respond* methods.
 ```
 class rest_server {
  public:
-  void [set_log_file #rest_server_set_log_file](FILE* log_file, unsigned max_log_size = 0);
+  void [set_log_file #rest_server_set_log_file](std::iostream* log_file, unsigned max_log_size = 0);
   void [set_min_generated #rest_server_set_min_generated](unsigned min_generated);
   void [set_max_connections #rest_server_set_max_connections](unsigned max_connections);
   void [set_max_request_body_size #rest_server_set_max_request_body_size](unsigned max_request_body_size);
@@ -195,7 +195,7 @@ class rest_server {
 Main REST server class.
 
 === rest_server::set_log_file ===[rest_server_set_log_file]
-``` void set_log_file(FILE* log_file, unsigned max_log_size);
+``` void set_log_file(iostream* log_file, unsigned max_log_size);
 
 Log to the specified ``log_file``. If ``nullptr`` is passed, logging is disabled.
 Note that the [``rest_server`` #rest_server] does not close ``log_file`` on exit.

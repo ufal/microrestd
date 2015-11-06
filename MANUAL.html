@@ -433,7 +433,7 @@ the <a href="#rest_request"><code>rest_request</code></a>::respond* methods.
 <pre>
 class rest_server {
  public:
-  void <A HREF="#rest_server_set_log_file">set_log_file</A>(FILE* log_file, unsigned max_log_size = 0);
+  void <A HREF="#rest_server_set_log_file">set_log_file</A>(std::iostream* log_file, unsigned max_log_size = 0);
   void <A HREF="#rest_server_set_min_generated">set_min_generated</A>(unsigned min_generated);
   void <A HREF="#rest_server_set_max_connections">set_max_connections</A>(unsigned max_connections);
   void <A HREF="#rest_server_set_max_request_body_size">set_max_request_body_size</A>(unsigned max_request_body_size);
@@ -454,7 +454,7 @@ Main REST server class.
 <h3>3.5.1. rest_server::set_log_file</h3>
 
 <pre>
-void set_log_file(FILE* log_file, unsigned max_log_size);
+void set_log_file(iostream* log_file, unsigned max_log_size);
 </pre>
 
 <p>

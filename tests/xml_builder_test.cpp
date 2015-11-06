@@ -7,10 +7,11 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include <cstdio>
+#include <iostream>
 
 #include "microrestd.h"
 
+using namespace std;
 using namespace ufal::microrestd;
 
 int main(void) {
@@ -26,8 +27,7 @@ int main(void) {
   xml.indent().element("element").close();
   xml.finish(true);
 
-  auto data = xml.current();
-  printf("%.*s", int(data.len), data.str);
+  cout << xml.current();
 
   return 0;
 }

@@ -9,6 +9,8 @@
 
 #include <chrono>
 #include <cstdlib>
+#include <fstream>
+#include <iostream>
 #include <string>
 #include <thread>
 
@@ -20,19 +22,18 @@ using namespace ufal::microrestd;
 class file_service : public rest_service {
   class file_generator : public response_generator {
    public:
-    file_generator(FILE* f) : f(f) {}
-    ~file_generator() { if (f) fclose(f); }
+    file_generator(ifstream* f) : f(f) {}
 
     virtual bool generate() override {
       size_t data_size = data.size();
       data.resize(data_size + 1024);
-      size_t read = fread(data.data() + data_size, 1, 1024, f);
-      data.resize(data_size + read);
+      f->read(data.data() + data_size, 1024);
+      data.resize(data_size + f->gcount());
 
       // Now sleep for 2 seconds to simulate hard work :-)
       this_thread::sleep_for(chrono::seconds(2));
 
-      return read;
+      return f->gcount();
     }
     virtual string_piece current() const override {
       return string_piece(data.data(), data.size());
@@ -43,7 +44,7 @@ class file_service : public rest_service {
     }
 
    private:
-    FILE* f;
+    unique_ptr<ifstream> f;
     vector<char> data;
   };
 
@@ -52,8 +53,9 @@ class file_service : public rest_service {
     if (req.method != "HEAD" && req.method != "GET" && req.method != "POST") return req.respond_method_not_allowed("HEAD, GET, POST");
 
     if (!req.url.empty()) {
-      FILE* f = fopen(req.url.c_str() + 1, "rb");
-      if (f) return req.respond("application/octet-stream", new file_generator(f));
+      unique_ptr<ifstream> file(new ifstream(req.url.c_str() + 1, ifstream::in | ifstream::binary));
+      if (file && file->is_open())
+        return req.respond("application/octet-stream", new file_generator(file.release()));
     }
 
     return req.respond_not_found();
@@ -61,24 +63,20 @@ class file_service : public rest_service {
 };
 
 int main(int argc, char* argv[]) {
-  if (argc < 2) {
-    fprintf(stderr, "Usage: %s port [threads] [connection_limit]\n", argv[0]);
-    return 1;
-  }
+  if (argc < 2)
+    return cerr << "Usage: " << argv[0] << " port [threads] [connection_limit]" << endl, 1;
   int port = stoi(argv[1]);
   int threads = argc >= 3 ? stoi(argv[2]) : 0;
   int connection_limit = argc >= 4 ? stoi(argv[3]) : 2;
 
   rest_server server;
-  server.set_log_file(stderr);
+  server.set_log_file(&cerr);
   server.set_max_connections(connection_limit);
   server.set_threads(threads);
 
   file_service service;
-  if (!server.start(&service, port)) {
-    fprintf(stderr, "Cannot start REST server!\n");
-    return 1;
-  }
+  if (!server.start(&service, port))
+    return cerr << "Cannot start REST server!" << endl, 1;
   server.wait_until_signalled();
   server.stop();
 
