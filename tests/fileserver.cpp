@@ -53,7 +53,7 @@ class file_service : public rest_service {
     if (req.method != "HEAD" && req.method != "GET" && req.method != "POST") return req.respond_method_not_allowed("HEAD, GET, POST");
 
     if (!req.url.empty()) {
-      unique_ptr<ifstream> file(new ifstream(req.url.c_str() + 1, ifstream::in | ifstream::binary));
+      unique_ptr<ifstream> file(new ifstream(req.url.c_str() + 1, ifstream::binary));
       if (file && file->is_open())
         return req.respond("application/octet-stream", new file_generator(file.release()));
     }
