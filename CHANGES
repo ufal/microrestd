@@ -3,6 +3,6 @@ Version 1.0.1-devel
 - Add support for integers, booleans and nulls in JSON.
 
 
-Version 1.0.0 [06 Nov 6 14]
----------------------------
+Version 1.0.0 [06 Nov 14]
+-------------------------
 - Initial public release.
