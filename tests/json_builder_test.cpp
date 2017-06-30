@@ -19,7 +19,7 @@ int main(void) {
 
   json.object();
   json.key("ahoj").value("nazdar").value(" appended", true);
-  json.key("array").array().value("h1").value("h2").value("\"quot\"").close();
+  json.key("array").array().value("h1").value("h2").value("\"quot\"").value(0).value(-42).value_bool(true).value_bool(false).value(nullptr).close();
   json.key("object").object().key("a").value("A").key("b").value("B").close();
   json.finish();
 
