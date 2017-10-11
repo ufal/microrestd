@@ -1,5 +1,5 @@
-Version 1.1.1-devel
--------------------
+Version 1.1.1 [11 Oct 17]
+-------------------------
 - Fix undefined behaviour resulting from incorrect usage
   of va_start with enum as the last non-variadic argument.
 
