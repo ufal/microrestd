@@ -2921,7 +2921,7 @@ MHD_quiesce_daemon (struct MHD_Daemon *daemon)
  * @param format format string
  * @param va arguments to the format string (fprintf-style)
  */
-typedef void (*VfprintfFunctionPointerType)(void *cls,
+typedef int (*VfprintfFunctionPointerType)(void *cls,
 					    const char *format,
 					    va_list va);
 
