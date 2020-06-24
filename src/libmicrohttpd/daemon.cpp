@@ -2100,7 +2100,7 @@ MHD_run_from_select (struct MHD_Daemon *daemon,
   /* drain signaling pipe to avoid spinning select */
   if ( (MHD_INVALID_PIPE_ != daemon->wpipe[0]) &&
        (FD_ISSET (daemon->wpipe[0], read_fd_set)) )
-    (void) MHD_pipe_read_ (daemon->wpipe[0], &tmp, sizeof (tmp));
+    (void)! MHD_pipe_read_ (daemon->wpipe[0], &tmp, sizeof (tmp));
 
   if (0 == (daemon->options & MHD_USE_THREAD_PER_CONNECTION))
     {
@@ -2611,7 +2611,7 @@ MHD_epoll (struct MHD_Daemon *daemon,
       if ( (MHD_INVALID_PIPE_ != daemon->wpipe[0]) &&
            (daemon->wpipe[0] == events[i].data.fd) )
         {
-          (void) MHD_pipe_read_ (daemon->wpipe[0], &tmp, sizeof (tmp));
+          (void)! MHD_pipe_read_ (daemon->wpipe[0], &tmp, sizeof (tmp));
           continue;
         }
 	  if (daemon != events[i].data.ptr)
@@ -2879,7 +2879,7 @@ MHD_quiesce_daemon (struct MHD_Daemon *daemon)
       {
 	daemon->worker_pool[i].socket_fd = MHD_INVALID_SOCKET;
 	if (MHD_INVALID_PIPE_ != daemon->worker_pool[i].wpipe[1])
-	  MHD_pipe_write_ (daemon->worker_pool[i].wpipe[1], "q", 1);
+	  (void)! MHD_pipe_write_ (daemon->worker_pool[i].wpipe[1], "q", 1);
 #if EPOLL_SUPPORT
 	if ( (0 != (daemon->options & MHD_USE_EPOLL_LINUX_ONLY)) &&
 	     (-1 != daemon->worker_pool[i].epoll_fd) &&
@@ -2896,7 +2896,7 @@ MHD_quiesce_daemon (struct MHD_Daemon *daemon)
       }
   daemon->socket_fd = MHD_INVALID_SOCKET;
   if (MHD_INVALID_PIPE_ != daemon->wpipe[1])
-    MHD_pipe_write_ (daemon->wpipe[1], "q", 1);
+    (void)! MHD_pipe_write_ (daemon->wpipe[1], "q", 1);
 #if EPOLL_SUPPORT
   if ( (0 != (daemon->options & MHD_USE_EPOLL_LINUX_ONLY)) &&
        (-1 != daemon->epoll_fd) &&
