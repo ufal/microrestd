@@ -1,5 +1,5 @@
 # MicroRestD
-[![Build Status](https://travis-ci.org/ufal/microrestd.svg?branch=master)](https://travis-ci.org/ufal/microrestd)
+[![Compile Status](https://github.com/ufal/morphodita/actions/workflows/compile.yml/badge.svg)](https://github.com/ufal/morphodita/actions/workflows/compile.yml)
 
 MicroRestD is a small C++11 cross-platform REST server built
 on top of [libmicrohttpd](http://www.gnu.org/software/libmicrohttpd/).

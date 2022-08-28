@@ -1,4 +1,4 @@
 MicroRestD
-[![Build Status](https://travis-ci.org/ufal/microrestd.svg?branch=master)](https://travis-ci.org/ufal/microrestd)
+[![Compile Status](https://github.com/ufal/morphodita/actions/workflows/compile.yml/badge.svg)](https://github.com/ufal/morphodita/actions/workflows/compile.yml)
 
 %!include: readme.t2t
