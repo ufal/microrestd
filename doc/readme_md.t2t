@@ -1,4 +1,4 @@
 MicroRestD
-[![Compile Status](https://github.com/ufal/morphodita/actions/workflows/compile.yml/badge.svg)](https://github.com/ufal/morphodita/actions/workflows/compile.yml)
+[![Compile Status](https://github.com/ufal/microrestd/actions/workflows/compile.yml/badge.svg)](https://github.com/ufal/microrestd/actions/workflows/compile.yml)
 
 %!include: readme.t2t

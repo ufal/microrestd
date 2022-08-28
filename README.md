@@ -1,5 +1,5 @@
 # MicroRestD
-[![Compile Status](https://github.com/ufal/morphodita/actions/workflows/compile.yml/badge.svg)](https://github.com/ufal/morphodita/actions/workflows/compile.yml)
+[![Compile Status](https://github.com/ufal/microrestd/actions/workflows/compile.yml/badge.svg)](https://github.com/ufal/microrestd/actions/workflows/compile.yml)
 
 MicroRestD is a small C++11 cross-platform REST server built
 on top of [libmicrohttpd](http://www.gnu.org/software/libmicrohttpd/).
