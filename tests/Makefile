@@ -5,6 +5,7 @@ include ../src/Makefile.include
 TARGETS = compile_test json_builder_test fileserver libmicrohttpd_fileserver xml_builder_test
 
 C_FLAGS += $(call include_dir,../src)
+C_FLAGS += $(treat_warnings_as_errors)
 LD_FLAGS += $(call use_library,$(if $(filter win-%,$(PLATFORM)),$(MICRORESTD_LIBRARIES_WIN),$(MICRORESTD_LIBRARIES_POSIX)))
 
 .PHONY: all compile
