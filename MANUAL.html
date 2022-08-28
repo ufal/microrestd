@@ -304,7 +304,7 @@ class rest_request {
  public:
   virtual ~rest_request() {}
 
-  virtual bool <A HREF="#rest_request_respond_string_piece">respond</A>(const char* content_type, <A HREF="#string_piece">string_piece</A> body, bool make_copy = true) = 0;
+  virtual bool <A HREF="#rest_request_respond_string_piece">respond</A>(const char* content_type, <A HREF="#string_piece">string_piece</A> body) = 0;
   virtual bool <A HREF="#rest_request_respond_generator">respond</A>(const char* content_type, <A HREF="#response_generator">response_generator</A>* generator) = 0;
   virtual bool <A HREF="#rest_request_respond_not_found">respond_not_found</A>() = 0;
   virtual bool <A HREF="#rest_request_respond_method_not_allowed">respond_method_not_allowed</A>(const char* comma_separated_allowed_methods) = 0;
@@ -342,14 +342,14 @@ The following variables are provided:
 <h3>3.3.1. rest_request::respond with string_piece</h3>
 
 <pre>
-virtual bool respond(const char* content_type, <A HREF="#string_piece">string_piece</A> body, bool make_copy = true) = 0;
+virtual bool respond(const char* content_type, <A HREF="#string_piece">string_piece</A> body) = 0;
 </pre>
 
 <p>
 Respond HTTP OK response with specified <code>content_type</code> and <code>body</code>.
 </p>
 <p>
-If <code>make_copy</code> is <code>true</code>, a copy of <code>body</code> is made, otherwise it is not. Note that the response can be
+Both the <code>content_type</code> and the <code>body</code> are copied, because the response can be
 sent at any later time, even after the <code>rest_request</code> is destroyed.
 </p>
 
@@ -395,10 +395,6 @@ virtual bool respond_error(<A HREF="#string_piece">string_piece</A> error, int c
 
 <p>
 Respond with specified HTTP code, <code>text/plain</code> content-type and specified error body.
-</p>
-<p>
-If <code>make_copy</code> is <code>true</code>, a copy of <code>error</code> is made, otherwise it is not. Note that the response can be
-sent at any later time, even after the <code>rest_request</code> is destroyed.
 </p>
 
 <a id="rest_service" name="rest_service"></a>

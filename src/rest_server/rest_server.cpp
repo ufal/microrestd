@@ -66,11 +66,11 @@ class rest_server::microhttpd_request : public rest_request {
   const sockaddr* address() const;
   const char* forwarded_for() const;
 
-  virtual bool respond(const char* content_type, string_piece body, bool make_copy = true) override;
+  virtual bool respond(const char* content_type, string_piece body) override;
   virtual bool respond(const char* content_type, response_generator* generator) override;
   virtual bool respond_not_found() override;
   virtual bool respond_method_not_allowed(const char* comma_separated_allowed_methods) override;
-  virtual bool respond_error(string_piece error, int code = 400, bool make_copy = true) override;
+  virtual bool respond_error(string_piece error, int code = 400) override;
 
  private:
   const rest_server& server;
@@ -85,7 +85,7 @@ class rest_server::microhttpd_request : public rest_request {
   bool generator_end;
   unsigned generator_offset;
 
-  static MHD_Response* create_response(string_piece data, const char* content_type, bool make_copy);
+  static MHD_Response* create_response(string_piece data, const char* content_type);
   static MHD_Response* create_generator_response(microhttpd_request* request, const char* content_type);
   static MHD_Response* create_plain_permanent_response(const string& data);
   static void response_common_headers(unique_ptr<MHD_Response, MHD_ResponseDeleter>& response, const char* content_type);
@@ -201,8 +201,8 @@ const char* rest_server::microhttpd_request::forwarded_for() const {
   return MHD_lookup_connection_value(connection, MHD_HEADER_KIND, "X-Forwarded-For");
 }
 
-bool rest_server::microhttpd_request::respond(const char* content_type, string_piece body, bool make_copy) {
-  unique_ptr<MHD_Response, MHD_ResponseDeleter> response(create_response(body, content_type, make_copy));
+bool rest_server::microhttpd_request::respond(const char* content_type, string_piece body) {
+  unique_ptr<MHD_Response, MHD_ResponseDeleter> response(create_response(body, content_type));
   if (!response) return false;
   return MHD_queue_response(connection, MHD_HTTP_OK, response.get()) == MHD_YES;
 }
@@ -221,14 +221,14 @@ bool rest_server::microhttpd_request::respond_not_found() {
 }
 
 bool rest_server::microhttpd_request::respond_method_not_allowed(const char* comma_separated_allowed_methods) {
-  unique_ptr<MHD_Response, MHD_ResponseDeleter> response(create_response("Requested method is not allowed.\n", "text/plain", false));
+  unique_ptr<MHD_Response, MHD_ResponseDeleter> response(create_response("Requested method is not allowed.\n", "text/plain"));
   if (!response) return false;
   if (MHD_add_response_header(response.get(), MHD_HTTP_HEADER_ALLOW, comma_separated_allowed_methods) != MHD_YES) return response.reset(), false;
   return MHD_queue_response(connection, MHD_HTTP_METHOD_NOT_ALLOWED, response.get()) == MHD_YES;
 }
 
-bool rest_server::microhttpd_request::respond_error(string_piece error, int code, bool make_copy) {
-  unique_ptr<MHD_Response, MHD_ResponseDeleter> response(create_response(error, "text/plain", make_copy));
+bool rest_server::microhttpd_request::respond_error(string_piece error, int code) {
+  unique_ptr<MHD_Response, MHD_ResponseDeleter> response(create_response(error, "text/plain"));
   if (!response) return false;
   return MHD_queue_response(connection, code, response.get()) == MHD_YES;
 }
@@ -239,8 +239,8 @@ MHD_Response* rest_server::microhttpd_request::create_plain_permanent_response(c
   return response.release();
 }
 
-MHD_Response* rest_server::microhttpd_request::create_response(string_piece data, const char* content_type, bool make_copy) {
-  unique_ptr<MHD_Response, MHD_ResponseDeleter> response(MHD_create_response_from_buffer(data.len, (void*) data.str, make_copy ? MHD_RESPMEM_MUST_COPY : MHD_RESPMEM_PERSISTENT));
+MHD_Response* rest_server::microhttpd_request::create_response(string_piece data, const char* content_type) {
+  unique_ptr<MHD_Response, MHD_ResponseDeleter> response(MHD_create_response_from_buffer(data.len, (void*) data.str, MHD_RESPMEM_MUST_COPY));
   response_common_headers(response, content_type);
   return response.release();
 }

@@ -1,5 +1,7 @@
 Version 1.1.4-devel
 -------------------
+- Remove the `bool make_copy = true` default argument and copy
+  every time to avoid silent tricky problems.
 
 
 Version 1.1.3 [24 Jun 20]
