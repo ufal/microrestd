@@ -304,8 +304,8 @@ class rest_request {
  public:
   virtual ~rest_request() {}
 
-  virtual bool <A HREF="#rest_request_respond_string_piece">respond</A>(const char* content_type, <A HREF="#string_piece">string_piece</A> body) = 0;
-  virtual bool <A HREF="#rest_request_respond_generator">respond</A>(const char* content_type, <A HREF="#response_generator">response_generator</A>* generator) = 0;
+  virtual bool <A HREF="#rest_request_respond_string_piece">respond</A>(const char* content_type, <A HREF="#string_piece">string_piece</A> body, const std::vector&lt;std::pair&lt;const char*, const char*&gt;&gt;&amp; headers = {}) = 0;
+  virtual bool <A HREF="#rest_request_respond_generator">respond</A>(const char* content_type, <A HREF="#response_generator">response_generator</A>* generator, const std::vector&lt;std::pair&lt;const char*, const char*&gt;&gt;&amp; headers = {}) = 0;
   virtual bool <A HREF="#rest_request_respond_not_found">respond_not_found</A>() = 0;
   virtual bool <A HREF="#rest_request_respond_method_not_allowed">respond_method_not_allowed</A>(const char* comma_separated_allowed_methods) = 0;
   virtual bool <A HREF="#rest_request_respond_error">respond_error</A>(<A HREF="#string_piece">string_piece</A> error, int code = 400) = 0;
@@ -342,7 +342,7 @@ The following variables are provided:
 <h3>3.3.1. rest_request::respond with string_piece</h3>
 
 <pre>
-virtual bool respond(const char* content_type, <A HREF="#string_piece">string_piece</A> body) = 0;
+virtual bool respond(const char* content_type, <A HREF="#string_piece">string_piece</A> body, const std::vector&lt;std::pair&lt;const char*, const char*&gt;&gt;&amp; headers = {}) = 0;
 </pre>
 
 <p>
@@ -352,16 +352,26 @@ Respond HTTP OK response with specified <code>content_type</code> and <code>body
 Both the <code>content_type</code> and the <code>body</code> are copied, because the response can be
 sent at any later time, even after the <code>rest_request</code> is destroyed.
 </p>
+<p>
+The response has the given <code>Content-Type</code> HTTP header, the
+<code>Access-Control-Allow-Origin: *</code> header, and the <code>Connection: close</code>
+header. Additional HTTP headers can be set using the <code>header</code> parameter.
+</p>
 
 <a id="rest_request_respond_generator" name="rest_request_respond_generator"></a>
 <h3>3.3.2. rest_request::respond with response_generator</h3>
 
 <pre>
-virtual bool respond(const char* content_type, <A HREF="#response_generator">response_generator</A>* generator) = 0;
+virtual bool respond(const char* content_type, <A HREF="#response_generator">response_generator</A>* generator, const std::vector&lt;std::pair&lt;const char*, const char*&gt;&gt;&amp; headers = {}) = 0;
 </pre>
 
 <p>
 Respond HTTP OK response with specified <code>content_type</code> using the given <a href="#response_generator"><code>response_generator</code></a>.
+</p>
+<p>
+The response has the given <code>Content-Type</code> HTTP header, the
+<code>Access-Control-Allow-Origin: *</code> header, and the <code>Connection: close</code>
+header. Additional HTTP headers can be set using the <code>header</code> parameter.
 </p>
 
 <a id="rest_request_respond_not_found" name="rest_request_respond_not_found"></a>

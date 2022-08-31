@@ -1,5 +1,6 @@
 Version 1.1.4-devel
 -------------------
+- Allow specifying additional headers when responding.
 - Remove the `bool make_copy = true` default argument and copy
   every time to avoid silent tricky problems.
 

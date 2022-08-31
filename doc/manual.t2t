@@ -101,8 +101,8 @@ class rest_request {
  public:
   virtual ~rest_request() {}
 
-  virtual bool [respond #rest_request_respond_string_piece](const char* content_type, [string_piece #string_piece] body) = 0;
-  virtual bool [respond #rest_request_respond_generator](const char* content_type, [response_generator #response_generator]* generator) = 0;
+  virtual bool [respond #rest_request_respond_string_piece](const char* content_type, [string_piece #string_piece] body, const std::vector<std::pair<const char*, const char*>>& headers = {}) = 0;
+  virtual bool [respond #rest_request_respond_generator](const char* content_type, [response_generator #response_generator]* generator, const std::vector<std::pair<const char*, const char*>>& headers = {}) = 0;
   virtual bool [respond_not_found #rest_request_respond_not_found]() = 0;
   virtual bool [respond_method_not_allowed #rest_request_respond_method_not_allowed](const char* comma_separated_allowed_methods) = 0;
   virtual bool [respond_error #rest_request_respond_error]([string_piece #string_piece] error, int code = 400) = 0;
@@ -127,17 +127,25 @@ The following variables are provided:
 
 
 === rest_request::respond with string_piece ===[rest_request_respond_string_piece]
-``` virtual bool respond(const char* content_type, [string_piece #string_piece] body) = 0;
+``` virtual bool respond(const char* content_type, [string_piece #string_piece] body, const std::vector<std::pair<const char*, const char*>>& headers = {}) = 0;
 
 Respond HTTP OK response with specified ``content_type`` and ``body``.
 
 Both the ``content_type`` and the ``body`` are copied, because the response can be
 sent at any later time, even after the ``rest_request`` is destroyed.
 
+The response has the given ``Content-Type`` HTTP header, the
+``Access-Control-Allow-Origin: *`` header, and the ``Connection: close``
+header. Additional HTTP headers can be set using the ``header`` parameter.
+
 === rest_request::respond with response_generator ===[rest_request_respond_generator]
-``` virtual bool respond(const char* content_type, [response_generator #response_generator]* generator) = 0;
+``` virtual bool respond(const char* content_type, [response_generator #response_generator]* generator, const std::vector<std::pair<const char*, const char*>>& headers = {}) = 0;
 
 Respond HTTP OK response with specified ``content_type`` using the given [``response_generator`` #response_generator].
+
+The response has the given ``Content-Type`` HTTP header, the
+``Access-Control-Allow-Origin: *`` header, and the ``Connection: close``
+header. Additional HTTP headers can be set using the ``header`` parameter.
 
 === rest_request::respond_not_found ===[rest_request_respond_not_found]
 ``` virtual bool respond_not_found() = 0;
