@@ -1,3 +1,7 @@
+Version 1.2.3-dev
+-----------------
+
+
 Version 1.2.2 [15 Nov 23]
 -------------------------
 - Update also the forgotten `rest_server/version.cpp`.
