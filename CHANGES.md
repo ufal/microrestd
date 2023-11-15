@@ -1,5 +1,5 @@
-Version 1.2.1-dev
------------------
+Version 1.2.1 [15 Nov 23]
+-------------------------
 - Fix warnings on Clang 15 by qualifying `std::forward`.
 
 
