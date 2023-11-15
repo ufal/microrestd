@@ -12,34 +12,34 @@ jobs:
       matrix:
         include:
           - os: ubuntu-22.04
-            flags: CXX=g++-9 PLATFORM=linux-gcc
+            platform: linux-gcc CXX=g++-9
           - os: ubuntu-22.04
-            flags: CXX=g++-10 PLATFORM=linux-gcc
+            platform: linux-gcc CXX=g++-10
           - os: ubuntu-22.04
-            flags: CXX=g++-11 PLATFORM=linux-gcc
+            platform: linux-gcc CXX=g++-11
           - os: ubuntu-22.04
-            flags: CXX=g++-12 PLATFORM=linux-gcc
+            platform: linux-gcc CXX=g++-12
           - os: ubuntu-22.04
-            flags: PLATFORM=linux-gcc
+            platform: linux-gcc
             container: quay.io/pypa/manylinux2014_x86_64
           - os: ubuntu-22.04
-            flags: CXX=clang++-13 PLATFORM=linux-clang
+            platform: linux-clang CXX=clang++-13
           - os: ubuntu-22.04
-            flags: CXX=clang++-14 PLATFORM=linux-clang
+            platform: linux-clang CXX=clang++-14
           - os: ubuntu-22.04
-            flags: CXX=clang++-15 PLATFORM=linux-clang
+            platform: linux-clang CXX=clang++-15
           - os: windows-2019
-            flags: BITS=32 PLATFORM=win-vs
+            platform: win-vs-32
           - os: windows-2019
-            flags: BITS=64 PLATFORM=win-vs
+            platform: win-vs-64
           - os: windows-2022
-            flags: BITS=32 PLATFORM=win-vs
+            platform: win-vs-32
           - os: windows-2022
-            flags: BITS=64 PLATFORM=win-vs
+            platform: win-vs-64
           - os: macos-11
-            flags: BITS=64 PLATFORM=osx-clang
+            platform: macos-clang-64
           - os: macos-11
-            flags: BITS=arm64 PLATFORM=osx-clang
+            platform: macos-clang-arm64
 
     steps:
       - uses: actions/checkout@v3
