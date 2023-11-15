@@ -1,9 +1,8 @@
 Version 1.2.1-dev
 -----------------
-- Fix warnings on Clang 15 by qualifying std::forward.
+- Fix warnings on Clang 15 by qualifying `std::forward`.
 
 
--------------------------
 Version 1.2.0 [31 Aug 22]
 -------------------------
 - Allow specifying additional headers when responding.
@@ -24,7 +23,7 @@ Version 1.1.2 [19 Jul 18]
 Version 1.1.1 [11 Oct 17]
 -------------------------
 - Fix undefined behaviour resulting from incorrect usage
-  of va_start with enum as the last non-variadic argument.
+  of `va_start` with enum as the last non-variadic argument.
 
 
 Version 1.1.0 [30 Jun 16]
