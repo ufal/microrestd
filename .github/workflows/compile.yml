@@ -18,8 +18,16 @@ jobs:
           - os: ubuntu-22.04
             flags: CXX=g++-11 PLATFORM=linux-gcc
           - os: ubuntu-22.04
+            flags: CXX=g++-12 PLATFORM=linux-gcc
+          - os: ubuntu-22.04
             flags: PLATFORM=linux-gcc
             container: quay.io/pypa/manylinux2014_x86_64
+          - os: ubuntu-22.04
+            flags: CXX=clang++-13 PLATFORM=linux-clang
+          - os: ubuntu-22.04
+            flags: CXX=clang++-14 PLATFORM=linux-clang
+          - os: ubuntu-22.04
+            flags: CXX=clang++-15 PLATFORM=linux-clang
           - os: windows-2019
             flags: BITS=32 PLATFORM=win-vs
           - os: windows-2019
@@ -37,13 +45,14 @@ jobs:
       - uses: actions/checkout@v3
 
       - if: startsWith(matrix.os, 'windows')
+        name: Windows - Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
         with:
-          arch: ${{ contains(matrix.flags, 'BITS=32') && 'x86' || 'x64' }}
+          arch: ${{ endswith(matrix.platform, '-32') && 'x86' || 'x64' }}
 
       - if: startsWith(matrix.os, 'windows')
-        name: Install make
+        name: Windows - Install make
         run: choco install --no-progress -y make
 
       - name: Compile
-        run: make ${{ matrix.flags }} -k -C tests compile
+        run: make PLATFORM=${{ matrix.platform }} -k -C tests compile
