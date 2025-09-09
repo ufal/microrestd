@@ -1,3 +1,7 @@
+Version 1.2.4-dev
+-----------------
+
+
 Version 1.2.3 [09 Sep 25]
 -------------------------
 - Fix warnings on mac OS by replacing all `sprintf` calls by `snprintf`.
