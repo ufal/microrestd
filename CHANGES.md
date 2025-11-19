@@ -1,5 +1,6 @@
 Version 1.2.4-dev
 -----------------
+- Stop using VLAs in C++ to avoid warnings on Clang 18.
 
 
 Version 1.2.3 [09 Sep 25]
