@@ -1,5 +1,6 @@
 Version 1.2.5-dev
 -----------------
+- Fix an incorrectl strong enum type to avoid warnings on C++20.
 
 
 Version 1.2.4 [19 Nov 25]
