@@ -4,7 +4,7 @@ Version 1.2.6-dev
 
 Version 1.2.5 [28 Jan 26]
 -------------------------
-- Fix an incorrectl strong enum type to avoid warnings on C++20.
+- Fix an incorrect strong enum type to avoid warnings on C++20.
 
 
 Version 1.2.4 [19 Nov 25]
